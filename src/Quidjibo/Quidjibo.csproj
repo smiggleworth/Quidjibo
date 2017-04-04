@@ -8,6 +8,8 @@
     <PackageProjectUrl>http://quidjibo.com/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/smiggleworth/Quidjibo</RepositoryUrl>
     <Company>Smiggleworth</Company>
+    <PackageLicenseUrl>https://github.com/smiggleworth/Quidjibo/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageTags>async, tasks, workers, cron</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
