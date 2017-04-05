@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Authors>Smiggleworth</Authors>
+    <Company>Smiggleworth</Company>
   </PropertyGroup>
 
   <ItemGroup>
