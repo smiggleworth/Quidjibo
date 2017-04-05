@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Quidjibo.Servers;
 
-namespace Quidjibo.AspNetCore.Extensions
+namespace Quidjibo.AspNet.Extensions
 {
     public static class QuidjiboApplicationBuilderExtensions
     {
