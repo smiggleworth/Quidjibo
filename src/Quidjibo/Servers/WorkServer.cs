@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -24,14 +23,10 @@ namespace Quidjibo.Servers
         private readonly IScheduleProviderFactory _scheduleProviderFactory;
         private readonly IPayloadSerializer _serializer;
         private readonly IWorkConfiguration _workConfiguration;
-        private readonly string _worker = $"{Environment.GetEnvironmentVariable("COMPUTERNAME")}-{Guid.NewGuid()}";
         private readonly IWorkProviderFactory _workProviderFactory;
-        private ConditionalWeakTable<Listener, Task> _activeListeners;
-        private ConditionalWeakTable<WorkItem, Task> _activeWorkItems;
-
+        private List<Task> _activeListeners;
 
         private CancellationTokenSource _cts;
-        private ConditionalWeakTable<WorkItem, Task> _pendingRenewals;
         private SemaphoreSlim _throttle;
 
         public WorkServer(
@@ -52,35 +47,31 @@ namespace Quidjibo.Servers
             _serializer = serializer;
             _cronProvider = cronProvider;
             _progressProviderFactory = progressProviderFactory;
+            Worker = $"{Environment.GetEnvironmentVariable("COMPUTERNAME")}-{Guid.NewGuid()}";
         }
+
+        public string Worker { get; }
 
         public void Start()
         {
             _cts = new CancellationTokenSource();
-            _activeListeners = new ConditionalWeakTable<Listener, Task>();
-            _activeWorkItems = new ConditionalWeakTable<WorkItem, Task>();
-            _pendingRenewals = new ConditionalWeakTable<WorkItem, Task>();
+            _activeListeners = new List<Task>();
             _throttle = new SemaphoreSlim(0, _workConfiguration.Throttle);
 
             if (_workConfiguration.SingleLoop)
             {
                 _logger.LogInformation("All queues can share the same pump");
                 var queues = string.Join(",", _workConfiguration.Queues);
-                _activeListeners.Add(new Listener(queues), WorkAsync(queues).ContinueWith(HandleException));
+                _activeListeners.Add(WorkAsync(queues).ContinueWith(HandleException));
             }
             else
             {
                 _logger.LogInformation("Each queue will need a designated pump");
-                foreach (var queue in _workConfiguration.Queues)
-                {
-                    _activeListeners.Add(new Listener(queue), WorkAsync(queue).ContinueWith(HandleException));
-                }
+                _activeListeners.AddRange(_workConfiguration.Queues.Select(queue => WorkAsync(queue).ContinueWith(HandleException)));
             }
 
             _logger.LogInformation("Enabling scheduler");
-            _activeListeners.Add(new Listener($"scheduler-{Guid.NewGuid()}"),
-                ScheduleAsync(_workConfiguration.Queues)
-                    .ContinueWith(HandleException, TaskContinuationOptions.OnlyOnFaulted));
+            _activeListeners.Add(ScheduleAsync(_workConfiguration.Queues).ContinueWith(HandleException, TaskContinuationOptions.OnlyOnFaulted));
             _throttle.Release(_workConfiguration.Throttle);
         }
 
@@ -88,8 +79,6 @@ namespace Quidjibo.Servers
         {
             _cts?.Cancel();
             _cts?.Dispose();
-            _pendingRenewals = null;
-            _activeWorkItems = null;
             _activeListeners = null;
         }
 
@@ -110,14 +99,11 @@ namespace Quidjibo.Servers
 
                     // throttle is important when there is more than one listener
                     await _throttle.WaitAsync(_cts.Token);
-                    var items = await workProvider.ReceiveAsync(_worker, _cts.Token);
+                    var items = await workProvider.ReceiveAsync(Worker, _cts.Token);
                     if (items.Any())
                     {
-                        // dispatch all the jobs at once
-                        items.ForEach(
-                            item =>
-                                _activeWorkItems.Add(item, DispatchAsync(workProvider, item)
-                                    .ContinueWith(HandleException, TaskContinuationOptions.OnlyOnFaulted)));
+                        var tasks = items.Select(item => DispatchAsync(workProvider, item).ContinueWith(HandleException, TaskContinuationOptions.OnlyOnFaulted));
+                        await Task.WhenAll(tasks);
                         _throttle.Release();
                         continue;
                     }
@@ -190,9 +176,9 @@ namespace Quidjibo.Servers
 
             using (var cts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token))
             {
+                var renewTask = RenewAsync(provider, item, cts.Token);
                 try
                 {
-                    _pendingRenewals.Add(item, RenewAsync(provider, item, cts.Token));
                     var workCommand = _serializer.Deserialize(item.Payload);
                     var workflow = workCommand as WorkflowCommand;
                     if (workflow != null)
@@ -204,6 +190,7 @@ namespace Quidjibo.Servers
                         await _dispatcher.DispatchAsync(workCommand, progress, cts.Token);
                     }
                     await provider.CompleteAsync(item, cts.Token);
+
                     _logger.LogDebug("Completed : {0}", item.Id);
                 }
                 catch (Exception exception)
@@ -213,8 +200,6 @@ namespace Quidjibo.Servers
                 }
                 finally
                 {
-                    _activeWorkItems.Remove(item);
-                    _pendingRenewals.Remove(item);
                     _logger.LogDebug("Release : {0}", item.Id);
                     cts.Cancel();
                 }
@@ -250,17 +235,18 @@ namespace Quidjibo.Servers
 
         private async Task RenewAsync(IWorkProvider provider, WorkItem item, CancellationToken cancellationToken)
         {
-            await Task.Delay(TimeSpan.FromSeconds(_workConfiguration.LockInterval), cancellationToken);
-            try
+            while (!cancellationToken.IsCancellationRequested)
             {
-                _pendingRenewals.Remove(item);
-                await provider.RenewAsync(item, cancellationToken);
-                _logger.LogDebug("Renewed : {0}", item.Id);
-                _pendingRenewals.Add(item, RenewAsync(provider, item, cancellationToken));
-            }
-            catch (Exception exception)
-            {
-                _logger.LogError(default(EventId), exception, exception.Message);
+                try
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(_workConfiguration.LockInterval), cancellationToken);
+                    await provider.RenewAsync(item, cancellationToken);
+                    _logger.LogDebug("Renewed : {0}", item.Id);
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError(default(EventId), exception, exception.Message);
+                }
             }
         }
 
@@ -271,16 +257,6 @@ namespace Quidjibo.Servers
                 _logger.LogError(0, task.Exception, "The task has faulted");
             }
             return task;
-        }
-
-        public class Listener
-        {
-            public string Name { get; }
-
-            public Listener(string name)
-            {
-                Name = name;
-            }
         }
     }
 }

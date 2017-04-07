@@ -1,6 +1,4 @@
 ﻿namespace Quidjibo.Commands
 {
-    public interface IWorkCommand
-    {
-    }
+    public interface IWorkCommand { }
 }

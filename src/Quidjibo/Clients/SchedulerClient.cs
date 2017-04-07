@@ -25,9 +25,7 @@ namespace Quidjibo.Clients
         public SchedulerClient(IScheduleProviderFactory scheduleProviderFactory) : this(
             scheduleProviderFactory,
             new PayloadSerializer(new PayloadProtector()),
-            new CronProvider())
-        {
-        }
+            new CronProvider()) { }
 
         public SchedulerClient(
             IScheduleProviderFactory scheduleProviderFactory,

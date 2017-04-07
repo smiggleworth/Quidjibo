@@ -22,9 +22,7 @@ namespace Quidjibo.Clients
         private readonly IWorkProviderFactory _workProviderFactory;
 
         public PublisherClient(IWorkProviderFactory workProviderFactory)
-            : this(workProviderFactory, new PayloadSerializer(new PayloadProtector()))
-        {
-        }
+            : this(workProviderFactory, new PayloadSerializer(new PayloadProtector())) { }
 
         public PublisherClient(
             IWorkProviderFactory workProviderFactory,
