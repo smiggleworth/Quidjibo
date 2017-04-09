@@ -12,4 +12,12 @@
     <PackageTags>async, tasks, workers, cron</PackageTags>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="StructureMap" Version="4.4.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Quidjibo\Quidjibo.csproj" />
+  </ItemGroup>
+
 </Project>

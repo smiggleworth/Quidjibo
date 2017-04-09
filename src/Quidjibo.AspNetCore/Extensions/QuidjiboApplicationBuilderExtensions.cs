@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Quidjibo.Servers;
 
-namespace Quidjibo.AspNet.Extensions
+namespace Quidjibo.AspNetCore.Extensions
 {
     public static class QuidjiboApplicationBuilderExtensions
     {
-        public static IApplicationBuilder UseWorkServer(this IApplicationBuilder app, Func<IWorkServer> workServer)
+        public static IApplicationBuilder UseWorkServer(this IApplicationBuilder app, Func<IQuidjiboServer> workServer)
         {
             var lifetime = app.ApplicationServices.GetRequiredService<IApplicationLifetime>();
             var server = workServer();

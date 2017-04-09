@@ -14,7 +14,7 @@ using Quidjibo.Serializers;
 
 namespace Quidjibo.Servers
 {
-    public class WorkServer : IWorkServer
+    public class QuidjiboServer : IQuidjiboServer
     {
         private readonly ICronProvider _cronProvider;
         private readonly IWorkDispatcher _dispatcher;
@@ -29,7 +29,7 @@ namespace Quidjibo.Servers
         private CancellationTokenSource _cts;
         private SemaphoreSlim _throttle;
 
-        public WorkServer(
+        public QuidjiboServer(
             ILoggerFactory loggerFactory,
             IWorkConfiguration workConfiguration,
             IWorkProviderFactory workProviderFactory,
@@ -39,7 +39,7 @@ namespace Quidjibo.Servers
             IPayloadSerializer serializer,
             ICronProvider cronProvider)
         {
-            _logger = loggerFactory.CreateLogger<WorkServer>();
+            _logger = loggerFactory.CreateLogger<QuidjiboServer>();
             _dispatcher = dispatcher;
             _workProviderFactory = workProviderFactory;
             _scheduleProviderFactory = scheduleProviderFactory;

@@ -2,7 +2,7 @@ using System;
 
 namespace Quidjibo.Servers
 {
-    public interface IWorkServer : IDisposable
+    public interface IQuidjiboServer : IDisposable
     {
         string Worker { get; }
         void Start();

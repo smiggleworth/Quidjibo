@@ -12,7 +12,7 @@ namespace Quidjibo.Factories
 {
     public class WorkServerFactory
     {
-        public static IWorkServer Create(
+        public static IQuidjiboServer Create(
             Assembly assembly,
             IWorkConfiguration configuration,
             IWorkProviderFactory workProviderFactory,
@@ -27,7 +27,7 @@ namespace Quidjibo.Factories
             return Create(assemblies, configuration, workProviderFactory, scheduleProviderFactory, progressProviderFactory, loggerFactory);
         }
 
-        public static IWorkServer Create(
+        public static IQuidjiboServer Create(
             Assembly[] assemblies,
             IWorkConfiguration configuration,
             IWorkProviderFactory workProviderFactory,
@@ -40,7 +40,7 @@ namespace Quidjibo.Factories
             return Create(resolver, protector, configuration, workProviderFactory, scheduleProviderFactory, progressProviderFactory, loggerFactory);
         }
 
-        public static IWorkServer Create(
+        public static IQuidjiboServer Create(
             IPayloadResolver resolver,
             IPayloadProtector protector,
             IWorkConfiguration configuration,
@@ -53,7 +53,7 @@ namespace Quidjibo.Factories
             var dispatcher = new WorkDispatcher(resolver);
             var serializer = new PayloadSerializer(protector);
             var cronProvider = new CronProvider();
-            return new WorkServer(loggerFactory, configuration, workProviderFactory, scheduleProviderFactory, progressProviderFactory, dispatcher, serializer, cronProvider);
+            return new QuidjiboServer(loggerFactory, configuration, workProviderFactory, scheduleProviderFactory, progressProviderFactory, dispatcher, serializer, cronProvider);
         }
     }
 }
