@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using Autofac;
 using Quidjibo.Handlers;
 using Module = Autofac.Module;
@@ -12,7 +11,7 @@ namespace Quidjibo.Autofac.Modules
 
         public QuidjiboModule(params Assembly[] assemblies)
         {
-            _assemblies = assemblies ;
+            _assemblies = assemblies;
         }
 
         protected override void Load(ContainerBuilder builder)

@@ -12,12 +12,6 @@ namespace Quidjibo.SqlServer.Factories
         private readonly string _connectionString;
         private readonly int _visibilityTimeout;
 
-        public SqlWorkProviderFactory(string connectionString, int visibilityTimeout = 60)
-        {
-            _connectionString = connectionString;
-            _visibilityTimeout = visibilityTimeout;
-        }
-
         public async Task<IWorkProvider> CreateAsync(string queue, CancellationToken cancellationToken = new CancellationToken())
         {
             var queues = queue.Split(',');
@@ -29,6 +23,12 @@ namespace Quidjibo.SqlServer.Factories
             }, _connectionString, false, cancellationToken);
 
             return new SqlWorkProvider(_connectionString, queues, _visibilityTimeout, 5);
+        }
+
+        public SqlWorkProviderFactory(string connectionString, int visibilityTimeout = 60)
+        {
+            _connectionString = connectionString;
+            _visibilityTimeout = visibilityTimeout;
         }
     }
 }

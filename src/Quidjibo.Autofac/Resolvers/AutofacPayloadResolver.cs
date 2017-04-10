@@ -9,11 +9,6 @@ namespace Quidjibo.Autofac.Resolvers
         private readonly ILifetimeScope _lifetimeScope;
         private ILifetimeScope _nestedLifetimeScope;
 
-        public AutofacPayloadResolver(ILifetimeScope lifetimeScope)
-        {
-            _lifetimeScope = lifetimeScope;
-        }
-
         public IDisposable Begin()
         {
             _nestedLifetimeScope = _lifetimeScope.BeginLifetimeScope();
@@ -28,6 +23,11 @@ namespace Quidjibo.Autofac.Resolvers
         public void Dispose()
         {
             _nestedLifetimeScope?.Dispose();
+        }
+
+        public AutofacPayloadResolver(ILifetimeScope lifetimeScope)
+        {
+            _lifetimeScope = lifetimeScope;
         }
     }
 }

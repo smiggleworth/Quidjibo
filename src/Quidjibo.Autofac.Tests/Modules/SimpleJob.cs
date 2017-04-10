@@ -9,7 +9,6 @@ namespace Quidjibo.Autofac.Tests.Modules
 {
     public class SimpleJob
     {
-
         public class Command : IWorkCommand
         {
         }

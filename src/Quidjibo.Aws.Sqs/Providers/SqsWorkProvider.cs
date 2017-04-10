@@ -21,14 +21,6 @@ namespace Quidjibo.Aws.Sqs.Providers
         private readonly string _queueUrl;
         private readonly int _visibilityTimeout;
 
-        public SqsWorkProvider(AmazonSQSClient client, string queueUrl, int visibilityTimeout, int batchSize)
-        {
-            _client = client;
-            _visibilityTimeout = visibilityTimeout;
-            _batchSize = batchSize;
-            _queueUrl = queueUrl;
-        }
-
         public async Task SendAsync(WorkItem item, int delay, CancellationToken cancellationToken)
         {
             var request = new SendMessageRequest(_queueUrl, Convert.ToBase64String(item.Payload));
@@ -48,7 +40,9 @@ namespace Quidjibo.Aws.Sqs.Providers
 
             var response = await _client.SendMessageAsync(request, cancellationToken);
 
-            if (response.HttpStatusCode == HttpStatusCode.OK) { }
+            if (response.HttpStatusCode == HttpStatusCode.OK)
+            {
+            }
         }
 
         public async Task<List<WorkItem>> ReceiveAsync(string worker, CancellationToken cancellationToken)
@@ -62,11 +56,13 @@ namespace Quidjibo.Aws.Sqs.Providers
 
             var messages = await _client.ReceiveMessageAsync(request, cancellationToken);
             return messages.Messages.Select(message => new WorkItem
-            {
-                Id = new Guid(message.MessageAttributes[WorkItemId].StringValue),
-                CorrelationId = new Guid(message.MessageAttributes[WorkItemId].StringValue),
-                Token = message.ReceiptHandle
-            }).Cast<WorkItem>().ToList();
+                           {
+                               Id = new Guid(message.MessageAttributes[WorkItemId].StringValue),
+                               CorrelationId = new Guid(message.MessageAttributes[WorkItemId].StringValue),
+                               Token = message.ReceiptHandle
+                           })
+                           .Cast<WorkItem>()
+                           .ToList();
         }
 
         public async Task<DateTime> RenewAsync(WorkItem workItem, CancellationToken cancellationToken)
@@ -89,6 +85,14 @@ namespace Quidjibo.Aws.Sqs.Providers
         public async Task FaultAsync(WorkItem workItem, CancellationToken cancellationToken)
         {
             var response = await _client.ChangeMessageVisibilityAsync(_queueUrl, workItem.Token, 0, cancellationToken);
+        }
+
+        public SqsWorkProvider(AmazonSQSClient client, string queueUrl, int visibilityTimeout, int batchSize)
+        {
+            _client = client;
+            _visibilityTimeout = visibilityTimeout;
+            _batchSize = batchSize;
+            _queueUrl = queueUrl;
         }
     }
 }

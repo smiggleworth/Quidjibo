@@ -21,17 +21,6 @@ namespace Quidjibo.Clients
 
         private readonly IWorkProviderFactory _workProviderFactory;
 
-        public PublisherClient(IWorkProviderFactory workProviderFactory)
-            : this(workProviderFactory, new PayloadSerializer(new PayloadProtector())) { }
-
-        public PublisherClient(
-            IWorkProviderFactory workProviderFactory,
-            IPayloadSerializer payloadSerializer)
-        {
-            _workProviderFactory = workProviderFactory;
-            _payloadSerializer = payloadSerializer;
-        }
-
         public async Task PublishAsync(IWorkCommand command,
             CancellationToken cancellationToken = new CancellationToken())
         {
@@ -66,6 +55,19 @@ namespace Quidjibo.Clients
             var provider = await GetOrCreateWorkProvider(queueName, cancellationToken);
 
             await provider.SendAsync(item, 0, cancellationToken);
+        }
+
+        public PublisherClient(IWorkProviderFactory workProviderFactory)
+            : this(workProviderFactory, new PayloadSerializer(new PayloadProtector()))
+        {
+        }
+
+        public PublisherClient(
+            IWorkProviderFactory workProviderFactory,
+            IPayloadSerializer payloadSerializer)
+        {
+            _workProviderFactory = workProviderFactory;
+            _payloadSerializer = payloadSerializer;
         }
 
         private async Task<IWorkProvider> GetOrCreateWorkProvider(string queueName, CancellationToken cancellationToken)

@@ -14,11 +14,6 @@ namespace Quidjibo.SqlServer.Providers
         private readonly string _connectionString;
         private string _reportSql;
 
-        public SqlProgressProvider(string connectionString)
-        {
-            _connectionString = connectionString;
-        }
-
         public async Task ReportAsync(ProgressItem item, CancellationToken cancellationToken)
         {
             if (_reportSql == null)
@@ -39,6 +34,11 @@ namespace Quidjibo.SqlServer.Providers
                 await cmd.ExecuteNonQueryAsync(cancellationToken);
             }, cancellationToken);
             await Task.CompletedTask;
+        }
+
+        public SqlProgressProvider(string connectionString)
+        {
+            _connectionString = connectionString;
         }
 
         private Task ExecuteAsync(Func<SqlCommand, Task> func, CancellationToken cancellationToken)

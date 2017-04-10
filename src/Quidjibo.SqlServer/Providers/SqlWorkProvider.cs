@@ -32,15 +32,6 @@ namespace Quidjibo.SqlServer.Providers
         private string _renewSql;
         private string _sendSql;
 
-        public SqlWorkProvider(string connectionString, string[] queues, int visibilityTimeout, int batchSize)
-        {
-            _queues = queues;
-            _visibilityTimeout = visibilityTimeout;
-            _batchSize = batchSize;
-            _maxAttempts = 10;
-            _connectionString = connectionString;
-        }
-
         public async Task SendAsync(WorkItem item, int delay, CancellationToken cancellationToken)
         {
             if (_sendSql == null)
@@ -92,10 +83,12 @@ namespace Quidjibo.SqlServer.Providers
 
                 // dynamic parameters
                 _queues.Select((q, i) => new
-                {
-                    q,
-                    i
-                }).ToList().ForEach(x => cmd.Parameters.AddWithValue($"@Queue{x.i}", x.q));
+                       {
+                           q,
+                           i
+                       })
+                       .ToList()
+                       .ForEach(x => cmd.Parameters.AddWithValue($"@Queue{x.i}", x.q));
                 using (var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
                 {
                     while (await rdr.ReadAsync(cancellationToken))
@@ -165,6 +158,15 @@ namespace Quidjibo.SqlServer.Providers
                 cmd.AddParameter("@Faulted", StatusFlags.Faulted);
                 await cmd.ExecuteNonQueryAsync(cancellationToken);
             }, cancellationToken);
+        }
+
+        public SqlWorkProvider(string connectionString, string[] queues, int visibilityTimeout, int batchSize)
+        {
+            _queues = queues;
+            _visibilityTimeout = visibilityTimeout;
+            _batchSize = batchSize;
+            _maxAttempts = 10;
+            _connectionString = connectionString;
         }
 
         private Task ExecuteAsync(Func<SqlCommand, Task> func, CancellationToken cancellationToken)

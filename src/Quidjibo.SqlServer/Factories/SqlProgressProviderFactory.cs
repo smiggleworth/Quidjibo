@@ -12,11 +12,6 @@ namespace Quidjibo.SqlServer.Factories
         private readonly string _connectionString;
         private IProgressProvider _provider;
 
-        public SqlProgressProviderFactory(string connectionString)
-        {
-            _connectionString = connectionString;
-        }
-
         public async Task<IProgressProvider> CreateAsync(CancellationToken cancellationToken = new CancellationToken())
         {
             if (_provider != null)
@@ -32,6 +27,11 @@ namespace Quidjibo.SqlServer.Factories
 
             _provider = new SqlProgressProvider(_connectionString);
             return _provider;
+        }
+
+        public SqlProgressProviderFactory(string connectionString)
+        {
+            _connectionString = connectionString;
         }
     }
 }

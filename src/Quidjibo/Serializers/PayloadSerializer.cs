@@ -16,11 +16,6 @@ namespace Quidjibo.Serializers
     {
         private readonly IPayloadProtector _payloadProtector;
 
-        public PayloadSerializer(IPayloadProtector payloadProtector)
-        {
-            _payloadProtector = payloadProtector;
-        }
-
 
         /// <summary>
         ///     Serializes the specified command.
@@ -64,6 +59,11 @@ namespace Quidjibo.Serializers
             return null;
         }
 
+        public PayloadSerializer(IPayloadProtector payloadProtector)
+        {
+            _payloadProtector = payloadProtector;
+        }
+
         private static object GetContent(IWorkCommand command)
         {
             var workflow = command as WorkflowCommand;
@@ -96,7 +96,9 @@ namespace Quidjibo.Serializers
                 var obj = jToken.SelectToken(nameof(WorkPayload.Content));
 
                 var entries = obj.SelectToken(nameof(WorkflowPayload.Entries))
-                                 .Children().OfType<JProperty>().ToDictionary(
+                                 .Children()
+                                 .OfType<JProperty>()
+                                 .ToDictionary(
                                      x => int.Parse(x.Name),
                                      x => x.Value.Select(Deserialize).ToList());
 

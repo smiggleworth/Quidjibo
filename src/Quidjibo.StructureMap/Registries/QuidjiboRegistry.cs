@@ -1,7 +1,5 @@
-﻿using System.Reflection;
-using Quidjibo.Handlers;
+﻿using Quidjibo.Handlers;
 using StructureMap;
-using StructureMap.TypeRules;
 
 namespace Quidjibo.StructureMap.Registries
 {

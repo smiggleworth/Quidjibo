@@ -7,6 +7,13 @@ namespace Quidjibo.SqlServer.Configurations
     {
         public List<string> PublisherQueues { get; set; }
 
+        public List<string> Queues { get; set; }
+        public bool SingleLoop { get; set; }
+        public int PollingInterval { get; set; }
+        public int MaxAttempts { get; set; }
+        public int LockInterval { get; set; }
+        public int Throttle { get; set; }
+
         public SqlServerWorkConfiguration()
         {
             Throttle = 10;
@@ -14,12 +21,5 @@ namespace Quidjibo.SqlServer.Configurations
             MaxAttempts = 5;
             SingleLoop = true;
         }
-
-        public List<string> Queues { get; set; }
-        public bool SingleLoop { get; set; }
-        public int PollingInterval { get; set; }
-        public int MaxAttempts { get; set; }
-        public int LockInterval { get; set; }
-        public int Throttle { get; set; }
     }
 }

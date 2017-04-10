@@ -22,21 +22,6 @@ namespace Quidjibo.Clients
         private readonly IPayloadSerializer _payloadSerializer;
         private readonly IScheduleProviderFactory _scheduleProviderFactory;
 
-        public SchedulerClient(IScheduleProviderFactory scheduleProviderFactory) : this(
-            scheduleProviderFactory,
-            new PayloadSerializer(new PayloadProtector()),
-            new CronProvider()) { }
-
-        public SchedulerClient(
-            IScheduleProviderFactory scheduleProviderFactory,
-            IPayloadSerializer payloadSerializer,
-            ICronProvider cronProvider)
-        {
-            _scheduleProviderFactory = scheduleProviderFactory;
-            _payloadSerializer = payloadSerializer;
-            _cronProvider = cronProvider;
-        }
-
         public async Task ScheduleAsync(string name, IWorkCommand command, Cron cron, CancellationToken cancellationToken = default(CancellationToken))
         {
             var queueName = command.GetQueueName();
@@ -65,6 +50,23 @@ namespace Quidjibo.Clients
                 await provider.DeleteByNameAsync(name, cancellationToken);
             }
             await provider.CreateAsync(item, cancellationToken);
+        }
+
+        public SchedulerClient(IScheduleProviderFactory scheduleProviderFactory) : this(
+            scheduleProviderFactory,
+            new PayloadSerializer(new PayloadProtector()),
+            new CronProvider())
+        {
+        }
+
+        public SchedulerClient(
+            IScheduleProviderFactory scheduleProviderFactory,
+            IPayloadSerializer payloadSerializer,
+            ICronProvider cronProvider)
+        {
+            _scheduleProviderFactory = scheduleProviderFactory;
+            _payloadSerializer = payloadSerializer;
+            _cronProvider = cronProvider;
         }
 
         private async Task<IScheduleProvider> GetOrCreateScheduleProvider(string queueName,

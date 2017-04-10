@@ -7,11 +7,6 @@ namespace Quidjibo.Protectors
     {
         private readonly byte[] _key;
 
-        public AesPayloadProtector(byte[] key)
-        {
-            _key = key;
-        }
-
         public byte[] Protect(byte[] payload)
         {
             using (var algorithm = Aes.Create())
@@ -42,6 +37,11 @@ namespace Quidjibo.Protectors
                 decryptor.TransformBlock(protectedData, 0, protectedData.Length, data, 0);
                 return data;
             }
+        }
+
+        public AesPayloadProtector(byte[] key)
+        {
+            _key = key;
         }
     }
 }

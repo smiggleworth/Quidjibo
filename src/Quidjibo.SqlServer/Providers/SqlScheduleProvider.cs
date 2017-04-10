@@ -21,12 +21,6 @@ namespace Quidjibo.SqlServer.Providers
         private string _existsSql;
         private string _receiveSql;
 
-        public SqlScheduleProvider(string connectionString, List<string> queues)
-        {
-            _connectionString = connectionString;
-            _queues = queues;
-        }
-
         public async Task<List<ScheduleItem>> ReceiveAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var receiveOn = DateTime.UtcNow;
@@ -49,10 +43,12 @@ namespace Quidjibo.SqlServer.Providers
 
                 // dynamic parameters
                 _queues.Select((q, i) => new
-                {
-                    q,
-                    i
-                }).ToList().ForEach(x => cmd.Parameters.AddWithValue($"@Queue{x.i}", x.q));
+                       {
+                           q,
+                           i
+                       })
+                       .ToList()
+                       .ForEach(x => cmd.Parameters.AddWithValue($"@Queue{x.i}", x.q));
                 using (var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
                 {
                     while (await rdr.ReadAsync(cancellationToken))
@@ -160,6 +156,12 @@ namespace Quidjibo.SqlServer.Providers
                 count = (int)await cmd.ExecuteScalarAsync(cancellationToken);
             }, cancellationToken);
             return count > 0;
+        }
+
+        public SqlScheduleProvider(string connectionString, List<string> queues)
+        {
+            _connectionString = connectionString;
+            _queues = queues;
         }
 
         private Task ExecuteAsync(Func<SqlCommand, Task> func, CancellationToken cancellationToken)

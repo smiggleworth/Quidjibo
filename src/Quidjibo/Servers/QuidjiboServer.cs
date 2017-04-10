@@ -29,27 +29,6 @@ namespace Quidjibo.Servers
         private CancellationTokenSource _cts;
         private SemaphoreSlim _throttle;
 
-        public QuidjiboServer(
-            ILoggerFactory loggerFactory,
-            IWorkConfiguration workConfiguration,
-            IWorkProviderFactory workProviderFactory,
-            IScheduleProviderFactory scheduleProviderFactory,
-            IProgressProviderFactory progressProviderFactory,
-            IWorkDispatcher dispatcher,
-            IPayloadSerializer serializer,
-            ICronProvider cronProvider)
-        {
-            _logger = loggerFactory.CreateLogger<QuidjiboServer>();
-            _dispatcher = dispatcher;
-            _workProviderFactory = workProviderFactory;
-            _scheduleProviderFactory = scheduleProviderFactory;
-            _workConfiguration = workConfiguration;
-            _serializer = serializer;
-            _cronProvider = cronProvider;
-            _progressProviderFactory = progressProviderFactory;
-            Worker = $"{Environment.GetEnvironmentVariable("COMPUTERNAME")}-{Guid.NewGuid()}";
-        }
-
         public string Worker { get; }
 
         public void Start()
@@ -86,6 +65,27 @@ namespace Quidjibo.Servers
         {
             Stop();
             _cts.Dispose();
+        }
+
+        public QuidjiboServer(
+            ILoggerFactory loggerFactory,
+            IWorkConfiguration workConfiguration,
+            IWorkProviderFactory workProviderFactory,
+            IScheduleProviderFactory scheduleProviderFactory,
+            IProgressProviderFactory progressProviderFactory,
+            IWorkDispatcher dispatcher,
+            IPayloadSerializer serializer,
+            ICronProvider cronProvider)
+        {
+            _logger = loggerFactory.CreateLogger<QuidjiboServer>();
+            _dispatcher = dispatcher;
+            _workProviderFactory = workProviderFactory;
+            _scheduleProviderFactory = scheduleProviderFactory;
+            _workConfiguration = workConfiguration;
+            _serializer = serializer;
+            _cronProvider = cronProvider;
+            _progressProviderFactory = progressProviderFactory;
+            Worker = $"{Environment.GetEnvironmentVariable("COMPUTERNAME")}-{Guid.NewGuid()}";
         }
 
         private async Task WorkAsync(string queue)
@@ -214,7 +214,8 @@ namespace Quidjibo.Servers
             CancellationToken cancellationToken)
         {
             var tasks = workflow.Entries.Where(e => e.Key == workflow.CurrentStep)
-                                .SelectMany(e => e.Value, (e, c) => _dispatcher.DispatchAsync(c, progress, cancellationToken)).ToList();
+                                .SelectMany(e => e.Value, (e, c) => _dispatcher.DispatchAsync(c, progress, cancellationToken))
+                                .ToList();
             await Task.WhenAll(tasks);
 
             workflow.NextStep();
