@@ -22,7 +22,7 @@ namespace Quidjibo.Servers
         private readonly IProgressProviderFactory _progressProviderFactory;
         private readonly IScheduleProviderFactory _scheduleProviderFactory;
         private readonly IPayloadSerializer _serializer;
-        private readonly IWorkConfiguration _workConfiguration;
+        private readonly IQuidjiboConfiguration _quidjiboConfiguration;
         private readonly IWorkProviderFactory _workProviderFactory;
         private List<Task> _activeListeners;
 
@@ -35,23 +35,23 @@ namespace Quidjibo.Servers
         {
             _cts = new CancellationTokenSource();
             _activeListeners = new List<Task>();
-            _throttle = new SemaphoreSlim(0, _workConfiguration.Throttle);
+            _throttle = new SemaphoreSlim(0, _quidjiboConfiguration.Throttle);
 
-            if (_workConfiguration.SingleLoop)
+            if (_quidjiboConfiguration.SingleLoop)
             {
                 _logger.LogInformation("All queues can share the same pump");
-                var queues = string.Join(",", _workConfiguration.Queues);
+                var queues = string.Join(",", _quidjiboConfiguration.Queues);
                 _activeListeners.Add(WorkAsync(queues).ContinueWith(HandleException));
             }
             else
             {
                 _logger.LogInformation("Each queue will need a designated pump");
-                _activeListeners.AddRange(_workConfiguration.Queues.Select(queue => WorkAsync(queue).ContinueWith(HandleException)));
+                _activeListeners.AddRange(_quidjiboConfiguration.Queues.Select(queue => WorkAsync(queue).ContinueWith(HandleException)));
             }
 
             _logger.LogInformation("Enabling scheduler");
-            _activeListeners.Add(ScheduleAsync(_workConfiguration.Queues).ContinueWith(HandleException, TaskContinuationOptions.OnlyOnFaulted));
-            _throttle.Release(_workConfiguration.Throttle);
+            _activeListeners.Add(ScheduleAsync(_quidjiboConfiguration.Queues).ContinueWith(HandleException, TaskContinuationOptions.OnlyOnFaulted));
+            _throttle.Release(_quidjiboConfiguration.Throttle);
         }
 
         public void Stop()
@@ -69,7 +69,7 @@ namespace Quidjibo.Servers
 
         public QuidjiboServer(
             ILoggerFactory loggerFactory,
-            IWorkConfiguration workConfiguration,
+            IQuidjiboConfiguration quidjiboConfiguration,
             IWorkProviderFactory workProviderFactory,
             IScheduleProviderFactory scheduleProviderFactory,
             IProgressProviderFactory progressProviderFactory,
@@ -81,7 +81,7 @@ namespace Quidjibo.Servers
             _dispatcher = dispatcher;
             _workProviderFactory = workProviderFactory;
             _scheduleProviderFactory = scheduleProviderFactory;
-            _workConfiguration = workConfiguration;
+            _quidjiboConfiguration = quidjiboConfiguration;
             _serializer = serializer;
             _cronProvider = cronProvider;
             _progressProviderFactory = progressProviderFactory;
@@ -109,9 +109,9 @@ namespace Quidjibo.Servers
                     }
 
                     _throttle.Release();
-                    if (_workConfiguration.PollingInterval > 0)
+                    if (_quidjiboConfiguration.PollingInterval > 0)
                     {
-                        await Task.Delay(TimeSpan.FromSeconds(_workConfiguration.PollingInterval), _cts.Token);
+                        await Task.Delay(TimeSpan.FromSeconds(_quidjiboConfiguration.PollingInterval), _cts.Token);
                     }
                 }
                 catch (Exception exception)
@@ -240,7 +240,7 @@ namespace Quidjibo.Servers
             {
                 try
                 {
-                    await Task.Delay(TimeSpan.FromSeconds(_workConfiguration.LockInterval), cancellationToken);
+                    await Task.Delay(TimeSpan.FromSeconds(_quidjiboConfiguration.LockInterval), cancellationToken);
                     await provider.RenewAsync(item, cancellationToken);
                     _logger.LogDebug("Renewed : {0}", item.Id);
                 }

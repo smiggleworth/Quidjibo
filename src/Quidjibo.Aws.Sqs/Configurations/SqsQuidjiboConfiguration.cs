@@ -3,7 +3,7 @@ using Quidjibo.Configurations;
 
 namespace Quidjibo.Aws.Sqs.Configurations
 {
-    public class SqsWorkConfiguration : IWorkConfiguration
+    public class SqsQuidjiboConfiguration : IQuidjiboConfiguration
     {
         public List<string> PublisherQueues { get; set; }
         public List<string> Queues { get; set; }

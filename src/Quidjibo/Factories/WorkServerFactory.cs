@@ -14,7 +14,7 @@ namespace Quidjibo.Factories
     {
         public static IQuidjiboServer Create(
             Assembly assembly,
-            IWorkConfiguration configuration,
+            IQuidjiboConfiguration configuration,
             IWorkProviderFactory workProviderFactory,
             IScheduleProviderFactory scheduleProviderFactory,
             IProgressProviderFactory progressProviderFactory,
@@ -29,7 +29,7 @@ namespace Quidjibo.Factories
 
         public static IQuidjiboServer Create(
             Assembly[] assemblies,
-            IWorkConfiguration configuration,
+            IQuidjiboConfiguration configuration,
             IWorkProviderFactory workProviderFactory,
             IScheduleProviderFactory scheduleProviderFactory,
             IProgressProviderFactory progressProviderFactory,
@@ -43,7 +43,7 @@ namespace Quidjibo.Factories
         public static IQuidjiboServer Create(
             IPayloadResolver resolver,
             IPayloadProtector protector,
-            IWorkConfiguration configuration,
+            IQuidjiboConfiguration configuration,
             IWorkProviderFactory workProviderFactory,
             IScheduleProviderFactory scheduleProviderFactory,
             IProgressProviderFactory progressProviderFactory,

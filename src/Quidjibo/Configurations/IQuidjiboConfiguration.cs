@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Quidjibo.Configurations
 {
-    public interface IWorkConfiguration
+    public interface IQuidjiboConfiguration
     {
         /// <summary>
         ///     The queues

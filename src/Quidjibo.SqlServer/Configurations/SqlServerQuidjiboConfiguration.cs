@@ -3,7 +3,7 @@ using Quidjibo.Configurations;
 
 namespace Quidjibo.SqlServer.Configurations
 {
-    public class SqlServerWorkConfiguration : IWorkConfiguration
+    public class SqlServerQuidjiboConfiguration : IQuidjiboConfiguration
     {
         public List<string> PublisherQueues { get; set; }
 
@@ -14,7 +14,7 @@ namespace Quidjibo.SqlServer.Configurations
         public int LockInterval { get; set; }
         public int Throttle { get; set; }
 
-        public SqlServerWorkConfiguration()
+        public SqlServerQuidjiboConfiguration()
         {
             Throttle = 10;
             LockInterval = 30;

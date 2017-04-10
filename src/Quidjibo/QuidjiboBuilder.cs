@@ -17,14 +17,13 @@ namespace Quidjibo
 {
     public class QuidjiboBuilder
     {
-        private IPayloadResolver _payloadResolver;
         private ICronProvider _cronProvider;
         private IWorkDispatcher _dispatcher;
         private ILoggerFactory _loggerFactory;
         private IProgressProviderFactory _progressProviderFactory;
         private IScheduleProviderFactory _scheduleProviderFactory;
         private IPayloadSerializer _serializer;
-        private IWorkConfiguration _workConfiguration;
+        private IQuidjiboConfiguration _configuration;
         private IWorkProviderFactory _workProviderFactory;
 
         public IQuidjiboServer BuildServer()
@@ -32,7 +31,7 @@ namespace Quidjibo
             BackFillDefaults();
             return new QuidjiboServer(
                 _loggerFactory,
-                _workConfiguration,
+                _configuration,
                 _workProviderFactory,
                 _scheduleProviderFactory,
                 _progressProviderFactory,
@@ -45,6 +44,12 @@ namespace Quidjibo
         {
             BackFillDefaults();
             return null;
+        }
+
+        public QuidjiboBuilder Configure(IQuidjiboConfiguration config)
+        {
+            _configuration = config;
+            return this;
         }
 
         public QuidjiboBuilder ConfigureLogging(ILoggerFactory factory)
@@ -109,7 +114,7 @@ namespace Quidjibo
         {
             var errors = new List<string>(3);
 
-            if (_workConfiguration == null) errors.Add("");
+            if (_configuration == null) errors.Add("");
             if (_progressProviderFactory == null) errors.Add("");
             if (_scheduleProviderFactory == null) errors.Add("");
 
