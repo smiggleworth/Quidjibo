@@ -61,10 +61,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Registries\QuidjiboRegistryTests.cs" />
-    <Compile Include="Registries\BasicCommand.cs" />
-    <Compile Include="Registries\BasicHandler.cs" />
-    <Compile Include="Registries\SimpleJob.cs" />
-    <Compile Include="Registries\UnhandledCommand.cs" />
+    <Compile Include="Resolvers\StructureMapPayloadResolverTests.cs" />
+    <Compile Include="Samples\BasicCommand.cs" />
+    <Compile Include="Samples\BasicHandler.cs" />
+    <Compile Include="Samples\SimpleJob.cs" />
+    <Compile Include="Samples\UnhandledCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
@@ -122,16 +121,6 @@ namespace Quidjibo
             {
                 throw new QuidjiboBuilderException(errors, "Validation Failed");
             }
-        }
-    }
-
-    public class QuidjiboBuilderException : Exception
-    {
-        public List<string> Errors;
-
-        public QuidjiboBuilderException(List<string> errors, string message) : base(message)
-        {
-            Errors = errors;
         }
     }
 }

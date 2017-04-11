@@ -1,6 +1,6 @@
 using Quidjibo.Commands;
 
-namespace Quidjibo.StructureMap.Tests.Registries
+namespace Quidjibo.SiimpleInjector.Tests.Samples
 {
     public class UnhandledCommand : IWorkCommand
     {

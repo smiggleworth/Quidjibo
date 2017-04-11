@@ -5,7 +5,7 @@ using Quidjibo.Commands;
 using Quidjibo.Handlers;
 using Quidjibo.Models;
 
-namespace Quidjibo.Autofac.Tests.Modules
+namespace Quidjibo.Autofac.Tests.Samples
 {
     public class SimpleJob
     {

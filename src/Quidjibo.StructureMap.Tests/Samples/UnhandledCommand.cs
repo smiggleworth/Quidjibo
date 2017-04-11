@@ -1,6 +1,6 @@
 using Quidjibo.Commands;
 
-namespace Quidjibo.Autofac.Tests.Modules
+namespace Quidjibo.StructureMap.Tests.Samples
 {
     public class UnhandledCommand : IWorkCommand
     {

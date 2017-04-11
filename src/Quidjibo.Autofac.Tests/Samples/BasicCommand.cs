@@ -1,6 +1,6 @@
 using Quidjibo.Commands;
 
-namespace Quidjibo.StructureMap.Tests.Registries
+namespace Quidjibo.Autofac.Tests.Samples
 {
     public class BasicCommand : IWorkCommand
     {

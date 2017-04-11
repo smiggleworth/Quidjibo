@@ -5,7 +5,7 @@ using Quidjibo.Commands;
 using Quidjibo.Handlers;
 using Quidjibo.Models;
 
-namespace Quidjibo.StructureMap.Tests.Registries
+namespace Quidjibo.StructureMap.Tests.Samples
 {
     public class SimpleJob
     {
