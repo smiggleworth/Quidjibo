@@ -1,6 +1,5 @@
 ﻿using Autofac;
 using Quidjibo.Autofac.Resolvers;
-using Quidjibo.Extensions;
 
 namespace Quidjibo.Autofac.Extensions
 {

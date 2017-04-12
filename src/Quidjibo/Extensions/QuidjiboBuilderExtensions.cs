@@ -1,5 +1,4 @@
-﻿using System;
-using Quidjibo.Protectors;
+﻿using Quidjibo.Protectors;
 using Quidjibo.Serializers;
 
 namespace Quidjibo.Extensions

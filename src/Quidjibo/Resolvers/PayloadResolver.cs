@@ -8,6 +8,11 @@ namespace Quidjibo.Resolvers
     {
         private readonly Assembly[] _assemblies;
 
+        public PayloadResolver(params Assembly[] assemblies)
+        {
+            _assemblies = assemblies;
+        }
+
         public object Resolve(Type type)
         {
             var info = type.GetTypeInfo();
@@ -33,18 +38,11 @@ namespace Quidjibo.Resolvers
             return Activator.CreateInstance(type);
         }
 
-        public void Dispose()
-        {
-        }
+        public void Dispose() { }
 
         public IDisposable Begin()
         {
             return null;
-        }
-
-        public PayloadResolver(params Assembly[] assemblies)
-        {
-            _assemblies = assemblies;
         }
     }
 }

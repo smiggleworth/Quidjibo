@@ -17,5 +17,10 @@ namespace Quidjibo.AspNetCore.Extensions
             lifetime.ApplicationStopped.Register(server.Dispose);
             return app;
         }
+
+        public static IApplicationBuilder UseWorkServer(this IApplicationBuilder app, QuidjiboBuilder builder)
+        {
+            return app.UseWorkServer(builder.BuildServer);
+        }
     }
 }

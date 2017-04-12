@@ -20,14 +20,35 @@ namespace Quidjibo.Servers
         private readonly IWorkDispatcher _dispatcher;
         private readonly ILogger _logger;
         private readonly IProgressProviderFactory _progressProviderFactory;
+        private readonly IQuidjiboConfiguration _quidjiboConfiguration;
         private readonly IScheduleProviderFactory _scheduleProviderFactory;
         private readonly IPayloadSerializer _serializer;
-        private readonly IQuidjiboConfiguration _quidjiboConfiguration;
         private readonly IWorkProviderFactory _workProviderFactory;
         private List<Task> _activeListeners;
 
         private CancellationTokenSource _cts;
         private SemaphoreSlim _throttle;
+
+        public QuidjiboServer(
+            ILoggerFactory loggerFactory,
+            IQuidjiboConfiguration quidjiboConfiguration,
+            IWorkProviderFactory workProviderFactory,
+            IScheduleProviderFactory scheduleProviderFactory,
+            IProgressProviderFactory progressProviderFactory,
+            IWorkDispatcher dispatcher,
+            IPayloadSerializer serializer,
+            ICronProvider cronProvider)
+        {
+            _logger = loggerFactory.CreateLogger<QuidjiboServer>();
+            _dispatcher = dispatcher;
+            _workProviderFactory = workProviderFactory;
+            _scheduleProviderFactory = scheduleProviderFactory;
+            _quidjiboConfiguration = quidjiboConfiguration;
+            _serializer = serializer;
+            _cronProvider = cronProvider;
+            _progressProviderFactory = progressProviderFactory;
+            Worker = $"{Environment.GetEnvironmentVariable("COMPUTERNAME")}-{Guid.NewGuid()}";
+        }
 
         public string Worker { get; }
 
@@ -65,27 +86,6 @@ namespace Quidjibo.Servers
         {
             Stop();
             _cts.Dispose();
-        }
-
-        public QuidjiboServer(
-            ILoggerFactory loggerFactory,
-            IQuidjiboConfiguration quidjiboConfiguration,
-            IWorkProviderFactory workProviderFactory,
-            IScheduleProviderFactory scheduleProviderFactory,
-            IProgressProviderFactory progressProviderFactory,
-            IWorkDispatcher dispatcher,
-            IPayloadSerializer serializer,
-            ICronProvider cronProvider)
-        {
-            _logger = loggerFactory.CreateLogger<QuidjiboServer>();
-            _dispatcher = dispatcher;
-            _workProviderFactory = workProviderFactory;
-            _scheduleProviderFactory = scheduleProviderFactory;
-            _quidjiboConfiguration = quidjiboConfiguration;
-            _serializer = serializer;
-            _cronProvider = cronProvider;
-            _progressProviderFactory = progressProviderFactory;
-            Worker = $"{Environment.GetEnvironmentVariable("COMPUTERNAME")}-{Guid.NewGuid()}";
         }
 
         private async Task WorkAsync(string queue)

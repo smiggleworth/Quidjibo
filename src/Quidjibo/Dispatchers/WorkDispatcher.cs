@@ -13,6 +13,11 @@ namespace Quidjibo.Dispatchers
     {
         private readonly IPayloadResolver _resolver;
 
+        public WorkDispatcher(IPayloadResolver resolver)
+        {
+            _resolver = resolver;
+        }
+
         public async Task DispatchAsync(IWorkCommand command, IProgress<Tracker> progress, CancellationToken cancellationToken)
         {
             var type = typeof(IWorkHandler<>).MakeGenericType(command.GetType());
@@ -27,11 +32,6 @@ namespace Quidjibo.Dispatchers
                     cancellationToken
                 });
             }
-        }
-
-        public WorkDispatcher(IPayloadResolver resolver)
-        {
-            _resolver = resolver;
         }
     }
 }

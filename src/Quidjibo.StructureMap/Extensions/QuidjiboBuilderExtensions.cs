@@ -1,5 +1,4 @@
-﻿using Quidjibo.Extensions;
-using Quidjibo.StructureMap.Resolvers;
+﻿using Quidjibo.StructureMap.Resolvers;
 using StructureMap;
 
 namespace Quidjibo.StructureMap.Extensions

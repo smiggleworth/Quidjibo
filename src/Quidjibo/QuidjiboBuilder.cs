@@ -16,13 +16,13 @@ namespace Quidjibo
 {
     public class QuidjiboBuilder
     {
+        private IQuidjiboConfiguration _configuration;
         private ICronProvider _cronProvider;
         private IWorkDispatcher _dispatcher;
         private ILoggerFactory _loggerFactory;
         private IProgressProviderFactory _progressProviderFactory;
         private IScheduleProviderFactory _scheduleProviderFactory;
         private IPayloadSerializer _serializer;
-        private IQuidjiboConfiguration _configuration;
         private IWorkProviderFactory _workProviderFactory;
 
         public IQuidjiboServer BuildServer()
@@ -42,7 +42,11 @@ namespace Quidjibo
         public IQuidjiboClient BuildClient()
         {
             BackFillDefaults();
-            return null;
+
+            var client = new QuidjiboClient(_workProviderFactory, _scheduleProviderFactory, _serializer, _cronProvider);
+
+            QuidjiboClient.Instance = client;
+            return client;
         }
 
         public QuidjiboBuilder Configure(IQuidjiboConfiguration config)
@@ -59,13 +63,13 @@ namespace Quidjibo
 
         public QuidjiboBuilder ConfigureDispatcher(params Assembly[] assemblies)
         {
-            _dispatcher = _dispatcher ?? new WorkDispatcher(new PayloadResolver(assemblies));
+            _dispatcher = new WorkDispatcher(new PayloadResolver(assemblies));
             return this;
         }
 
         public QuidjiboBuilder ConfigureDispatcher(IPayloadResolver resolver)
         {
-            _dispatcher = _dispatcher ?? new WorkDispatcher(resolver);
+            _dispatcher = new WorkDispatcher(resolver);
             return this;
         }
 
@@ -113,9 +117,18 @@ namespace Quidjibo
         {
             var errors = new List<string>(3);
 
-            if (_configuration == null) errors.Add("");
-            if (_progressProviderFactory == null) errors.Add("");
-            if (_scheduleProviderFactory == null) errors.Add("");
+            if (_configuration == null)
+            {
+                errors.Add("");
+            }
+            if (_progressProviderFactory == null)
+            {
+                errors.Add("");
+            }
+            if (_scheduleProviderFactory == null)
+            {
+                errors.Add("");
+            }
 
             if (errors.Any())
             {

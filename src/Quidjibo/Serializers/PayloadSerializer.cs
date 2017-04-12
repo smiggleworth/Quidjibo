@@ -16,6 +16,11 @@ namespace Quidjibo.Serializers
     {
         private readonly IPayloadProtector _payloadProtector;
 
+        public PayloadSerializer(IPayloadProtector payloadProtector)
+        {
+            _payloadProtector = payloadProtector;
+        }
+
 
         /// <summary>
         ///     Serializes the specified command.
@@ -57,11 +62,6 @@ namespace Quidjibo.Serializers
             }
 
             return null;
-        }
-
-        public PayloadSerializer(IPayloadProtector payloadProtector)
-        {
-            _payloadProtector = payloadProtector;
         }
 
         private static object GetContent(IWorkCommand command)
