@@ -20,7 +20,7 @@ namespace Quidjibo.AspNetCore.Extensions
 
         public static IApplicationBuilder UseWorkServer(this IApplicationBuilder app, QuidjiboBuilder builder)
         {
-            return app.UseWorkServer(builder.BuildServer);
+            return app.UseWorkServer(() => builder.BuildServer());
         }
     }
 }

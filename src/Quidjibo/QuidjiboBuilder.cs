@@ -25,9 +25,14 @@ namespace Quidjibo
         private IPayloadSerializer _serializer;
         private IWorkProviderFactory _workProviderFactory;
 
-        public IQuidjiboServer BuildServer()
+        public IQuidjiboServer BuildServer(bool buildClient = true)
         {
             BackFillDefaults();
+            if (buildClient)
+            {
+                BuildClient();
+            }
+
             return new QuidjiboServer(
                 _loggerFactory,
                 _configuration,
