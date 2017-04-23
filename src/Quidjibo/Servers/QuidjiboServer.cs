@@ -60,13 +60,13 @@ namespace Quidjibo.Servers
 
             if (_quidjiboConfiguration.SingleLoop)
             {
-                _logger.LogInformation("All queues can share the same pump");
+                _logger.LogInformation("All queues can share the same loop");
                 var queues = string.Join(",", _quidjiboConfiguration.Queues);
                 _activeListeners.Add(WorkAsync(queues).ContinueWith(HandleException));
             }
             else
             {
-                _logger.LogInformation("Each queue will need a designated pump");
+                _logger.LogInformation("Each queue will need a designated loop");
                 _activeListeners.AddRange(_quidjiboConfiguration.Queues.Select(queue => WorkAsync(queue).ContinueWith(HandleException)));
             }
 
