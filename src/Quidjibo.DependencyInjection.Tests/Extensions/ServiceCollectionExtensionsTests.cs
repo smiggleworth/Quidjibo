@@ -47,8 +47,8 @@ namespace Quidjibo.DependencyInjection.Tests.Extensions
         {
             using (var scope = _serviceProvider.CreateScope())
             {
-                Action resolve = () => scope.ServiceProvider.GetService<IWorkHandler<UnhandledCommand>>();
-                resolve.ShouldThrow<NotImplementedException>("Handler was not registerd");
+                var handler = scope.ServiceProvider.GetService<IWorkHandler<UnhandledCommand>>();
+                handler.Should().BeNull("handler was not registerd");
             }
         }
     }

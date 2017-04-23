@@ -50,8 +50,8 @@ namespace Quidjibo.DependencyInjection.Tests.Resolvers
         {
             using (_resolver.Begin())
             {
-                Action resolve = () => _resolver.Resolve(typeof(IWorkHandler<UnhandledCommand>));
-                resolve.ShouldThrow<NotImplementedException>("Handler was not registerd");
+                var handler = _resolver.Resolve(typeof(IWorkHandler<UnhandledCommand>));
+                handler.Should().BeNull("handler was not registerd");
             }
         }
     }
