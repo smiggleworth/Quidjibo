@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Quidjibo.Handlers;
 using Quidjibo.Models;
 
-namespace Quidjibo.SiimpleInjector.Tests.Samples
+namespace Quidjibo.SimpleInjector.Tests.Samples
 {
     public class BasicHandler : IWorkHandler<BasicCommand>
     {

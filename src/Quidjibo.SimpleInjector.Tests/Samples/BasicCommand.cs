@@ -1,6 +1,6 @@
 using Quidjibo.Commands;
 
-namespace Quidjibo.SiimpleInjector.Tests.Samples
+namespace Quidjibo.SimpleInjector.Tests.Samples
 {
     public class BasicCommand : IWorkCommand
     {

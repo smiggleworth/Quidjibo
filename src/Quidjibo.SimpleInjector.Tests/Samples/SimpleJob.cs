@@ -5,7 +5,7 @@ using Quidjibo.Commands;
 using Quidjibo.Handlers;
 using Quidjibo.Models;
 
-namespace Quidjibo.SiimpleInjector.Tests.Samples
+namespace Quidjibo.SimpleInjector.Tests.Samples
 {
     public class SimpleJob
     {

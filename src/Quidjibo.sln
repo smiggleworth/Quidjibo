@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26403.0
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{F0463A62-7F43-43A2-B94D-E8B214BD2875}"
 EndProject
@@ -41,7 +41,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quidjibo.AspNetCore", "Quid
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quidjibo.SimpleInjector", "Quidjibo.SimpleInjector\Quidjibo.SimpleInjector.csproj", "{6C17A9F0-6868-4530-B9B8-344626C20E96}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quidjibo.SiimpleInjector.Tests", "Quidjibo.SiimpleInjector.Tests\Quidjibo.SiimpleInjector.Tests.csproj", "{E19BC8FF-40AC-4586-AE73-5751EE7CC8F1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quidjibo.SimpleInjector.Tests", "Quidjibo.SimpleInjector.Tests\Quidjibo.SimpleInjector.Tests.csproj", "{E19BC8FF-40AC-4586-AE73-5751EE7CC8F1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -3,12 +3,12 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Quidjibo.Handlers;
 using Quidjibo.Resolvers;
-using Quidjibo.SiimpleInjector.Tests.Samples;
 using Quidjibo.SimpleInjector.Packages;
 using Quidjibo.SimpleInjector.Resolvers;
+using Quidjibo.SimpleInjector.Tests.Samples;
 using SimpleInjector;
 
-namespace Quidjibo.SiimpleInjector.Tests.Resolvers
+namespace Quidjibo.SimpleInjector.Tests.Resolvers
 {
     [TestClass]
     public class SimpleInjectorPayloadResolverTests
