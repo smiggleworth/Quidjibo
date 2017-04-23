@@ -4,6 +4,12 @@
     <TargetFramework>netstandard1.3</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Packages\**" />
+    <EmbeddedResource Remove="Packages\**" />
+    <None Remove="Packages\**" />
+  </ItemGroup>
+
 
 
   <ItemGroup>

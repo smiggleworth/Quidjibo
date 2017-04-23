@@ -3,11 +3,11 @@ using Quidjibo.Clients;
 using Quidjibo.Handlers;
 using SimpleInjector;
 
-namespace Quidjibo.SimpleInjector.Packages
+namespace Quidjibo.SimpleInjector.Extensions
 {
-    public sealed class QuidjiboPackage
+    public static class ContainerExtensions
     {
-        public static void RegisterHandlers(Container container, params Assembly[] assemblies)
+        public static void RegisterHandlers(this Container container, params Assembly[] assemblies)
         {
             container.Register(typeof(IWorkHandler<>), assemblies);
             container.RegisterSingleton(QuidjiboClient.Instance);

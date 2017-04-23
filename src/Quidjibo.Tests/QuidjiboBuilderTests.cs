@@ -43,7 +43,6 @@ namespace Quidjibo.Tests
             var quidjibo = new QuidjiboBuilder();
 
 
-
             var server = quidjibo.BuildServer();
             var client = quidjibo.BuildClient();
             server.Should().NotBeNull();

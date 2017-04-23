@@ -1,25 +1,26 @@
 ﻿using System;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Quidjibo.DependencyInjection.Extensions;
+using Quidjibo.DependencyInjection.Resolvers;
+using Quidjibo.DependencyInjection.Tests.Samples;
 using Quidjibo.Handlers;
 using Quidjibo.Resolvers;
-using Quidjibo.SimpleInjector.Extensions;
-using Quidjibo.SimpleInjector.Resolvers;
-using Quidjibo.SimpleInjector.Tests.Samples;
-using SimpleInjector;
 
-namespace Quidjibo.SimpleInjector.Tests.Resolvers
+namespace Quidjibo.DependencyInjection.Tests.Resolvers
 {
     [TestClass]
-    public class SimpleInjectorPayloadResolverTests
+    public class DependencyInjectionPayloadResolverTests
     {
         private readonly IPayloadResolver _resolver;
 
-        public SimpleInjectorPayloadResolverTests()
+        public DependencyInjectionPayloadResolverTests()
         {
-            var container = new Container();
-            container.RegisterHandlers(GetType().Assembly);
-            _resolver = new SimpleInjectorPayloadResolver(container);
+            var services = new ServiceCollection();
+            services.AddQuidjibo(GetType().Assembly);
+            var serviceProvider = services.BuildServiceProvider();
+            _resolver = new DependencyInjectionPayloadResolver(serviceProvider);
         }
 
         [TestMethod]
@@ -50,7 +51,7 @@ namespace Quidjibo.SimpleInjector.Tests.Resolvers
             using (_resolver.Begin())
             {
                 Action resolve = () => _resolver.Resolve(typeof(IWorkHandler<UnhandledCommand>));
-                resolve.ShouldThrow<ActivationException>("Handler was not registerd");
+                resolve.ShouldThrow<NotImplementedException>("Handler was not registerd");
             }
         }
     }

@@ -38,7 +38,9 @@ namespace Quidjibo.Resolvers
             return Activator.CreateInstance(type);
         }
 
-        public void Dispose() { }
+        public void Dispose()
+        {
+        }
 
         public IDisposable Begin()
         {

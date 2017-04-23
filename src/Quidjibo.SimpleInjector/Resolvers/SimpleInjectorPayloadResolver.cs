@@ -10,6 +10,11 @@ namespace Quidjibo.SimpleInjector.Resolvers
         private readonly Container _container;
         private Scope _scope;
 
+        public SimpleInjectorPayloadResolver(Container container)
+        {
+            _container = container;
+        }
+
         public IDisposable Begin()
         {
             _scope = AsyncScopedLifestyle.BeginScope(_container);
@@ -24,11 +29,6 @@ namespace Quidjibo.SimpleInjector.Resolvers
         public void Dispose()
         {
             _scope?.Dispose();
-        }
-
-        public SimpleInjectorPayloadResolver(Container container)
-        {
-            _container = container;
         }
     }
 }

@@ -9,6 +9,11 @@ namespace Quidjibo.StructureMap.Resolvers
         private readonly IContainer _container;
         private IContainer _nestedLifetimeScope;
 
+        public StructureMapPayloadResolver(IContainer container)
+        {
+            _container = container;
+        }
+
         public IDisposable Begin()
         {
             _nestedLifetimeScope = _container.GetNestedContainer();
@@ -23,11 +28,6 @@ namespace Quidjibo.StructureMap.Resolvers
         public void Dispose()
         {
             _nestedLifetimeScope?.Dispose();
-        }
-
-        public StructureMapPayloadResolver(IContainer container)
-        {
-            _container = container;
         }
     }
 }

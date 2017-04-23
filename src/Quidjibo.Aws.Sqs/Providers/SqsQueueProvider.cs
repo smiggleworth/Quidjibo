@@ -12,6 +12,11 @@ namespace Quidjibo.Aws.Sqs.Providers
 
         public bool SingleLoop => false;
 
+        public SqsQueueProvider(AmazonSQSClient client)
+        {
+            _client = client;
+        }
+
         public async Task CreateAsync(string name, CancellationToken cancellationToken)
         {
             var response = await _client.CreateQueueAsync(name, cancellationToken);
@@ -20,11 +25,6 @@ namespace Quidjibo.Aws.Sqs.Providers
         public Task GetAsync(string name, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
-        }
-
-        public SqsQueueProvider(AmazonSQSClient client)
-        {
-            _client = client;
         }
     }
 }

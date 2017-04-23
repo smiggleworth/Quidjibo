@@ -12,6 +12,11 @@ namespace Quidjibo.SqlServer.Factories
     {
         private readonly string _connectionString;
 
+        public SqlScheduleProviderFactory(string connectionString)
+        {
+            _connectionString = connectionString;
+        }
+
         public async Task<IScheduleProvider> CreateAsync(List<string> queues,
             CancellationToken cancellationToken = new CancellationToken())
         {
@@ -32,11 +37,6 @@ namespace Quidjibo.SqlServer.Factories
             {
                 queue
             }, cancellationToken);
-        }
-
-        public SqlScheduleProviderFactory(string connectionString)
-        {
-            _connectionString = connectionString;
         }
     }
 }

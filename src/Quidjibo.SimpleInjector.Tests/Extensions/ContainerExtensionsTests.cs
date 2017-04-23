@@ -2,22 +2,22 @@
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Quidjibo.Handlers;
-using Quidjibo.SimpleInjector.Packages;
+using Quidjibo.SimpleInjector.Extensions;
 using Quidjibo.SimpleInjector.Tests.Samples;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
 
-namespace Quidjibo.SimpleInjector.Tests.Packages
+namespace Quidjibo.SimpleInjector.Tests.Extensions
 {
     [TestClass]
-    public class QuidjiboPackageTests
+    public class ContainerExtensionsTests
     {
         private readonly Container _container;
 
-        public QuidjiboPackageTests()
+        public ContainerExtensionsTests()
         {
             _container = new Container();
-            QuidjiboPackage.RegisterHandlers(_container, typeof(QuidjiboPackageTests).Assembly);
+            _container.RegisterHandlers(typeof(ContainerExtensionsTests).Assembly);
         }
 
         [TestMethod]

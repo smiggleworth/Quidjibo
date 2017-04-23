@@ -16,6 +16,14 @@ namespace Quidjibo.Aws.Sqs.Factories
         private readonly AmazonSQSConfig _amazonSqsConfig;
         private readonly BasicAWSCredentials _basicAwsCredentials;
 
+        public SqsWorkProviderFactory(
+            BasicAWSCredentials basicAwsCredentials,
+            AmazonSQSConfig amazonSqsConfig)
+        {
+            _basicAwsCredentials = basicAwsCredentials;
+            _amazonSqsConfig = amazonSqsConfig;
+        }
+
 
         public async Task<IWorkProvider> CreateAsync(string queue,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -29,14 +37,6 @@ namespace Quidjibo.Aws.Sqs.Factories
 
             var provider = new SqsWorkProvider(client, response.QueueUrl, 30, 10);
             return provider;
-        }
-
-        public SqsWorkProviderFactory(
-            BasicAWSCredentials basicAwsCredentials,
-            AmazonSQSConfig amazonSqsConfig)
-        {
-            _basicAwsCredentials = basicAwsCredentials;
-            _amazonSqsConfig = amazonSqsConfig;
         }
 
         public Task<IWorkProvider> CreateAsync(List<string> queues,
