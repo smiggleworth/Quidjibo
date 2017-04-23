@@ -14,6 +14,7 @@ namespace Quidjibo.Protectors
 
         public byte[] Protect(byte[] payload)
         {
+            // this is just placeholder code
             using (var algorithm = Aes.Create())
             using (var encryptor = algorithm.CreateEncryptor(_key, algorithm.IV))
             {
@@ -29,6 +30,7 @@ namespace Quidjibo.Protectors
 
         public byte[] Unprotect(byte[] payload)
         {
+            // this is just placeholder code
             var iv = new byte[16];
             Buffer.BlockCopy(payload, 0, iv, 0, iv.Length);
 
