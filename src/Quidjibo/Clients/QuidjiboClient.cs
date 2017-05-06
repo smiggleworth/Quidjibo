@@ -35,26 +35,26 @@ namespace Quidjibo.Clients
             _cronProvider = cronProvider;
         }
 
-        public async Task PublishAsync(IWorkCommand command,
+        public async Task PublishAsync(IQuidjiboCommand command,
             CancellationToken cancellationToken = new CancellationToken())
         {
             await PublishAsync(command, 0, cancellationToken);
         }
 
-        public async Task PublishAsync(IWorkCommand command, int delay,
+        public async Task PublishAsync(IQuidjiboCommand command, int delay,
             CancellationToken cancellationToken = new CancellationToken())
         {
             var queueName = command.GetQueueName();
             await PublishAsync(command, queueName, delay, cancellationToken);
         }
 
-        public async Task PublishAsync(IWorkCommand command, string queueName,
+        public async Task PublishAsync(IQuidjiboCommand command, string queueName,
             CancellationToken cancellationToken = new CancellationToken())
         {
             await PublishAsync(command, queueName, 0, cancellationToken);
         }
 
-        public async Task PublishAsync(IWorkCommand command, string queueName, int delay,
+        public async Task PublishAsync(IQuidjiboCommand command, string queueName, int delay,
             CancellationToken cancellationToken = new CancellationToken())
         {
             var item = new WorkItem
@@ -70,13 +70,13 @@ namespace Quidjibo.Clients
             await provider.SendAsync(item, 0, cancellationToken);
         }
 
-        public async Task ScheduleAsync(string name, IWorkCommand command, Cron cron, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task ScheduleAsync(string name, IQuidjiboCommand command, Cron cron, CancellationToken cancellationToken = default(CancellationToken))
         {
             var queueName = command.GetQueueName();
             await ScheduleAsync(name, queueName, command, cron, cancellationToken);
         }
 
-        public async Task ScheduleAsync(string name, string queue, IWorkCommand command, Cron cron, CancellationToken cancellationToken = new CancellationToken())
+        public async Task ScheduleAsync(string name, string queue, IQuidjiboCommand command, Cron cron, CancellationToken cancellationToken = new CancellationToken())
         {
             var now = DateTime.UtcNow;
             var item = new ScheduleItem

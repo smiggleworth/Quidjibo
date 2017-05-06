@@ -1,7 +1,7 @@
 using System;
 using System.Security.Cryptography;
 
-namespace Quidjibo.Protectors
+namespace Quidjibo.DataProtection.Protectors
 {
     public class AesPayloadProtector : IPayloadProtector
     {

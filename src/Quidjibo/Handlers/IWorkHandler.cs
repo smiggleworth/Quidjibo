@@ -6,7 +6,7 @@ using Quidjibo.Models;
 
 namespace Quidjibo.Handlers
 {
-    public interface IWorkHandler<in T> where T : IWorkCommand
+    public interface IWorkHandler<in T> where T : IQuidjiboCommand
     {
         Task ProcessAsync(T command, IProgress<Tracker> progress, CancellationToken cancellationToken);
     }

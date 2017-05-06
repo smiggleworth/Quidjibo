@@ -1,6 +1,6 @@
 using System;
 
-namespace Quidjibo
+namespace Quidjibo.Exceptions
 {
     public class QuidjiboNotInitializedException : Exception
     {

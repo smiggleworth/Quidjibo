@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Quidjibo
+namespace Quidjibo.Exceptions
 {
     public class QuidjiboBuilderException : Exception
     {

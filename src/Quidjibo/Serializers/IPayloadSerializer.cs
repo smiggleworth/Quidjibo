@@ -4,7 +4,7 @@ namespace Quidjibo.Serializers
 {
     public interface IPayloadSerializer
     {
-        byte[] Serialize(IWorkCommand command);
-        IWorkCommand Deserialize(byte[] payload);
+        byte[] Serialize(IQuidjiboCommand command);
+        IQuidjiboCommand Deserialize(byte[] payload);
     }
 }

@@ -4,7 +4,7 @@
     <TargetFramework>netstandard1.3</TargetFramework>
     <Authors>Smiggleworth</Authors>
     <Copyright>Copyright © 2017</Copyright>
-    <Description>A task worker library for .NET with an async pipeline</Description>
+    <Description>AspNetCore integration pack for Quidjibo</Description>
     <PackageProjectUrl>http://quidjibo.com/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/smiggleworth/Quidjibo</RepositoryUrl>
     <Company>Smiggleworth</Company>

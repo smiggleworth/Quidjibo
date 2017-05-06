@@ -4,28 +4,28 @@ using System.Linq;
 
 namespace Quidjibo.Commands
 {
-    public sealed class WorkflowCommand : IWorkCommand
+    public sealed class WorkflowCommand : IQuidjiboCommand
     {
         public int Step { get; set; }
 
         public int CurrentStep { get; set; }
 
-        public Dictionary<int, List<IWorkCommand>> Entries { get; set; }
+        public Dictionary<int, List<IQuidjiboCommand>> Entries { get; set; }
 
         public WorkflowCommand()
         {
             Step = 0;
             CurrentStep = 0;
-            Entries = new Dictionary<int, List<IWorkCommand>>();
+            Entries = new Dictionary<int, List<IQuidjiboCommand>>();
         }
 
-        public WorkflowCommand(params IWorkCommand[] commands) : this()
+        public WorkflowCommand(params IQuidjiboCommand[] commands) : this()
         {
             Validate(commands);
             AddEntries(commands);
         }
 
-        public WorkflowCommand Then(Func<int, IWorkCommand> commands)
+        public WorkflowCommand Then(Func<int, IQuidjiboCommand> commands)
         {
             Step += 1;
             var steps = new[]
@@ -37,7 +37,7 @@ namespace Quidjibo.Commands
             return this;
         }
 
-        public WorkflowCommand Then(Func<int, IWorkCommand[]> commands)
+        public WorkflowCommand Then(Func<int, IQuidjiboCommand[]> commands)
         {
             Step += 1;
             var steps = commands(Step);
@@ -52,12 +52,12 @@ namespace Quidjibo.Commands
         }
 
 
-        private void AddEntries(IEnumerable<IWorkCommand> steps)
+        private void AddEntries(IEnumerable<IQuidjiboCommand> steps)
         {
             Entries.Add(Step, steps.ToList());
         }
 
-        private void Validate(IEnumerable<IWorkCommand> commands)
+        private void Validate(IEnumerable<IQuidjiboCommand> commands)
         {
             if (commands.Any(command => command is WorkflowCommand))
             {

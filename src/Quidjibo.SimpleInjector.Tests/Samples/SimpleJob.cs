@@ -9,7 +9,7 @@ namespace Quidjibo.SimpleInjector.Tests.Samples
 {
     public class SimpleJob
     {
-        public class Command : IWorkCommand
+        public class Command : IQuidjiboCommand
         {
         }
 

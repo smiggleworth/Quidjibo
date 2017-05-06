@@ -8,6 +8,6 @@ namespace Quidjibo.Dispatchers
 {
     public interface IWorkDispatcher
     {
-        Task DispatchAsync(IWorkCommand command, IProgress<Tracker> progress, CancellationToken cancellationToken);
+        Task DispatchAsync(IQuidjiboCommand command, IProgress<Tracker> progress, CancellationToken cancellationToken);
     }
 }

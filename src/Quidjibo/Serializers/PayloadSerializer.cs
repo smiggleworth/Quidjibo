@@ -27,7 +27,7 @@ namespace Quidjibo.Serializers
         /// </summary>
         /// <param name="command">The command.</param>
         /// <returns></returns>
-        public byte[] Serialize(IWorkCommand command)
+        public byte[] Serialize(IQuidjiboCommand command)
         {
             var workPayload = new WorkPayload
             {
@@ -50,7 +50,7 @@ namespace Quidjibo.Serializers
         /// </summary>
         /// <param name="payload">The payload.</param>
         /// <returns></returns>
-        public IWorkCommand Deserialize(byte[] payload)
+        public IQuidjiboCommand Deserialize(byte[] payload)
         {
             var validatedData = GetValidatedData(payload);
             var data = _payloadProtector.Unprotect(validatedData);
@@ -64,7 +64,7 @@ namespace Quidjibo.Serializers
             return null;
         }
 
-        private static object GetContent(IWorkCommand command)
+        private static object GetContent(IQuidjiboCommand command)
         {
             var workflow = command as WorkflowCommand;
             if (workflow != null)
@@ -86,7 +86,7 @@ namespace Quidjibo.Serializers
             return command;
         }
 
-        private IWorkCommand Deserialize(JToken jToken)
+        private IQuidjiboCommand Deserialize(JToken jToken)
         {
             var typeName = jToken.SelectToken(nameof(WorkPayload.Type)).ToObject<string>();
             var type = Type.GetType(typeName, true);
@@ -111,7 +111,7 @@ namespace Quidjibo.Serializers
                 };
             }
 
-            return (IWorkCommand)jToken.SelectToken(nameof(WorkPayload.Content)).ToObject(type);
+            return (IQuidjiboCommand)jToken.SelectToken(nameof(WorkPayload.Content)).ToObject(type);
         }
 
         /// <summary>

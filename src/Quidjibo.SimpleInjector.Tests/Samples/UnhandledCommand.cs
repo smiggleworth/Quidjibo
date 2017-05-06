@@ -2,7 +2,7 @@ using Quidjibo.Commands;
 
 namespace Quidjibo.SimpleInjector.Tests.Samples
 {
-    public class UnhandledCommand : IWorkCommand
+    public class UnhandledCommand : IQuidjiboCommand
     {
     }
 }

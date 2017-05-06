@@ -1,7 +1,6 @@
-﻿using Quidjibo.Protectors;
-using Quidjibo.Serializers;
+﻿using Quidjibo.DataProtection.Protectors;
 
-namespace Quidjibo.Extensions
+namespace Quidjibo.DataProtection.Extensions
 {
     public static class QuidjiboBuilderExtensions
     {

@@ -18,7 +18,7 @@ namespace Quidjibo.Dispatchers
             _resolver = resolver;
         }
 
-        public async Task DispatchAsync(IWorkCommand command, IProgress<Tracker> progress, CancellationToken cancellationToken)
+        public async Task DispatchAsync(IQuidjiboCommand command, IProgress<Tracker> progress, CancellationToken cancellationToken)
         {
             var type = typeof(IWorkHandler<>).MakeGenericType(command.GetType());
             using (_resolver.Begin())
