@@ -1,6 +1,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Quidjibo.Commands;
+using Quidjibo.Exceptions;
 using Quidjibo.Models;
 
 namespace Quidjibo.Clients
@@ -13,32 +14,32 @@ namespace Quidjibo.Clients
     {
         public void Dispose() { }
 
-        public Task PublishAsync(IWorkCommand command, CancellationToken cancellationToken = new CancellationToken())
+        public Task PublishAsync(IQuidjiboCommand command, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new QuidjiboNotInitializedException();
         }
 
-        public Task PublishAsync(IWorkCommand command, int delay, CancellationToken cancellationToken = new CancellationToken())
+        public Task PublishAsync(IQuidjiboCommand command, int delay, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new QuidjiboNotInitializedException();
         }
 
-        public Task PublishAsync(IWorkCommand command, string queueName, CancellationToken cancellationToken = new CancellationToken())
+        public Task PublishAsync(IQuidjiboCommand command, string queueName, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new QuidjiboNotInitializedException();
         }
 
-        public Task PublishAsync(IWorkCommand command, string queueName, int delay, CancellationToken cancellationToken = new CancellationToken())
+        public Task PublishAsync(IQuidjiboCommand command, string queueName, int delay, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new QuidjiboNotInitializedException();
         }
 
-        public Task ScheduleAsync(string name, IWorkCommand command, Cron cron, CancellationToken cancellationToken = new CancellationToken())
+        public Task ScheduleAsync(string name, IQuidjiboCommand command, Cron cron, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new QuidjiboNotInitializedException();
         }
 
-        public Task ScheduleAsync(string name, string queue, IWorkCommand command, Cron cron, CancellationToken cancellationToken = new CancellationToken())
+        public Task ScheduleAsync(string name, string queue, IQuidjiboCommand command, Cron cron, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new QuidjiboNotInitializedException();
         }

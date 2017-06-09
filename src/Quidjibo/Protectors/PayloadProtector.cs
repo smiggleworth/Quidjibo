@@ -1,15 +1,18 @@
+using System.Threading;
+using System.Threading.Tasks;
+
 namespace Quidjibo.Protectors
 {
     public class PayloadProtector : IPayloadProtector
     {
-        public byte[] Protect(byte[] payload)
+        public Task<byte[]> ProtectAsync(byte[] payload, CancellationToken cancellationToken)
         {
-            return payload;
+            return Task.FromResult(payload);
         }
 
-        public byte[] Unprotect(byte[] payload)
+        public Task<byte[]> UnprotectAysnc(byte[] payload, CancellationToken cancellationToken)
         {
-            return payload;
+            return Task.FromResult(payload);
         }
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Quidjibo.Clients;
 using Quidjibo.Configurations;
 using Quidjibo.Dispatchers;
+using Quidjibo.Exceptions;
 using Quidjibo.Factories;
 using Quidjibo.Protectors;
 using Quidjibo.Providers;
@@ -28,6 +29,7 @@ namespace Quidjibo
         public IQuidjiboServer BuildServer()
         {
             BackFillDefaults();
+
             return new QuidjiboServer(
                 _loggerFactory,
                 _configuration,

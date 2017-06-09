@@ -1,10 +1,12 @@
-﻿using Quidjibo.Commands;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using Quidjibo.Commands;
 
 namespace Quidjibo.Serializers
 {
     public interface IPayloadSerializer
     {
-        byte[] Serialize(IWorkCommand command);
-        IWorkCommand Deserialize(byte[] payload);
+        Task<byte[]> SerializeAsync(IQuidjiboCommand command, CancellationToken cancellationToken);
+        Task<IQuidjiboCommand> DeserializeAsync(byte[] payload, CancellationToken cancellationToken);
     }
 }

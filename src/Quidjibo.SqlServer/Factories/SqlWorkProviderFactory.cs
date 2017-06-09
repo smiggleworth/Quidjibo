@@ -12,7 +12,7 @@ namespace Quidjibo.SqlServer.Factories
         private readonly string _connectionString;
         private readonly int _visibilityTimeout;
 
-        public async Task<IWorkProvider> CreateAsync(string queue, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<IWorkProvider> CreateAsync(string queue, CancellationToken cancellationToken = default(CancellationToken))
         {
             var queues = queue.Split(',');
 

@@ -3,6 +3,8 @@ using System.Linq;
 using System.Security;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Quidjibo.Commands;
@@ -26,8 +28,9 @@ namespace Quidjibo.Serializers
         ///     Serializes the specified command.
         /// </summary>
         /// <param name="command">The command.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public byte[] Serialize(IWorkCommand command)
+        public async Task<byte[]> SerializeAsync(IQuidjiboCommand command, CancellationToken cancellationToken)
         {
             var workPayload = new WorkPayload
             {
@@ -37,7 +40,7 @@ namespace Quidjibo.Serializers
 
             var json = JsonConvert.SerializeObject(workPayload);
             var raw = Encoding.UTF8.GetBytes(json);
-            var data = _payloadProtector.Protect(raw);
+            var data = await _payloadProtector.ProtectAsync(raw, cancellationToken);
             var hash = ComputeHash(data);
             var payload = new byte[hash.Length + data.Length];
             Buffer.BlockCopy(hash, 0, payload, 0, hash.Length);
@@ -49,11 +52,12 @@ namespace Quidjibo.Serializers
         ///     Deserializes the specified payload.
         /// </summary>
         /// <param name="payload">The payload.</param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public IWorkCommand Deserialize(byte[] payload)
+        public async Task<IQuidjiboCommand> DeserializeAsync(byte[] payload, CancellationToken cancellationToken)
         {
             var validatedData = GetValidatedData(payload);
-            var data = _payloadProtector.Unprotect(validatedData);
+            var data = await _payloadProtector.UnprotectAysnc(validatedData, cancellationToken);
             var json = Encoding.UTF8.GetString(data);
             var jToken = JToken.Parse(json);
             if (jToken != null)
@@ -64,7 +68,7 @@ namespace Quidjibo.Serializers
             return null;
         }
 
-        private static object GetContent(IWorkCommand command)
+        private static object GetContent(IQuidjiboCommand command)
         {
             var workflow = command as WorkflowCommand;
             if (workflow != null)
@@ -86,7 +90,7 @@ namespace Quidjibo.Serializers
             return command;
         }
 
-        private IWorkCommand Deserialize(JToken jToken)
+        private IQuidjiboCommand Deserialize(JToken jToken)
         {
             var typeName = jToken.SelectToken(nameof(WorkPayload.Type)).ToObject<string>();
             var type = Type.GetType(typeName, true);
@@ -111,7 +115,7 @@ namespace Quidjibo.Serializers
                 };
             }
 
-            return (IWorkCommand)jToken.SelectToken(nameof(WorkPayload.Content)).ToObject(type);
+            return (IQuidjiboCommand)jToken.SelectToken(nameof(WorkPayload.Content)).ToObject(type);
         }
 
         /// <summary>

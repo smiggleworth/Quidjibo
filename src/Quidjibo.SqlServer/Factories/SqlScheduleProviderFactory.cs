@@ -13,7 +13,7 @@ namespace Quidjibo.SqlServer.Factories
         private readonly string _connectionString;
 
         public async Task<IScheduleProvider> CreateAsync(List<string> queues,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             await SqlRunner.ExecuteAsync(async cmd =>
             {
@@ -26,7 +26,7 @@ namespace Quidjibo.SqlServer.Factories
         }
 
         public async Task<IScheduleProvider> CreateAsync(string queue,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             return await CreateAsync(new List<string>
             {

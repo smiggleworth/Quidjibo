@@ -40,7 +40,7 @@ namespace Quidjibo.Aws.Sqs.Factories
         }
 
         public Task<IWorkProvider> CreateAsync(List<string> queues,
-            CancellationToken cancellationToken = new CancellationToken())
+            CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotSupportedException("Each queue requires a seperate listener.");
         }

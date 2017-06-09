@@ -12,7 +12,7 @@ namespace Quidjibo.SqlServer.Factories
         private readonly string _connectionString;
         private IProgressProvider _provider;
 
-        public async Task<IProgressProvider> CreateAsync(CancellationToken cancellationToken = new CancellationToken())
+        public async Task<IProgressProvider> CreateAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_provider != null)
             {

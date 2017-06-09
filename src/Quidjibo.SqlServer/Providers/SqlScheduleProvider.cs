@@ -71,7 +71,7 @@ namespace Quidjibo.SqlServer.Providers
             return items;
         }
 
-        public async Task CompleteAsync(ScheduleItem item, CancellationToken cancellationToken = new CancellationToken())
+        public async Task CompleteAsync(ScheduleItem item, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_completeSql == null)
             {
@@ -87,7 +87,7 @@ namespace Quidjibo.SqlServer.Providers
             }, cancellationToken);
         }
 
-        public async Task CreateAsync(ScheduleItem item, CancellationToken cancellationToken = new CancellationToken())
+        public async Task CreateAsync(ScheduleItem item, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_createSql == null)
             {
@@ -109,12 +109,12 @@ namespace Quidjibo.SqlServer.Providers
             }, cancellationToken);
         }
 
-        public Task UpdateAsync(ScheduleItem item, CancellationToken cancellationToken = new CancellationToken())
+        public Task UpdateAsync(ScheduleItem item, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
         }
 
-        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = new CancellationToken())
+        public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_completeSql == null)
             {
@@ -128,7 +128,7 @@ namespace Quidjibo.SqlServer.Providers
             }, cancellationToken);
         }
 
-        public async Task DeleteByNameAsync(string name, CancellationToken cancellationToken = new CancellationToken())
+        public async Task DeleteByNameAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_deleteByNameSql == null)
             {
@@ -142,7 +142,7 @@ namespace Quidjibo.SqlServer.Providers
             }, cancellationToken);
         }
 
-        public async Task<bool> ExistsAsync(string name, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<bool> ExistsAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_existsSql == null)
             {

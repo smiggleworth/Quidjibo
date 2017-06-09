@@ -8,22 +8,22 @@ namespace Quidjibo.Clients
 {
     public interface IQuidjiboClient : IDisposable
     {
-        Task PublishAsync(IWorkCommand command,
+        Task PublishAsync(IQuidjiboCommand command,
             CancellationToken cancellationToken = default(CancellationToken));
 
-        Task PublishAsync(IWorkCommand command, int delay,
+        Task PublishAsync(IQuidjiboCommand command, int delay,
             CancellationToken cancellationToken = default(CancellationToken));
 
-        Task PublishAsync(IWorkCommand command, string queueName,
+        Task PublishAsync(IQuidjiboCommand command, string queueName,
             CancellationToken cancellationToken = default(CancellationToken));
 
-        Task PublishAsync(IWorkCommand command, string queueName, int delay,
+        Task PublishAsync(IQuidjiboCommand command, string queueName, int delay,
             CancellationToken cancellationToken = default(CancellationToken));
 
-        Task ScheduleAsync(string name, IWorkCommand command, Cron cron
+        Task ScheduleAsync(string name, IQuidjiboCommand command, Cron cron
             , CancellationToken cancellationToken = default(CancellationToken));
 
-        Task ScheduleAsync(string name, string queue, IWorkCommand command, Cron cron,
-            CancellationToken cancellationToken = new CancellationToken());
+        Task ScheduleAsync(string name, string queue, IQuidjiboCommand command, Cron cron,
+            CancellationToken cancellationToken = default(CancellationToken));
     }
 }

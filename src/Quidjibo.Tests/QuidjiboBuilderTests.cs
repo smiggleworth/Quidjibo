@@ -1,6 +1,7 @@
 ﻿using System;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Quidjibo.Exceptions;
 
 namespace Quidjibo.Tests
 {
@@ -41,7 +42,6 @@ namespace Quidjibo.Tests
         public void When_Builder_IsNotConfigured_ShouldUseDefaults()
         {
             var quidjibo = new QuidjiboBuilder();
-
 
 
             var server = quidjibo.BuildServer();

@@ -60,13 +60,13 @@ namespace Quidjibo.Servers
 
             if (_quidjiboConfiguration.SingleLoop)
             {
-                _logger.LogInformation("All queues can share the same pump");
+                _logger.LogInformation("All queues can share the same loop");
                 var queues = string.Join(",", _quidjiboConfiguration.Queues);
                 _activeListeners.Add(WorkAsync(queues).ContinueWith(HandleException));
             }
             else
             {
-                _logger.LogInformation("Each queue will need a designated pump");
+                _logger.LogInformation("Each queue will need a designated loop");
                 _activeListeners.AddRange(_quidjiboConfiguration.Queues.Select(queue => WorkAsync(queue).ContinueWith(HandleException)));
             }
 
@@ -174,34 +174,34 @@ namespace Quidjibo.Servers
                 await progressProvider.ReportAsync(progressItem, _cts.Token);
             };
 
-            using (var cts = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token))
+            using (var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token))
             {
-                var renewTask = RenewAsync(provider, item, cts.Token);
+                var renewTask = RenewAsync(provider, item, linkedTokenSource.Token);
                 try
                 {
-                    var workCommand = _serializer.Deserialize(item.Payload);
+                    var workCommand = await _serializer.DeserializeAsync(item.Payload, linkedTokenSource.Token);
                     var workflow = workCommand as WorkflowCommand;
                     if (workflow != null)
                     {
-                        await DispatchWorkflowAsync(provider, item, workflow, progress, cts.Token);
+                        await DispatchWorkflowAsync(provider, item, workflow, progress, linkedTokenSource.Token);
                     }
                     else
                     {
-                        await _dispatcher.DispatchAsync(workCommand, progress, cts.Token);
+                        await _dispatcher.DispatchAsync(workCommand, progress, linkedTokenSource.Token);
                     }
-                    await provider.CompleteAsync(item, cts.Token);
+                    await provider.CompleteAsync(item, linkedTokenSource.Token);
 
                     _logger.LogDebug("Completed : {0}", item.Id);
                 }
                 catch (Exception exception)
                 {
-                    await provider.FaultAsync(item, cts.Token);
+                    await provider.FaultAsync(item, linkedTokenSource.Token);
                     _logger.LogError(null, exception, "Faulted : {0}", item.Id);
                 }
                 finally
                 {
                     _logger.LogDebug("Release : {0}", item.Id);
-                    cts.Cancel();
+                    linkedTokenSource.Cancel();
                 }
             }
         }
@@ -209,24 +209,25 @@ namespace Quidjibo.Servers
         private async Task DispatchWorkflowAsync(
             IWorkProvider provider,
             WorkItem item,
-            WorkflowCommand workflow,
+            WorkflowCommand workflowCommand,
             IProgress<Tracker> progress,
             CancellationToken cancellationToken)
         {
-            var tasks = workflow.Entries.Where(e => e.Key == workflow.CurrentStep)
+            var tasks = workflowCommand.Entries.Where(e => e.Key == workflowCommand.CurrentStep)
                                 .SelectMany(e => e.Value, (e, c) => _dispatcher.DispatchAsync(c, progress, cancellationToken))
                                 .ToList();
             await Task.WhenAll(tasks);
 
-            workflow.NextStep();
-            if (workflow.Step >= workflow.CurrentStep)
+            workflowCommand.NextStep();
+            if (workflowCommand.Step >= workflowCommand.CurrentStep)
             {
+                var payload = await _serializer.SerializeAsync(workflowCommand, cancellationToken);
                 var next = new WorkItem
                 {
                     Id = Guid.NewGuid(),
                     CorrelationId = item.CorrelationId,
                     Attempts = 0,
-                    Payload = _serializer.Serialize(workflow),
+                    Payload = payload,
                     Queue = item.Queue
                 };
                 _logger.LogDebug("Enqueue the next workflow step : {0}", item.Id);
