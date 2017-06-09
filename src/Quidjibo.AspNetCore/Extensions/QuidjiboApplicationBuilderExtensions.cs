@@ -8,7 +8,7 @@ namespace Quidjibo.AspNetCore.Extensions
 {
     public static class QuidjiboApplicationBuilderExtensions
     {
-        public static IApplicationBuilder UseWorkServer(this IApplicationBuilder app, Func<IQuidjiboServer> workServer)
+        public static IApplicationBuilder UseQuidjiboServer(this IApplicationBuilder app, Func<IQuidjiboServer> workServer)
         {
             var lifetime = app.ApplicationServices.GetRequiredService<IApplicationLifetime>();
             var server = workServer();
@@ -18,9 +18,9 @@ namespace Quidjibo.AspNetCore.Extensions
             return app;
         }
 
-        public static IApplicationBuilder UseWorkServer(this IApplicationBuilder app, QuidjiboBuilder builder)
+        public static IApplicationBuilder UseQuidjiboServer(this IApplicationBuilder app, QuidjiboBuilder builder)
         {
-            return app.UseWorkServer(builder.BuildServer);
+            return app.UseQuidjiboServer(() => builder.BuildServer());
         }
     }
 }

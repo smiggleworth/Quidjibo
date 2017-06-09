@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Quidjibo.Protectors
+namespace Quidjibo.DataProtection.Protectors
 {
     public class AesPayloadProtector : IPayloadProtector
     {
@@ -17,6 +17,7 @@ namespace Quidjibo.Protectors
 
         public async Task<byte[]> ProtectAsync(byte[] payload, CancellationToken cancellationToken)
         {
+            // this is just placeholder code
             using (var algorithm = Aes.Create())
             using (var encryptor = algorithm.CreateEncryptor(_key, algorithm.IV))
             using (var memoryStream = new MemoryStream())
@@ -34,6 +35,7 @@ namespace Quidjibo.Protectors
 
         public async Task<byte[]> UnprotectAysnc(byte[] payload, CancellationToken cancellationToken)
         {
+            // this is just placeholder code
             var iv = new byte[16];
             Buffer.BlockCopy(payload, 0, iv, 0, iv.Length);
             using (var algorithm = Aes.Create())

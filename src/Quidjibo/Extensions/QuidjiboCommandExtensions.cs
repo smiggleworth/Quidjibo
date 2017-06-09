@@ -4,7 +4,7 @@ using Quidjibo.Commands;
 
 namespace Quidjibo.Extensions
 {
-    public static class CommandExtensions
+    public static class QuidjiboCommandExtensions
     {
         public static string GetQueueName(this IQuidjiboCommand command)
         {

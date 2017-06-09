@@ -21,6 +21,14 @@ namespace Quidjibo.Aws.Sqs.Providers
         private readonly string _queueUrl;
         private readonly int _visibilityTimeout;
 
+        public SqsWorkProvider(AmazonSQSClient client, string queueUrl, int visibilityTimeout, int batchSize)
+        {
+            _client = client;
+            _visibilityTimeout = visibilityTimeout;
+            _batchSize = batchSize;
+            _queueUrl = queueUrl;
+        }
+
         public async Task SendAsync(WorkItem item, int delay, CancellationToken cancellationToken)
         {
             var request = new SendMessageRequest(_queueUrl, Convert.ToBase64String(item.Payload));
@@ -85,14 +93,6 @@ namespace Quidjibo.Aws.Sqs.Providers
         public async Task FaultAsync(WorkItem workItem, CancellationToken cancellationToken)
         {
             var response = await _client.ChangeMessageVisibilityAsync(_queueUrl, workItem.Token, 0, cancellationToken);
-        }
-
-        public SqsWorkProvider(AmazonSQSClient client, string queueUrl, int visibilityTimeout, int batchSize)
-        {
-            _client = client;
-            _visibilityTimeout = visibilityTimeout;
-            _batchSize = batchSize;
-            _queueUrl = queueUrl;
         }
     }
 }

@@ -1,29 +1,27 @@
-﻿
-using System;
+﻿using System;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Quidjibo.Handlers;
-using Quidjibo.SiimpleInjector.Tests.Samples;
-using Quidjibo.SimpleInjector.Packages;
+using Quidjibo.SimpleInjector.Extensions;
+using Quidjibo.SimpleInjector.Tests.Samples;
 using SimpleInjector;
 using SimpleInjector.Lifestyles;
 
-namespace Quidjibo.SiimpleInjector.Tests.Packages
+namespace Quidjibo.SimpleInjector.Tests.Extensions
 {
     [TestClass]
-    public class QuidjiboPackageTests
+    public class ContainerExtensionsTests
     {
         private readonly Container _container;
 
-        public QuidjiboPackageTests()
+        public ContainerExtensionsTests()
         {
             _container = new Container();
-
-            QuidjiboPackage.RegisterHandlers(_container, GetType().Assembly);
+            _container.RegisterHandlers(typeof(ContainerExtensionsTests).Assembly);
         }
 
         [TestMethod]
-        public void When_Handler_IsRegistered_Should_GetInstance()
+        public void When_Handler_IsRegistered_Should_Resolve()
         {
             using (AsyncScopedLifestyle.BeginScope(_container))
             {
@@ -34,7 +32,7 @@ namespace Quidjibo.SiimpleInjector.Tests.Packages
         }
 
         [TestMethod]
-        public void When_Handler_IsRegistered_InNestedClass_Should_GetInstance()
+        public void When_Handler_IsRegistered_InNestedClass_Should_Resolve()
         {
             using (AsyncScopedLifestyle.BeginScope(_container))
             {
