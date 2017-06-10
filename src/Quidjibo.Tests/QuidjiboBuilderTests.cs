@@ -15,7 +15,9 @@ namespace Quidjibo.Tests
 
             Action build = () => quidjibo.BuildServer();
 
-            build.ShouldThrow<QuidjiboBuilderException>().WithMessage("Requires Work Provider Factory");
+            build.ShouldThrow<QuidjiboBuilderException>()
+                .WithMessage("Failed to validate. See list of errors for more detail.")
+                .And.Errors.Should().Contain("Requires Work Provider Factory");
         }
 
         [TestMethod]
@@ -25,7 +27,9 @@ namespace Quidjibo.Tests
 
             Action build = () => quidjibo.BuildServer();
 
-            build.ShouldThrow<QuidjiboBuilderException>().WithMessage("Requires Schedule Provider Factory");
+            build.ShouldThrow<QuidjiboBuilderException>()
+                 .WithMessage("Failed to validate. See list of errors for more detail.")
+                 .And.Errors.Should().Contain("Requires Schedule Provider Factory");
         }
 
         [TestMethod]
@@ -35,14 +39,15 @@ namespace Quidjibo.Tests
 
             Action build = () => quidjibo.BuildServer();
 
-            build.ShouldThrow<QuidjiboBuilderException>().WithMessage("Requires Progress Provider Factory");
+            build.ShouldThrow<QuidjiboBuilderException>()
+                 .WithMessage("Failed to validate. See list of errors for more detail.")
+                 .And.Errors.Should().Contain("Requires Progress Provider Factory");
         }
 
         [TestMethod]
         public void When_Builder_IsNotConfigured_ShouldUseDefaults()
         {
             var quidjibo = new QuidjiboBuilder();
-
 
             var server = quidjibo.BuildServer();
             var client = quidjibo.BuildClient();

@@ -10,7 +10,8 @@ namespace Quidjibo.Clients
     ///     A dumb client for odd situations where you have dependency graph that needs the client before the client is ready. This
     ///     allows the object graph to be resolved but will throw if you try to invoke a method.
     /// </summary>
-    internal class QuidjiboDumbClient : IQuidjiboClient
+    internal class QuidjiboDumbClient<TKey> : IQuidjiboClient<TKey>
+        where TKey : IQuidjiboClientKey
     {
         public void Dispose() { }
 

@@ -1,3 +1,5 @@
+using Quidjibo.Clients;
+
 namespace Quidjibo.Models
 {
     public class Cron
@@ -8,5 +10,14 @@ namespace Quidjibo.Models
         {
             Expression = expression;
         }
+    }
+
+    public interface IQuidjiboClientKey
+    {
+        
+    }
+
+    public class DefaultClientKey : IQuidjiboClientKey
+    {
     }
 }

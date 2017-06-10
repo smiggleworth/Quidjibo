@@ -6,7 +6,8 @@ using Quidjibo.Models;
 
 namespace Quidjibo.Clients
 {
-    public interface IQuidjiboClient : IDisposable
+    public interface IQuidjiboClient<TKey> : IDisposable
+        where TKey : IQuidjiboClientKey
     {
         Task PublishAsync(IQuidjiboCommand command,
             CancellationToken cancellationToken = default(CancellationToken));

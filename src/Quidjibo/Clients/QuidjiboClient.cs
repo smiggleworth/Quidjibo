@@ -11,12 +11,33 @@ using Quidjibo.Serializers;
 
 namespace Quidjibo.Clients
 {
-    public class QuidjiboClient : IQuidjiboClient
+    public class QuidjiboClient : QuidjiboClient<DefaultClientKey>
     {
-        public static IQuidjiboClient Instance = new QuidjiboDumbClient();
+        public QuidjiboClient(IWorkProviderFactory workProviderFactory, IScheduleProviderFactory scheduleProviderFactory, IPayloadSerializer payloadSerializer, ICronProvider cronProvider)
+            : base(workProviderFactory, scheduleProviderFactory, payloadSerializer, cronProvider)
+        {
+        }
+    }
 
-        private static readonly ConcurrentDictionary<string, IWorkProvider> WorkProviders = new ConcurrentDictionary<string, IWorkProvider>();
-        private static readonly ConcurrentDictionary<string, IScheduleProvider> ScheduleProviders = new ConcurrentDictionary<string, IScheduleProvider>();
+    internal struct ProviderCacheKey<TKey>
+        where TKey : IQuidjiboClientKey
+    {
+        private readonly string _queueName;
+
+        public ProviderCacheKey(string queueName)
+        {
+            _queueName = queueName;
+        }
+    }
+
+    public class QuidjiboClient<TKey> : IQuidjiboClient<TKey>
+        where TKey : IQuidjiboClientKey
+    {
+        public static IQuidjiboClient<TKey> Instance = new QuidjiboDumbClient<TKey>();
+
+        private static readonly ConcurrentDictionary<ProviderCacheKey<TKey>, IWorkProvider> WorkProviders = new ConcurrentDictionary<ProviderCacheKey<TKey>, IWorkProvider>();
+        private static readonly ConcurrentDictionary<ProviderCacheKey<TKey>, IScheduleProvider> ScheduleProviders = new ConcurrentDictionary<ProviderCacheKey<TKey>, IScheduleProvider>();
+
         private readonly ICronProvider _cronProvider;
         private readonly IPayloadSerializer _payloadSerializer;
         private readonly IScheduleProviderFactory _scheduleProviderFactory;
@@ -111,10 +132,11 @@ namespace Quidjibo.Clients
         private async Task<IWorkProvider> GetOrCreateWorkProvider(string queueName, CancellationToken cancellationToken)
         {
             IWorkProvider provider;
-            if (!WorkProviders.TryGetValue(queueName, out provider))
+            var key = new ProviderCacheKey<TKey>(queueName);
+            if (!WorkProviders.TryGetValue(key, out provider))
             {
                 provider = await _workProviderFactory.CreateAsync(queueName, cancellationToken);
-                WorkProviders.TryAdd(queueName, provider);
+                WorkProviders.TryAdd(key, provider);
             }
             return provider;
         }
@@ -123,10 +145,11 @@ namespace Quidjibo.Clients
             CancellationToken cancellationToken)
         {
             IScheduleProvider provider;
-            if (!ScheduleProviders.TryGetValue(queueName, out provider))
+            var key = new ProviderCacheKey<TKey>(queueName);
+            if (!ScheduleProviders.TryGetValue(key, out provider))
             {
                 provider = await _scheduleProviderFactory.CreateAsync(queueName, cancellationToken);
-                ScheduleProviders.TryAdd(queueName, provider);
+                ScheduleProviders.TryAdd(key, provider);
             }
             return provider;
         }
