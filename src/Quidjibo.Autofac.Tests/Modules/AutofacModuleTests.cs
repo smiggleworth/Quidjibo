@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Autofac;
 using Autofac.Core.Registration;
 using FluentAssertions;
@@ -17,7 +18,7 @@ namespace Quidjibo.Autofac.Tests.Modules
         public AutofacModuleTests()
         {
             var builder = new ContainerBuilder();
-            builder.RegisterModule(new QuidjiboModule(GetType().Assembly));
+            builder.RegisterModule(new QuidjiboModule(GetType().GetTypeInfo().Assembly));
             _container = builder.Build();
         }
 
@@ -26,7 +27,7 @@ namespace Quidjibo.Autofac.Tests.Modules
         {
             using (var scope = _container.BeginLifetimeScope())
             {
-                var handler = scope.Resolve<IWorkHandler<BasicCommand>>();
+                var handler = scope.Resolve<IQuidjiboHandler<BasicCommand>>();
                 handler.Should().NotBeNull("there should be a matching handler");
                 handler.Should().BeOfType<BasicHandler>("the handler should match the command");
             }
@@ -37,7 +38,7 @@ namespace Quidjibo.Autofac.Tests.Modules
         {
             using (var scope = _container.BeginLifetimeScope())
             {
-                var handler = scope.Resolve<IWorkHandler<SimpleJob.Command>>();
+                var handler = scope.Resolve<IQuidjiboHandler<SimpleJob.Command>>();
                 handler.Should().NotBeNull("there should be a matching handler");
                 handler.Should().BeOfType<SimpleJob.Handler>("the handler should match the command");
             }
@@ -48,7 +49,7 @@ namespace Quidjibo.Autofac.Tests.Modules
         {
             using (var scope = _container.BeginLifetimeScope())
             {
-                Action resolve = () => scope.Resolve<IWorkHandler<UnhandledCommand>>();
+                Action resolve = () => scope.Resolve<IQuidjiboHandler<UnhandledCommand>>();
                 resolve.ShouldThrow<ComponentNotRegisteredException>("Handler was not registerd");
             }
         }

@@ -13,7 +13,7 @@ namespace Quidjibo.StructureMap.Tests.Samples
         {
         }
 
-        public class Handler : IWorkHandler<Command>
+        public class Handler : IQuidjiboHandler<Command>
         {
             public Task ProcessAsync(Command command, IProgress<Tracker> progress, CancellationToken cancellationToken)
             {

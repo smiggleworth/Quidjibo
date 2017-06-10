@@ -10,7 +10,7 @@ namespace Quidjibo.DependencyInjection.Extensions
     {
         public static IServiceCollection AddQuidjibo(this IServiceCollection serviceCollection, params Assembly[] assemblies)
         {
-            var handlerType = typeof(IWorkHandler<>);
+            var handlerType = typeof(IQuidjiboHandler<>);
             var serviceDescriptors = from a in assemblies
                                      from t in a.GetTypes()
                                      from intf in t.GetTypeInfo().ImplementedInterfaces

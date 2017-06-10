@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Quidjibo.Handlers;
@@ -17,7 +18,7 @@ namespace Quidjibo.SimpleInjector.Tests.Extensions
         public ContainerExtensionsTests()
         {
             _container = new Container();
-            _container.RegisterHandlers(typeof(ContainerExtensionsTests).Assembly);
+            _container.RegisterHandlers(typeof(ContainerExtensionsTests).GetTypeInfo().Assembly);
         }
 
         [TestMethod]
@@ -25,7 +26,7 @@ namespace Quidjibo.SimpleInjector.Tests.Extensions
         {
             using (AsyncScopedLifestyle.BeginScope(_container))
             {
-                var handler = _container.GetInstance<IWorkHandler<BasicCommand>>();
+                var handler = _container.GetInstance<IQuidjiboHandler<BasicCommand>>();
                 handler.Should().NotBeNull("there should be a matching handler");
                 handler.Should().BeOfType<BasicHandler>("the handler should match the command");
             }
@@ -36,7 +37,7 @@ namespace Quidjibo.SimpleInjector.Tests.Extensions
         {
             using (AsyncScopedLifestyle.BeginScope(_container))
             {
-                var handler = _container.GetInstance<IWorkHandler<SimpleJob.Command>>();
+                var handler = _container.GetInstance<IQuidjiboHandler<SimpleJob.Command>>();
                 handler.Should().NotBeNull("there should be a matching handler");
                 handler.Should().BeOfType<SimpleJob.Handler>("the handler should match the command");
             }
@@ -47,7 +48,7 @@ namespace Quidjibo.SimpleInjector.Tests.Extensions
         {
             using (AsyncScopedLifestyle.BeginScope(_container))
             {
-                Action resolve = () => _container.GetInstance<IWorkHandler<UnhandledCommand>>();
+                Action resolve = () => _container.GetInstance<IQuidjiboHandler<UnhandledCommand>>();
                 resolve.ShouldThrow<ActivationException>("Handler was not registerd");
             }
         }

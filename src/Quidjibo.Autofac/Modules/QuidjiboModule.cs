@@ -17,7 +17,7 @@ namespace Quidjibo.Autofac.Modules
 
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterAssemblyTypes(_assemblies).AsClosedTypesOf(typeof(IWorkHandler<>));
+            builder.RegisterAssemblyTypes(_assemblies).AsClosedTypesOf(typeof(IQuidjiboHandler<>));
             builder.Register(c => QuidjiboClient.Instance).As<IQuidjiboClient>().SingleInstance();
         }
     }

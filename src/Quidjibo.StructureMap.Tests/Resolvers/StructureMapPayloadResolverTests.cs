@@ -28,7 +28,7 @@ namespace Quidjibo.StructureMap.Tests.Resolvers
         {
             using (_resolver.Begin())
             {
-                var handler = _resolver.Resolve(typeof(IWorkHandler<BasicCommand>));
+                var handler = _resolver.Resolve(typeof(IQuidjiboHandler<BasicCommand>));
                 handler.Should().NotBeNull("there should be a matching handler");
                 handler.Should().BeOfType<BasicHandler>("the handler should match the command");
             }
@@ -39,7 +39,7 @@ namespace Quidjibo.StructureMap.Tests.Resolvers
         {
             using (_resolver.Begin())
             {
-                var handler = _resolver.Resolve(typeof(IWorkHandler<SimpleJob.Command>));
+                var handler = _resolver.Resolve(typeof(IQuidjiboHandler<SimpleJob.Command>));
                 handler.Should().NotBeNull("there should be a matching handler");
                 handler.Should().BeOfType<SimpleJob.Handler>("the handler should match the command");
             }
@@ -50,7 +50,7 @@ namespace Quidjibo.StructureMap.Tests.Resolvers
         {
             using (_resolver.Begin())
             {
-                Action resolve = () => _resolver.Resolve(typeof(IWorkHandler<UnhandledCommand>));
+                Action resolve = () => _resolver.Resolve(typeof(IQuidjiboHandler<UnhandledCommand>));
                 resolve.ShouldThrow<StructureMapConfigurationException>("Handler was not registerd");
             }
         }

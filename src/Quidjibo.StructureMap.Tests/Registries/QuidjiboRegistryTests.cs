@@ -26,7 +26,7 @@ namespace Quidjibo.StructureMap.Tests.Registries
         {
             using (var nestedContainer = _container.GetNestedContainer())
             {
-                var handler = nestedContainer.GetInstance<IWorkHandler<BasicCommand>>();
+                var handler = nestedContainer.GetInstance<IQuidjiboHandler<BasicCommand>>();
                 handler.Should().NotBeNull("there should be a matching handler");
                 handler.Should().BeOfType<BasicHandler>("the handler should match the command");
             }
@@ -37,7 +37,7 @@ namespace Quidjibo.StructureMap.Tests.Registries
         {
             using (var nestedContainer = _container.GetNestedContainer())
             {
-                var handler = nestedContainer.GetInstance<IWorkHandler<SimpleJob.Command>>();
+                var handler = nestedContainer.GetInstance<IQuidjiboHandler<SimpleJob.Command>>();
                 handler.Should().NotBeNull("there should be a matching handler");
                 handler.Should().BeOfType<SimpleJob.Handler>("the handler should match the command");
             }
@@ -48,7 +48,7 @@ namespace Quidjibo.StructureMap.Tests.Registries
         {
             using (var nestedContainer = _container.GetNestedContainer())
             {
-                Action resolve = () => nestedContainer.GetInstance<IWorkHandler<UnhandledCommand>>();
+                Action resolve = () => nestedContainer.GetInstance<IQuidjiboHandler<UnhandledCommand>>();
                 resolve.ShouldThrow<StructureMapConfigurationException>("Handler was not registerd");
             }
         }

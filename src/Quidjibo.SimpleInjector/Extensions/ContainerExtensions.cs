@@ -9,7 +9,7 @@ namespace Quidjibo.SimpleInjector.Extensions
     {
         public static void RegisterHandlers(this Container container, params Assembly[] assemblies)
         {
-            container.Register(typeof(IWorkHandler<>), assemblies);
+            container.Register(typeof(IQuidjiboHandler<>), assemblies);
             container.RegisterSingleton(QuidjiboClient.Instance);
         }
     }

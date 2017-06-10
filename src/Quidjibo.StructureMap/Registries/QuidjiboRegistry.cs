@@ -11,7 +11,7 @@ namespace Quidjibo.StructureMap.Registries
             Scan(_ =>
             {
                 _.AssembliesFromApplicationBaseDirectory();
-                _.ConnectImplementationsToTypesClosing(typeof(IWorkHandler<>));
+                _.ConnectImplementationsToTypesClosing(typeof(IQuidjiboHandler<>));
             });
             For<IQuidjiboClient>().Use(_ => QuidjiboClient.Instance).Singleton();
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,7 +17,7 @@ namespace Quidjibo.DependencyInjection.Tests.Extensions
         public ServiceCollectionExtensionsTests()
         {
             var services = new ServiceCollection();
-            services.AddQuidjibo(typeof(ServiceCollectionExtensionsTests).Assembly);
+            services.AddQuidjibo(typeof(ServiceCollectionExtensionsTests).GetTypeInfo().Assembly);
             _serviceProvider = services.BuildServiceProvider();
         }
 
@@ -25,7 +26,7 @@ namespace Quidjibo.DependencyInjection.Tests.Extensions
         {
             using (var scope = _serviceProvider.CreateScope())
             {
-                var handler = scope.ServiceProvider.GetService<IWorkHandler<BasicCommand>>();
+                var handler = scope.ServiceProvider.GetService<IQuidjiboHandler<BasicCommand>>();
                 handler.Should().NotBeNull("there should be a matching handler");
                 handler.Should().BeOfType<BasicHandler>("the handler should match the command");
             }
@@ -36,7 +37,7 @@ namespace Quidjibo.DependencyInjection.Tests.Extensions
         {
             using (var scope = _serviceProvider.CreateScope())
             {
-                var handler = scope.ServiceProvider.GetService<IWorkHandler<SimpleJob.Command>>();
+                var handler = scope.ServiceProvider.GetService<IQuidjiboHandler<SimpleJob.Command>>();
                 handler.Should().NotBeNull("there should be a matching handler");
                 handler.Should().BeOfType<SimpleJob.Handler>("the handler should match the command");
             }
@@ -47,7 +48,7 @@ namespace Quidjibo.DependencyInjection.Tests.Extensions
         {
             using (var scope = _serviceProvider.CreateScope())
             {
-                var handler = scope.ServiceProvider.GetService<IWorkHandler<UnhandledCommand>>();
+                var handler = scope.ServiceProvider.GetService<IQuidjiboHandler<UnhandledCommand>>();
                 handler.Should().BeNull("handler was not registerd");
             }
         }

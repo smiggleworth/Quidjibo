@@ -20,7 +20,7 @@ namespace Quidjibo.Dispatchers
 
         public async Task DispatchAsync(IQuidjiboCommand command, IProgress<Tracker> progress, CancellationToken cancellationToken)
         {
-            var type = typeof(IWorkHandler<>).MakeGenericType(command.GetType());
+            var type = typeof(IQuidjiboHandler<>).MakeGenericType(command.GetType());
             using (_resolver.Begin())
             {
                 var resolved = _resolver.Resolve(type);
