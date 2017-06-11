@@ -1,5 +1,4 @@
-﻿
-using Quidjibo.DataProtection.Protectors;
+﻿using Quidjibo.DataProtection.Protectors;
 using Quidjibo.Serializers;
 
 namespace Quidjibo.DataProtection.Extensions

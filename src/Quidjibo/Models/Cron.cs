@@ -1,3 +1,5 @@
+using System;
+
 namespace Quidjibo.Models
 {
     public class Cron
@@ -9,9 +11,9 @@ namespace Quidjibo.Models
             Expression = expression;
         }
 
-        public static Cron EveryXMinute(int minute = 0)
+        public static Cron MinuteIntervals(int minute = 1)
         {
-            return new Cron($"*/{minute} * * * *");
+            return new Cron($"*/{Math.Max(1, minute)} * * * *");
         }
 
         public static Cron Daily(int hour = 0, int minute = 0)
