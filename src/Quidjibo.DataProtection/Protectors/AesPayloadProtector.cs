@@ -3,6 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using Quidjibo.Protectors;
 
 namespace Quidjibo.DataProtection.Protectors
 {
@@ -17,35 +18,33 @@ namespace Quidjibo.DataProtection.Protectors
 
         public async Task<byte[]> ProtectAsync(byte[] payload, CancellationToken cancellationToken)
         {
-            // this is just placeholder code
-            using (var algorithm = Aes.Create())
-            using (var encryptor = algorithm.CreateEncryptor(_key, algorithm.IV))
-            using (var memoryStream = new MemoryStream())
-            using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
+            using (var aes = Aes.Create())
+            using (var crypto = aes.CreateEncryptor(_key, aes.IV))
+            using (var stream = new MemoryStream())
+            using (var cryptoStream = new CryptoStream(stream, crypto, CryptoStreamMode.Write))
             {
                 await cryptoStream.WriteAsync(payload, 0, payload.Length, cancellationToken);
                 cryptoStream.FlushFinalBlock();
-                var encryptedPayload = memoryStream.ToArray();
-                var outputBuffer = new byte[encryptedPayload.Length + algorithm.IV.Length];
-                Buffer.BlockCopy(algorithm.IV, 0, outputBuffer, 0, algorithm.IV.Length);
-                Buffer.BlockCopy(encryptedPayload, 0, outputBuffer, algorithm.IV.Length, encryptedPayload.Length);
+                var encryptedPayload = stream.ToArray();
+                var outputBuffer = new byte[encryptedPayload.Length + aes.IV.Length];
+                Buffer.BlockCopy(aes.IV, 0, outputBuffer, 0, aes.IV.Length);
+                Buffer.BlockCopy(encryptedPayload, 0, outputBuffer, aes.IV.Length, encryptedPayload.Length);
                 return outputBuffer;
             }
         }
 
         public async Task<byte[]> UnprotectAysnc(byte[] payload, CancellationToken cancellationToken)
         {
-            // this is just placeholder code
-            var iv = new byte[16];
+            var iv = new byte[128 / 8];
             Buffer.BlockCopy(payload, 0, iv, 0, iv.Length);
-            using (var algorithm = Aes.Create())
-            using (var decryptor = algorithm.CreateDecryptor(_key, iv))
-            using (var memoryStream = new MemoryStream())
-            using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Write))
+            using (var aes = Aes.Create())
+            using (var crypto = aes.CreateDecryptor(_key, iv))
+            using (var stream = new MemoryStream())
+            using (var cryptoStream = new CryptoStream(stream, crypto, CryptoStreamMode.Write))
             {
                 await cryptoStream.WriteAsync(payload, iv.Length, payload.Length - iv.Length, cancellationToken);
                 cryptoStream.FlushFinalBlock();
-                return memoryStream.ToArray();
+                return stream.ToArray();
             }
         }
     }
