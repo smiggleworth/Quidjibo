@@ -1,10 +1,7 @@
 ﻿using System.Reflection;
-using System.Runtime.InteropServices.ComTypes;
 using Autofac;
 using Quidjibo.Clients;
 using Quidjibo.Handlers;
-using Quidjibo.Misc;
-using Quidjibo.Models;
 using Module = Autofac.Module;
 
 namespace Quidjibo.Autofac.Modules

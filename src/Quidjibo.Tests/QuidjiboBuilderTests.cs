@@ -19,8 +19,8 @@ namespace Quidjibo.Tests
             Action build = () => quidjibo.BuildServer();
 
             build.ShouldThrow<QuidjiboBuilderException>()
-                .WithMessage("Failed to validate. See list of errors for more detail.")
-                .And.Errors.Should().Contain("Requires Work Provider Factory");
+                 .WithMessage("Failed to validate. See list of errors for more detail.")
+                 .And.Errors.Should().Contain("Requires Work Provider Factory");
         }
 
         [TestMethod]

@@ -29,8 +29,6 @@ namespace Quidjibo.Servers
         private CancellationTokenSource _cts;
         private SemaphoreSlim _throttle;
 
-        public string Worker { get; }
-
         public QuidjiboServer(
             ILoggerFactory loggerFactory,
             IQuidjiboConfiguration quidjiboConfiguration,
@@ -51,6 +49,8 @@ namespace Quidjibo.Servers
             _progressProviderFactory = progressProviderFactory;
             Worker = $"{Environment.GetEnvironmentVariable("COMPUTERNAME")}-{Guid.NewGuid()}";
         }
+
+        public string Worker { get; }
 
         public void Start()
         {
@@ -214,8 +214,8 @@ namespace Quidjibo.Servers
             CancellationToken cancellationToken)
         {
             var tasks = workflowCommand.Entries.Where(e => e.Key == workflowCommand.CurrentStep)
-                                .SelectMany(e => e.Value, (e, c) => _dispatcher.DispatchAsync(c, progress, cancellationToken))
-                                .ToList();
+                                       .SelectMany(e => e.Value, (e, c) => _dispatcher.DispatchAsync(c, progress, cancellationToken))
+                                       .ToList();
             await Task.WhenAll(tasks);
 
             workflowCommand.NextStep();

@@ -10,7 +10,6 @@ using Quidjibo.Autofac.Tests.Samples;
 using Quidjibo.Clients;
 using Quidjibo.Factories;
 using Quidjibo.Handlers;
-using Quidjibo.Models;
 using Quidjibo.Providers;
 using Quidjibo.Serializers;
 

@@ -3,7 +3,6 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Quidjibo.Clients;
 using Quidjibo.Handlers;
-using Quidjibo.Misc;
 
 namespace Quidjibo.DependencyInjection.Extensions
 {

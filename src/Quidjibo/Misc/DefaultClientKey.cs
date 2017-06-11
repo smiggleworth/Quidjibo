@@ -1,6 +1,6 @@
 namespace Quidjibo.Misc
 {
-    public struct DefaultClientKey : IQuidjiboClientKey
+    public class DefaultClientKey : IQuidjiboClientKey
     {
     }
 }

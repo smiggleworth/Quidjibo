@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using Quidjibo.Clients;
 using Quidjibo.Configurations;
@@ -9,7 +8,6 @@ using Quidjibo.Dispatchers;
 using Quidjibo.Exceptions;
 using Quidjibo.Factories;
 using Quidjibo.Misc;
-using Quidjibo.Models;
 using Quidjibo.Protectors;
 using Quidjibo.Providers;
 using Quidjibo.Resolvers;
@@ -20,7 +18,6 @@ namespace Quidjibo
 {
     public class QuidjiboBuilder
     {
-        private bool _validated;
         private IQuidjiboConfiguration _configuration;
         private ICronProvider _cronProvider;
         private IWorkDispatcher _dispatcher;
@@ -28,10 +25,11 @@ namespace Quidjibo
         private IProgressProviderFactory _progressProviderFactory;
         private IScheduleProviderFactory _scheduleProviderFactory;
         private IPayloadSerializer _serializer;
+        private bool _validated;
         private IWorkProviderFactory _workProviderFactory;
 
         /// <summary>
-        /// Build an instance of a QuidjiboServer as configured.
+        ///     Build an instance of a QuidjiboServer as configured.
         /// </summary>
         /// <returns></returns>
         public IQuidjiboServer BuildServer()
@@ -50,7 +48,7 @@ namespace Quidjibo
         }
 
         /// <summary>
-        /// Build the default QuidjiboClient. This is to support the typical use case.
+        ///     Build the default QuidjiboClient. This is to support the typical use case.
         /// </summary>
         /// <returns></returns>
         public IQuidjiboClient<DefaultClientKey> BuildClient()
@@ -59,7 +57,8 @@ namespace Quidjibo
         }
 
         /// <summary>
-        /// Build an keyed instance of the QuidjiboClient. This is used if you need to work with more than one Quidjibo configuration.
+        ///     Build an keyed instance of the QuidjiboClient. This is used if you need to work with more than one Quidjibo
+        ///     configuration.
         /// </summary>
         /// <returns></returns>
         public IQuidjiboClient<TKey> BuildClient<TKey>()
@@ -70,11 +69,13 @@ namespace Quidjibo
             var client = new QuidjiboClient<TKey>(_workProviderFactory, _scheduleProviderFactory, _serializer, _cronProvider);
 
             QuidjiboClient<TKey>.Instance = client;
+
             return client;
         }
 
         /// <summary>
-        /// Apply a configurtion to the builder. Typically this is done in an extension method provided by the integration implmentation
+        ///     Apply a configurtion to the builder. Typically this is done in an extension method provided by the integration
+        ///     implmentation
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
@@ -85,7 +86,7 @@ namespace Quidjibo
         }
 
         /// <summary>
-        /// Add the logger factory. (optional)
+        ///     Add the logger factory. (optional)
         /// </summary>
         /// <param name="factory"></param>
         /// <returns></returns>
@@ -96,7 +97,6 @@ namespace Quidjibo
         }
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="assemblies">The assemblies that contain your QuidjiboHandlers</param>
         /// <returns></returns>
@@ -107,7 +107,8 @@ namespace Quidjibo
         }
 
         /// <summary>
-        /// Configure Dispatcher with a custom resolver. Typically this is done in an extension method provided by the DI framework implmentation
+        ///     Configure Dispatcher with a custom resolver. Typically this is done in an extension method provided by the DI
+        ///     framework implmentation
         /// </summary>
         /// <param name="resolver"></param>
         /// <returns></returns>
@@ -118,7 +119,7 @@ namespace Quidjibo
         }
 
         /// <summary>
-        /// Configure a custom serializer. (Optional)
+        ///     Configure a custom serializer. (Optional)
         /// </summary>
         /// <param name="serializer"></param>
         /// <returns></returns>
@@ -129,7 +130,7 @@ namespace Quidjibo
         }
 
         /// <summary>
-        /// Configure a custom cron provider. (Optional)
+        ///     Configure a custom cron provider. (Optional)
         /// </summary>
         /// <param name="cronProvider"></param>
         /// <returns></returns>
@@ -140,7 +141,8 @@ namespace Quidjibo
         }
 
         /// <summary>
-        /// Configure a custome Progress Provider Factory. Typically this is done in an extension method provided by the integration implmentation
+        ///     Configure a custome Progress Provider Factory. Typically this is done in an extension method provided by the
+        ///     integration implmentation
         /// </summary>
         /// <param name="factory"></param>
         /// <returns></returns>
@@ -151,7 +153,8 @@ namespace Quidjibo
         }
 
         /// <summary>
-        /// Configure a custome Schedule Provider Factory. Typically this is done in an extension method provided by the integration implmentation
+        ///     Configure a custome Schedule Provider Factory. Typically this is done in an extension method provided by the
+        ///     integration implmentation
         /// </summary>
         /// <param name="factory"></param>
         /// <returns></returns>
@@ -162,7 +165,8 @@ namespace Quidjibo
         }
 
         /// <summary>
-        /// Configure a custome Work Provider Factory. Typically this is done in an extension method provided by the integration implmentation
+        ///     Configure a custome Work Provider Factory. Typically this is done in an extension method provided by the
+        ///     integration implmentation
         /// </summary>
         /// <param name="factory"></param>
         /// <returns></returns>

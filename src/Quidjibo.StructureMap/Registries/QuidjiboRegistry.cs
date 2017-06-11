@@ -1,6 +1,5 @@
 ﻿using Quidjibo.Clients;
 using Quidjibo.Handlers;
-using Quidjibo.Misc;
 using StructureMap;
 
 namespace Quidjibo.StructureMap.Registries
