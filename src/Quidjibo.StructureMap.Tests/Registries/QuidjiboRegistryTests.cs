@@ -1,7 +1,12 @@
 ﻿using System;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NSubstitute;
+using Quidjibo.Clients;
+using Quidjibo.Factories;
 using Quidjibo.Handlers;
+using Quidjibo.Providers;
+using Quidjibo.Serializers;
 using Quidjibo.StructureMap.Registries;
 using Quidjibo.StructureMap.Tests.Samples;
 using StructureMap;
@@ -50,6 +55,23 @@ namespace Quidjibo.StructureMap.Tests.Registries
             {
                 Action resolve = () => nestedContainer.GetInstance<IQuidjiboHandler<UnhandledCommand>>();
                 resolve.ShouldThrow<StructureMapConfigurationException>("Handler was not registerd");
+            }
+        }
+
+        [TestMethod]
+        public void RegisteredDefaultQuidjiboClientTest()
+        {
+            QuidjiboClient.Instance = new QuidjiboClient(
+                Substitute.For<IWorkProviderFactory>(),
+                Substitute.For<IScheduleProviderFactory>(),
+                Substitute.For<IPayloadSerializer>(),
+                Substitute.For<ICronProvider>());
+
+            using (var nestedContainer = _container.GetNestedContainer())
+            {
+                var client = nestedContainer.GetInstance<IQuidjiboClient>();
+                client.Should().NotBeNull();
+                client.Should().BeAssignableTo<IQuidjiboClient>();
             }
         }
     }

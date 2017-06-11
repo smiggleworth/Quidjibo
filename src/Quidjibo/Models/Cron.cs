@@ -11,13 +11,4 @@ namespace Quidjibo.Models
             Expression = expression;
         }
     }
-
-    public interface IQuidjiboClientKey
-    {
-        
-    }
-
-    public class DefaultClientKey : IQuidjiboClientKey
-    {
-    }
 }

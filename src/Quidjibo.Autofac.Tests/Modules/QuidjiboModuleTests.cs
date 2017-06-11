@@ -4,18 +4,24 @@ using Autofac;
 using Autofac.Core.Registration;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NSubstitute;
 using Quidjibo.Autofac.Modules;
 using Quidjibo.Autofac.Tests.Samples;
+using Quidjibo.Clients;
+using Quidjibo.Factories;
 using Quidjibo.Handlers;
+using Quidjibo.Models;
+using Quidjibo.Providers;
+using Quidjibo.Serializers;
 
 namespace Quidjibo.Autofac.Tests.Modules
 {
     [TestClass]
-    public class AutofacModuleTests
+    public class QuidjiboModuleTests
     {
         private readonly IContainer _container;
 
-        public AutofacModuleTests()
+        public QuidjiboModuleTests()
         {
             var builder = new ContainerBuilder();
             builder.RegisterModule(new QuidjiboModule(GetType().GetTypeInfo().Assembly));
@@ -51,6 +57,23 @@ namespace Quidjibo.Autofac.Tests.Modules
             {
                 Action resolve = () => scope.Resolve<IQuidjiboHandler<UnhandledCommand>>();
                 resolve.ShouldThrow<ComponentNotRegisteredException>("Handler was not registerd");
+            }
+        }
+
+        [TestMethod]
+        public void RegisteredDefaultQuidjiboClientTest()
+        {
+            QuidjiboClient.Instance = new QuidjiboClient(
+                Substitute.For<IWorkProviderFactory>(),
+                Substitute.For<IScheduleProviderFactory>(),
+                Substitute.For<IPayloadSerializer>(),
+                Substitute.For<ICronProvider>());
+
+            using (var scope = _container.BeginLifetimeScope())
+            {
+                var client = scope.Resolve<IQuidjiboClient>();
+                client.Should().NotBeNull();
+                client.Should().BeAssignableTo<IQuidjiboClient>();
             }
         }
     }

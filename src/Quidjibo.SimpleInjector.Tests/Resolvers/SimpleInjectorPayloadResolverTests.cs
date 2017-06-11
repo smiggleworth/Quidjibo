@@ -19,7 +19,7 @@ namespace Quidjibo.SimpleInjector.Tests.Resolvers
         public SimpleInjectorPayloadResolverTests()
         {
             var container = new Container();
-            container.RegisterHandlers(GetType().GetTypeInfo().Assembly);
+            container.RegisterQuidjibo(GetType().GetTypeInfo().Assembly);
             _resolver = new SimpleInjectorPayloadResolver(container);
         }
 

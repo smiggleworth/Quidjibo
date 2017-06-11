@@ -2,7 +2,12 @@
 using System.Reflection;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NSubstitute;
+using Quidjibo.Clients;
+using Quidjibo.Factories;
 using Quidjibo.Handlers;
+using Quidjibo.Providers;
+using Quidjibo.Serializers;
 using Quidjibo.SimpleInjector.Extensions;
 using Quidjibo.SimpleInjector.Tests.Samples;
 using SimpleInjector;
@@ -18,7 +23,7 @@ namespace Quidjibo.SimpleInjector.Tests.Extensions
         public ContainerExtensionsTests()
         {
             _container = new Container();
-            _container.RegisterHandlers(typeof(ContainerExtensionsTests).GetTypeInfo().Assembly);
+            _container.RegisterQuidjibo(typeof(ContainerExtensionsTests).GetTypeInfo().Assembly);
         }
 
         [TestMethod]
@@ -50,6 +55,23 @@ namespace Quidjibo.SimpleInjector.Tests.Extensions
             {
                 Action resolve = () => _container.GetInstance<IQuidjiboHandler<UnhandledCommand>>();
                 resolve.ShouldThrow<ActivationException>("Handler was not registerd");
+            }
+        }
+
+        [TestMethod]
+        public void RegisteredDefaultQuidjiboClientTest()
+        {
+            QuidjiboClient.Instance = new QuidjiboClient(
+                Substitute.For<IWorkProviderFactory>(),
+                Substitute.For<IScheduleProviderFactory>(),
+                Substitute.For<IPayloadSerializer>(),
+                Substitute.For<ICronProvider>());
+
+            using (AsyncScopedLifestyle.BeginScope(_container))
+            {
+                var client = _container.GetInstance<IQuidjiboClient>();
+                client.Should().NotBeNull();
+                client.Should().BeAssignableTo<IQuidjiboClient>();
             }
         }
     }

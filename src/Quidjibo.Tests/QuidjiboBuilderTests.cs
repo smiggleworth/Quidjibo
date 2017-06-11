@@ -1,7 +1,10 @@
 ﻿using System;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NSubstitute;
+using Quidjibo.Configurations;
 using Quidjibo.Exceptions;
+using Quidjibo.Factories;
 
 namespace Quidjibo.Tests
 {
@@ -47,7 +50,12 @@ namespace Quidjibo.Tests
         [TestMethod]
         public void When_Builder_IsNotConfigured_ShouldUseDefaults()
         {
-            var quidjibo = new QuidjiboBuilder();
+            var quidjibo = new QuidjiboBuilder()
+                .Configure(Substitute.For<IQuidjiboConfiguration>())
+                .ConfigureWorkProviderFactory(Substitute.For<IWorkProviderFactory>())
+                .ConfigureScheduleProviderFactory(Substitute.For<IScheduleProviderFactory>())
+                .ConfigureProgressProviderFactory(Substitute.For<IProgressProviderFactory>());
+
 
             var server = quidjibo.BuildServer();
             var client = quidjibo.BuildClient();

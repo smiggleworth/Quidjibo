@@ -3,9 +3,14 @@ using System.Reflection;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NSubstitute;
+using Quidjibo.Clients;
 using Quidjibo.DependencyInjection.Extensions;
 using Quidjibo.DependencyInjection.Tests.Samples;
+using Quidjibo.Factories;
 using Quidjibo.Handlers;
+using Quidjibo.Providers;
+using Quidjibo.Serializers;
 
 namespace Quidjibo.DependencyInjection.Tests.Extensions
 {
@@ -50,6 +55,23 @@ namespace Quidjibo.DependencyInjection.Tests.Extensions
             {
                 var handler = scope.ServiceProvider.GetService<IQuidjiboHandler<UnhandledCommand>>();
                 handler.Should().BeNull("handler was not registerd");
+            }
+        }
+
+        [TestMethod]
+        public void RegisteredDefaultQuidjiboClientTest()
+        {
+            QuidjiboClient.Instance = new QuidjiboClient(
+                Substitute.For<IWorkProviderFactory>(),
+                Substitute.For<IScheduleProviderFactory>(),
+                Substitute.For<IPayloadSerializer>(),
+                Substitute.For<ICronProvider>());
+
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var client = scope.ServiceProvider.GetService<IQuidjiboClient>();
+                client.Should().NotBeNull();
+                client.Should().BeAssignableTo<IQuidjiboClient>();
             }
         }
     }

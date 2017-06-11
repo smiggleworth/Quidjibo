@@ -5,35 +5,32 @@ using System.Threading.Tasks;
 using Quidjibo.Commands;
 using Quidjibo.Extensions;
 using Quidjibo.Factories;
+using Quidjibo.Misc;
 using Quidjibo.Models;
 using Quidjibo.Providers;
 using Quidjibo.Serializers;
 
 namespace Quidjibo.Clients
 {
-    public class QuidjiboClient : QuidjiboClient<DefaultClientKey>
+    public class QuidjiboClient : QuidjiboClient<DefaultClientKey>, IQuidjiboClient
     {
-        public QuidjiboClient(IWorkProviderFactory workProviderFactory, IScheduleProviderFactory scheduleProviderFactory, IPayloadSerializer payloadSerializer, ICronProvider cronProvider)
-            : base(workProviderFactory, scheduleProviderFactory, payloadSerializer, cronProvider)
+        public QuidjiboClient(
+            IWorkProviderFactory workProviderFactory,
+            IScheduleProviderFactory scheduleProviderFactory,
+            IPayloadSerializer payloadSerializer,
+            ICronProvider cronProvider) : base(
+            workProviderFactory,
+            scheduleProviderFactory,
+            payloadSerializer,
+            cronProvider)
         {
-        }
-    }
-
-    internal struct ProviderCacheKey<TKey>
-        where TKey : IQuidjiboClientKey
-    {
-        private readonly string _queueName;
-
-        public ProviderCacheKey(string queueName)
-        {
-            _queueName = queueName;
         }
     }
 
     public class QuidjiboClient<TKey> : IQuidjiboClient<TKey>
         where TKey : IQuidjiboClientKey
     {
-        public static IQuidjiboClient<TKey> Instance = new QuidjiboDumbClient<TKey>();
+        public static IQuidjiboClient<TKey> Instance;
 
         private static readonly ConcurrentDictionary<ProviderCacheKey<TKey>, IWorkProvider> WorkProviders = new ConcurrentDictionary<ProviderCacheKey<TKey>, IWorkProvider>();
         private static readonly ConcurrentDictionary<ProviderCacheKey<TKey>, IScheduleProvider> ScheduleProviders = new ConcurrentDictionary<ProviderCacheKey<TKey>, IScheduleProvider>();

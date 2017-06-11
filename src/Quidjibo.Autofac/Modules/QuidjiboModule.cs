@@ -1,7 +1,10 @@
 ﻿using System.Reflection;
+using System.Runtime.InteropServices.ComTypes;
 using Autofac;
 using Quidjibo.Clients;
 using Quidjibo.Handlers;
+using Quidjibo.Misc;
+using Quidjibo.Models;
 using Module = Autofac.Module;
 
 namespace Quidjibo.Autofac.Modules
@@ -18,7 +21,7 @@ namespace Quidjibo.Autofac.Modules
         protected override void Load(ContainerBuilder builder)
         {
             builder.RegisterAssemblyTypes(_assemblies).AsClosedTypesOf(typeof(IQuidjiboHandler<>));
-            builder.Register(c => QuidjiboClient.Instance).As<IQuidjiboClient>().SingleInstance();
+            builder.Register(c => (QuidjiboClient)QuidjiboClient.Instance).As<IQuidjiboClient>().SingleInstance();
         }
     }
 }
