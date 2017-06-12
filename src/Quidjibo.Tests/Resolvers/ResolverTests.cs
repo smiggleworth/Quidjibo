@@ -6,8 +6,6 @@ namespace Quidjibo.Tests.Resolvers
     public class ResolverTests
     {
         [TestMethod]
-        public void BasicResolveTest()
-        {
-        }
+        public void BasicResolveTest() { }
     }
 }

@@ -3,7 +3,8 @@ using Quidjibo.Configurations;
 
 namespace Quidjibo.Azure.ServiceBus.Configurations
 {
-    public class ServiceBusQuidjiboConfiguration: IQuidjiboConfiguration {
+    public class ServiceBusQuidjiboConfiguration : IQuidjiboConfiguration
+    {
         public List<string> Queues { get; }
         public bool SingleLoop { get; }
         public int PollingInterval { get; }

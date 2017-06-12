@@ -9,9 +9,7 @@ namespace Quidjibo.StructureMap.Tests.Samples
 {
     public class SimpleJob
     {
-        public class Command : IQuidjiboCommand
-        {
-        }
+        public class Command : IQuidjiboCommand { }
 
         public class Handler : IQuidjiboHandler<Command>
         {

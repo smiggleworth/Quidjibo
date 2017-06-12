@@ -21,6 +21,7 @@ namespace Quidjibo.DependencyInjection.Extensions
             {
                 serviceCollection.Add(serviceDescriptor);
             }
+
             serviceCollection.Add(new ServiceDescriptor(typeof(IQuidjiboClient), _ => (IQuidjiboClient)QuidjiboClient.Instance, ServiceLifetime.Singleton));
 
             return serviceCollection;

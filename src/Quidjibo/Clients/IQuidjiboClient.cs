@@ -7,9 +7,7 @@ using Quidjibo.Models;
 
 namespace Quidjibo.Clients
 {
-    public interface IQuidjiboClient : IQuidjiboClient<DefaultClientKey>
-    {
-    }
+    public interface IQuidjiboClient : IQuidjiboClient<DefaultClientKey> { }
 
     public interface IQuidjiboClient<TKey> : IDisposable
         where TKey : IQuidjiboClientKey

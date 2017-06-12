@@ -1,6 +1,4 @@
 namespace Quidjibo.Misc
 {
-    public interface IQuidjiboClientKey
-    {
-    }
+    public interface IQuidjiboClientKey { }
 }

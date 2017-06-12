@@ -182,6 +182,7 @@ namespace Quidjibo
             {
                 return;
             }
+
             _cronProvider = _cronProvider ?? new CronProvider();
             _dispatcher = _dispatcher ?? new WorkDispatcher(new PayloadResolver());
             _loggerFactory = _loggerFactory ?? new LoggerFactory();
