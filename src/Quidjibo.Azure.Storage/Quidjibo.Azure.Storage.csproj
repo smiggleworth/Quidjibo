@@ -12,4 +12,8 @@
     <PackageTags>async, tasks, workers, cron</PackageTags>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Quidjibo\Quidjibo.csproj" />
+  </ItemGroup>
+
 </Project>
