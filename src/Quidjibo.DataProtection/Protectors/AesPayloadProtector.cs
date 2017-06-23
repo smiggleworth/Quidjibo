@@ -16,6 +16,12 @@ namespace Quidjibo.DataProtection.Protectors
             _key = key;
         }
 
+        /*
+         * Encrypted payload:
+         * 
+         * |--- IV (16 bytes) ---|--- MAC (32 bytes) ---|--- Ciphertext (n bytes) ---|
+         * 
+         */
         public async Task<byte[]> ProtectAsync(byte[] payload, CancellationToken cancellationToken)
         {
             using (var aes = Aes.Create())
@@ -26,7 +32,7 @@ namespace Quidjibo.DataProtection.Protectors
                 await cryptoStream.WriteAsync(payload, 0, payload.Length, cancellationToken);
                 cryptoStream.FlushFinalBlock();
                 var encryptedPayload = stream.ToArray();
-                var mac = ComputeMac(encryptedPayload);
+                var mac = ComputeMac(encryptedPayload, 0 , encryptedPayload.Length);
                 var outputBuffer = new byte[encryptedPayload.Length + aes.IV.Length + mac.Length];
                 Buffer.BlockCopy(aes.IV, 0, outputBuffer, 0, aes.IV.Length);
                 Buffer.BlockCopy(mac, 0, outputBuffer, aes.IV.Length, mac.Length);
@@ -57,23 +63,17 @@ namespace Quidjibo.DataProtection.Protectors
             return plaintext;
         }
 
-        private byte[] ComputeMac(byte[] encryptedPayload)
+        private byte[] ComputeMac(byte[] buffer, int offset, int count)
         {
-            byte[] mac;
             using (var hmac = new HMACSHA256(_key))
             {
-                mac = hmac.ComputeHash(encryptedPayload);
+                return hmac.ComputeHash(buffer, offset, count);
             }
-            return mac;
         }
 
         private void VerifyMac(byte[] payload, byte[] mac)
         {
-            byte[] payloadMac;
-            using (var hmac = new HMACSHA256(_key))
-            {
-                payloadMac = hmac.ComputeHash(payload, 16 + 32, payload.Length - (16 + 32));
-            }
+            byte[] payloadMac = ComputeMac(payload, 16 + 32, payload.Length - (16 + 32));
 
             for (int i = 0; i < mac.Length; i++)
             {
@@ -85,3 +85,4 @@ namespace Quidjibo.DataProtection.Protectors
         }
     }
 }
+ 
