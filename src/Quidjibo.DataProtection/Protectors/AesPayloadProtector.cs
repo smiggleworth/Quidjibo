@@ -26,9 +26,11 @@ namespace Quidjibo.DataProtection.Protectors
                 await cryptoStream.WriteAsync(payload, 0, payload.Length, cancellationToken);
                 cryptoStream.FlushFinalBlock();
                 var encryptedPayload = stream.ToArray();
-                var outputBuffer = new byte[encryptedPayload.Length + aes.IV.Length];
+                var mac = ComputeMac(encryptedPayload);
+                var outputBuffer = new byte[encryptedPayload.Length + aes.IV.Length + mac.Length];
                 Buffer.BlockCopy(aes.IV, 0, outputBuffer, 0, aes.IV.Length);
-                Buffer.BlockCopy(encryptedPayload, 0, outputBuffer, aes.IV.Length, encryptedPayload.Length);
+                Buffer.BlockCopy(mac, 0, outputBuffer, aes.IV.Length, mac.Length);
+                Buffer.BlockCopy(encryptedPayload, 0, outputBuffer, aes.IV.Length + mac.Length, encryptedPayload.Length);
                 return outputBuffer;
             }
         }
@@ -37,14 +39,48 @@ namespace Quidjibo.DataProtection.Protectors
         {
             var iv = new byte[128 / 8];
             Buffer.BlockCopy(payload, 0, iv, 0, iv.Length);
+            var mac = new byte[32];
+            Buffer.BlockCopy(payload, iv.Length, mac, 0, 32);
+            byte[] plaintext;
             using (var aes = Aes.Create())
             using (var crypto = aes.CreateDecryptor(_key, iv))
             using (var stream = new MemoryStream())
             using (var cryptoStream = new CryptoStream(stream, crypto, CryptoStreamMode.Write))
             {
-                await cryptoStream.WriteAsync(payload, iv.Length, payload.Length - iv.Length, cancellationToken);
+                await cryptoStream.WriteAsync(payload, iv.Length + mac.Length, payload.Length - iv.Length - mac.Length, cancellationToken);
                 cryptoStream.FlushFinalBlock();
-                return stream.ToArray();
+                plaintext = stream.ToArray();
+            }
+
+            VerifyMac(payload, mac);
+
+            return plaintext;
+        }
+
+        private byte[] ComputeMac(byte[] encryptedPayload)
+        {
+            byte[] mac;
+            using (var hmac = new HMACSHA256(_key))
+            {
+                mac = hmac.ComputeHash(encryptedPayload);
+            }
+            return mac;
+        }
+
+        private void VerifyMac(byte[] payload, byte[] mac)
+        {
+            byte[] payloadMac;
+            using (var hmac = new HMACSHA256(_key))
+            {
+                payloadMac = hmac.ComputeHash(payload, 16 + 32, payload.Length - (16 + 32));
+            }
+
+            for (int i = 0; i < mac.Length; i++)
+            {
+                if (mac[i] != payloadMac[i])
+                {
+                    throw new Exception("MAC mismatch");
+                }
             }
         }
     }
