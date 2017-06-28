@@ -5,6 +5,11 @@ namespace Quidjibo.SqlServer.Configurations
 {
     public class SqlServerQuidjiboConfiguration : IQuidjiboConfiguration
     {
+        /// <summary>
+        /// The ConnectionString to the Sql Server
+        /// </summary>
+        public string ConnectionString { get; set; }
+
         public List<string> PublisherQueues { get; set; }
 
         public SqlServerQuidjiboConfiguration()
