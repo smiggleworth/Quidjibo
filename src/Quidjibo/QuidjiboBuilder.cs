@@ -53,7 +53,13 @@ namespace Quidjibo
         /// <returns></returns>
         public IQuidjiboClient BuildClient()
         {
-            return (IQuidjiboClient)BuildClient<DefaultClientKey>();
+            BackFillDefaults();
+
+            var client = new QuidjiboClient(_workProviderFactory, _scheduleProviderFactory, _serializer, _cronProvider);
+
+            QuidjiboClient.Instance = client;
+
+            return client;
         }
 
         /// <summary>
