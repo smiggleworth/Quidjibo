@@ -51,9 +51,9 @@ namespace Quidjibo
         ///     Build the default QuidjiboClient. This is to support the typical use case.
         /// </summary>
         /// <returns></returns>
-        public IQuidjiboClient<DefaultClientKey> BuildClient()
+        public IQuidjiboClient BuildClient()
         {
-            return BuildClient<DefaultClientKey>();
+            return (IQuidjiboClient)BuildClient<DefaultClientKey>();
         }
 
         /// <summary>
