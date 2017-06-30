@@ -42,7 +42,6 @@ namespace Quidjibo.DataProtection.Tests.Protectors
 
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
         public async Task ShouldVerifyTest()
         {
             var payload = _model.GetPayload();
@@ -51,8 +50,9 @@ namespace Quidjibo.DataProtection.Tests.Protectors
 
             protectedPayload[49] = (byte)(protectedPayload[49] ^ (byte)255);
 
-            var unprotectedPayload = await _sut.UnprotectAysnc(protectedPayload, CancellationToken.None);
-            unprotectedPayload.SequenceEqual(payload).Should().BeFalse();
+            Func<Task> sut = async () => await _sut.UnprotectAysnc(protectedPayload, CancellationToken.None);
+
+            sut.ShouldThrow<Exception>().WithMessage("MAC mismatch");
         }
 
 

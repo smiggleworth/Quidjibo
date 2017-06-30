@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,11 +10,16 @@ namespace Quidjibo.DataProtection.Protectors
 {
     public class AesPayloadProtector : IPayloadProtector
     {
-        private readonly byte[] _key;
+        private readonly byte[] _cipherKey;
+        private readonly byte[] _macKey;
 
         public AesPayloadProtector(byte[] key)
         {
-            _key = key;
+            using (var hkdf = new HKDF<HMACSHA256>())
+            {
+                _cipherKey = hkdf.Expand(key, new byte[] { 0x01 }, 32);
+                _macKey = hkdf.Expand(key, new byte[] { 0x02 }, 32);
+            }
         }
 
         /*
@@ -25,7 +31,7 @@ namespace Quidjibo.DataProtection.Protectors
         public async Task<byte[]> ProtectAsync(byte[] payload, CancellationToken cancellationToken)
         {
             using (var aes = Aes.Create())
-            using (var crypto = aes.CreateEncryptor(_key, aes.IV))
+            using (var crypto = aes.CreateEncryptor(_cipherKey, aes.IV))
             using (var stream = new MemoryStream())
             using (var cryptoStream = new CryptoStream(stream, crypto, CryptoStreamMode.Write))
             {
@@ -49,7 +55,7 @@ namespace Quidjibo.DataProtection.Protectors
             Buffer.BlockCopy(payload, iv.Length, mac, 0, 32);
             byte[] plaintext;
             using (var aes = Aes.Create())
-            using (var crypto = aes.CreateDecryptor(_key, iv))
+            using (var crypto = aes.CreateDecryptor(_cipherKey, iv))
             using (var stream = new MemoryStream())
             using (var cryptoStream = new CryptoStream(stream, crypto, CryptoStreamMode.Write))
             {
@@ -65,7 +71,7 @@ namespace Quidjibo.DataProtection.Protectors
 
         private byte[] ComputeMac(byte[] buffer, int offset, int count)
         {
-            using (var hmac = new HMACSHA256(_key))
+            using (var hmac = new HMACSHA256(_macKey))
             {
                 return hmac.ComputeHash(buffer, offset, count);
             }
