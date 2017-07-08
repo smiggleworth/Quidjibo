@@ -66,9 +66,7 @@ namespace Quidjibo.Aws.Sqs.Providers
                                Id = new Guid(message.MessageAttributes[WorkItemId].StringValue),
                                CorrelationId = new Guid(message.MessageAttributes[WorkItemId].StringValue),
                                Token = message.ReceiptHandle
-                           })
-                           .Cast<WorkItem>()
-                           .ToList();
+                           }).ToList();
         }
 
         public async Task<DateTime> RenewAsync(WorkItem workItem, CancellationToken cancellationToken)
@@ -91,6 +89,11 @@ namespace Quidjibo.Aws.Sqs.Providers
         public async Task FaultAsync(WorkItem workItem, CancellationToken cancellationToken)
         {
             var response = await _client.ChangeMessageVisibilityAsync(_queueUrl, workItem.Token, 0, cancellationToken);
+        }
+
+        public void Dispose()
+        {
+            _client?.Dispose();
         }
     }
 }

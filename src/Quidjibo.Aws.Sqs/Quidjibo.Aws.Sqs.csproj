@@ -13,7 +13,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AWSSDK.SQS" Version="3.3.2.4" />
+    <PackageReference Include="AWSSDK.SQS" Version="3.3.2.7" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.1.2" />
   </ItemGroup>
 

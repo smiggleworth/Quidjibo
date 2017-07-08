@@ -15,5 +15,6 @@ namespace Quidjibo.Models
         public DateTime? VisibleOn { get; set; }
         public int Attempts { get; set; }
         public byte[] Payload { get; set; }
+        public object RawMessage { get; set; }
     }
 }

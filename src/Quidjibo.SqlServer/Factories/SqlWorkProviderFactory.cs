@@ -11,11 +11,13 @@ namespace Quidjibo.SqlServer.Factories
     {
         private readonly string _connectionString;
         private readonly int _visibilityTimeout;
+        private readonly int _batchSize;
 
-        public SqlWorkProviderFactory(string connectionString, int visibilityTimeout = 60)
+        public SqlWorkProviderFactory(string connectionString, int visibilityTimeout = 60, int batchSize = 5)
         {
             _connectionString = connectionString;
             _visibilityTimeout = visibilityTimeout;
+            _batchSize = batchSize;
         }
 
         public async Task<IWorkProvider> CreateAsync(string queue, CancellationToken cancellationToken = default(CancellationToken))
@@ -28,7 +30,7 @@ namespace Quidjibo.SqlServer.Factories
                 await cmd.ExecuteNonQueryAsync(cancellationToken);
             }, _connectionString, false, cancellationToken);
 
-            return new SqlWorkProvider(_connectionString, queues, _visibilityTimeout, 5);
+            return new SqlWorkProvider(_connectionString, queues, _visibilityTimeout, _batchSize);
         }
     }
 }

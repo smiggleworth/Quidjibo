@@ -6,7 +6,7 @@ using Quidjibo.Models;
 
 namespace Quidjibo.Providers
 {
-    public interface IWorkProvider
+    public interface IWorkProvider : IDisposable
     {
         /// <summary>
         ///     Sends the asynchronous.
