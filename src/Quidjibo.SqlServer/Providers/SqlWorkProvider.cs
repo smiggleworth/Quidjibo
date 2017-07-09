@@ -173,5 +173,9 @@ namespace Quidjibo.SqlServer.Providers
         {
             return SqlRunner.ExecuteAsync(func, _connectionString, true, cancellationToken);
         }
+
+        public void Dispose()
+        {
+        }
     }
 }

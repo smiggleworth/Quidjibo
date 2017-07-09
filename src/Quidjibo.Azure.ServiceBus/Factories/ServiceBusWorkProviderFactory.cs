@@ -16,11 +16,12 @@ namespace Quidjibo.Azure.ServiceBus.Factories
         private readonly int _prefectchCount;
         private readonly int _batchSize;
 
-        public ServiceBusWorkProviderFactory(string connectionString, RetryPolicy retryPolicy, int prefectchCount)
+        public ServiceBusWorkProviderFactory(string connectionString, RetryPolicy retryPolicy, int prefectchCount, int batchSize)
         {
             _connectionString = connectionString;
             _retryPolicy = retryPolicy;
             _prefectchCount = prefectchCount;
+            _batchSize = batchSize;
         }
 
         public async Task<IWorkProvider> CreateAsync(string queue, CancellationToken cancellationToken = new CancellationToken())

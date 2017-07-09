@@ -11,7 +11,7 @@ using Quidjibo.Providers;
 
 namespace Quidjibo.Azure.ServiceBus.Providers
 {
-    public class ServiceBusWorkProvider : IWorkProvider
+    public class ServiceBusWorkProvider : IWorkProvider 
     {
         private readonly MessageSender _sender;
         private readonly MessageReceiver _receiver;
