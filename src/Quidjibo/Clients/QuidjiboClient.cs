@@ -86,7 +86,7 @@ namespace Quidjibo.Clients
                 Queue = queueName
             };
             var provider = await GetOrCreateWorkProvider(queueName, cancellationToken);
-            await provider.SendAsync(item, 0, cancellationToken);
+            await provider.SendAsync(item, delay, cancellationToken);
         }
 
         public async Task ScheduleAsync(string name, IQuidjiboCommand command, Cron cron, CancellationToken cancellationToken = default(CancellationToken))
@@ -119,7 +119,7 @@ namespace Quidjibo.Clients
             await provider.CreateAsync(item, cancellationToken);
         }
 
-        public void Dispose()
+        public void Clear()
         {
             Instance = null;
             WorkProviders.Clear();

@@ -11,7 +11,7 @@ namespace Quidjibo.Clients
     {
     }
 
-    public interface IQuidjiboClient<TKey> : IDisposable
+    public interface IQuidjiboClient<TKey> 
         where TKey : IQuidjiboClientKey
     {
         Task PublishAsync(IQuidjiboCommand command,
@@ -31,5 +31,7 @@ namespace Quidjibo.Clients
 
         Task ScheduleAsync(string name, string queue, IQuidjiboCommand command, Cron cron,
             CancellationToken cancellationToken = default(CancellationToken));
+
+        void Clear();
     }
 }
