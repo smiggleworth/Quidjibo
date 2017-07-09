@@ -22,7 +22,9 @@ namespace Quidjibo.Clients
             workProviderFactory,
             scheduleProviderFactory,
             payloadSerializer,
-            cronProvider) { }
+            cronProvider)
+        {
+        }
     }
 
     public class QuidjiboClient<TKey> : IQuidjiboClient<TKey>

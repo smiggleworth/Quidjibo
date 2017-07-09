@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,8 +16,8 @@ namespace Quidjibo.DataProtection.Protectors
         {
             using (var hkdf = new HKDF<HMACSHA256>())
             {
-                _cipherKey = hkdf.Expand(key, new byte[] { 0x01 }, 32);
-                _macKey = hkdf.Expand(key, new byte[] { 0x02 }, 32);
+                _cipherKey = hkdf.Expand(key, new byte[] {0x01}, 32);
+                _macKey = hkdf.Expand(key, new byte[] {0x02}, 32);
             }
         }
 
@@ -38,7 +37,7 @@ namespace Quidjibo.DataProtection.Protectors
                 await cryptoStream.WriteAsync(payload, 0, payload.Length, cancellationToken);
                 cryptoStream.FlushFinalBlock();
                 var encryptedPayload = stream.ToArray();
-                var mac = ComputeMac(encryptedPayload, 0 , encryptedPayload.Length);
+                var mac = ComputeMac(encryptedPayload, 0, encryptedPayload.Length);
                 var outputBuffer = new byte[encryptedPayload.Length + aes.IV.Length + mac.Length];
                 Buffer.BlockCopy(aes.IV, 0, outputBuffer, 0, aes.IV.Length);
                 Buffer.BlockCopy(mac, 0, outputBuffer, aes.IV.Length, mac.Length);
@@ -79,9 +78,9 @@ namespace Quidjibo.DataProtection.Protectors
 
         private void VerifyMac(byte[] payload, byte[] mac)
         {
-            byte[] payloadMac = ComputeMac(payload, 16 + 32, payload.Length - (16 + 32));
+            var payloadMac = ComputeMac(payload, 16 + 32, payload.Length - (16 + 32));
 
-            for (int i = 0; i < mac.Length; i++)
+            for (var i = 0; i < mac.Length; i++)
             {
                 if (mac[i] != payloadMac[i])
                 {
@@ -91,4 +90,3 @@ namespace Quidjibo.DataProtection.Protectors
         }
     }
 }
- 

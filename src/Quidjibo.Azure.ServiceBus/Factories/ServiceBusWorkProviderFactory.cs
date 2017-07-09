@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Azure.ServiceBus;
 using Microsoft.Azure.ServiceBus.Core;
@@ -11,10 +10,10 @@ namespace Quidjibo.Azure.ServiceBus.Factories
 {
     public class ServiceBusWorkProviderFactory : IWorkProviderFactory
     {
-        private readonly string _connectionString;
-        private readonly RetryPolicy _retryPolicy;
-        private readonly int _prefectchCount;
         private readonly int _batchSize;
+        private readonly string _connectionString;
+        private readonly int _prefectchCount;
+        private readonly RetryPolicy _retryPolicy;
 
         public ServiceBusWorkProviderFactory(string connectionString, RetryPolicy retryPolicy, int prefectchCount, int batchSize)
         {

@@ -48,7 +48,7 @@ namespace Quidjibo.DataProtection.Tests.Protectors
 
             var protectedPayload = await _sut.ProtectAsync(payload, CancellationToken.None);
 
-            protectedPayload[49] = (byte)(protectedPayload[49] ^ (byte)255);
+            protectedPayload[49] = (byte)(protectedPayload[49] ^ 255);
 
             Func<Task> sut = async () => await _sut.UnprotectAysnc(protectedPayload, CancellationToken.None);
 

@@ -1,14 +1,18 @@
+using System;
 using Quidjibo.Commands;
 
 namespace Quidjibo.Tests.Samples
 {
     public class ComplexCommand : IQuidjiboCommand
     {
-        public ModelData ModelModelData { get; }
+        public Guid Id { get; }
 
-        public ComplexCommand(ModelData modelData)
+        public ModelData Data { get; }
+
+        public ComplexCommand(Guid id, ModelData data)
         {
-            ModelModelData = modelData;
+            Id = id;
+            Data = data;
         }
     }
 }

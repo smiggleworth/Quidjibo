@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Queue;
 using Quidjibo.Models;
 using Quidjibo.Providers;
@@ -12,8 +11,8 @@ namespace Quidjibo.Azure.Storage.Providers
 {
     public class AzureStorageWorkProvider : IWorkProvider
     {
-        private readonly CloudQueue _cloudQueue;
         private readonly int _batchSize;
+        private readonly CloudQueue _cloudQueue;
         private readonly int _visibilityTimeout;
 
         public AzureStorageWorkProvider(CloudQueue cloudQueue, int visibilityTimeout, int batchSize)

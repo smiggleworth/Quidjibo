@@ -9,9 +9,9 @@ namespace Quidjibo.SqlServer.Factories
 {
     public class SqlWorkProviderFactory : IWorkProviderFactory
     {
+        private readonly int _batchSize;
         private readonly string _connectionString;
         private readonly int _visibilityTimeout;
-        private readonly int _batchSize;
 
         public SqlWorkProviderFactory(string connectionString, int visibilityTimeout = 60, int batchSize = 5)
         {

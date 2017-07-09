@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Security.Cryptography.X509Certificates;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Quidjibo.Handlers;
@@ -16,7 +15,7 @@ namespace Quidjibo.Tests.Resolvers
         [TestInitialize]
         public void Init()
         {
-            _resolver = new PayloadResolver(this.GetType().Assembly);
+            _resolver = new PayloadResolver(GetType().Assembly);
         }
 
         [TestMethod]

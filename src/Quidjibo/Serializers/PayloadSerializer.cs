@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Security;
-using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,7 +21,6 @@ namespace Quidjibo.Serializers
             _payloadProtector = payloadProtector;
         }
 
-
         /// <summary>
         ///     Serializes the specified command.
         /// </summary>
@@ -37,15 +34,10 @@ namespace Quidjibo.Serializers
                 Type = command.GetQualifiedName(),
                 Content = GetContent(command)
             };
-
             var json = JsonConvert.SerializeObject(workPayload);
             var raw = Encoding.UTF8.GetBytes(json);
             var data = await _payloadProtector.ProtectAsync(raw, cancellationToken);
-            var hash = ComputeHash(data);
-            var payload = new byte[hash.Length + data.Length];
-            Buffer.BlockCopy(hash, 0, payload, 0, hash.Length);
-            Buffer.BlockCopy(data, 0, payload, hash.Length, data.Length);
-            return payload;
+            return data;
         }
 
         /// <summary>
@@ -56,8 +48,7 @@ namespace Quidjibo.Serializers
         /// <returns></returns>
         public async Task<IQuidjiboCommand> DeserializeAsync(byte[] payload, CancellationToken cancellationToken)
         {
-            var validatedData = GetValidatedData(payload);
-            var data = await _payloadProtector.UnprotectAysnc(validatedData, cancellationToken);
+            var data = await _payloadProtector.UnprotectAysnc(payload, cancellationToken);
             var json = Encoding.UTF8.GetString(data);
             var jToken = JToken.Parse(json);
             if (jToken != null)
@@ -93,9 +84,9 @@ namespace Quidjibo.Serializers
         private IQuidjiboCommand Deserialize(JToken jToken)
         {
             var typeName = jToken.SelectToken(nameof(WorkPayload.Type)).ToObject<string>();
-            var type = Type.GetType(typeName, true);
+            var commandType = Type.GetType(typeName, true);
             var worflowCommandType = typeof(WorkflowCommand);
-            if (type == worflowCommandType)
+            if (commandType == worflowCommandType)
             {
                 var obj = jToken.SelectToken(nameof(WorkPayload.Content));
 
@@ -115,40 +106,9 @@ namespace Quidjibo.Serializers
                 };
             }
 
-            return (IQuidjiboCommand)jToken.SelectToken(nameof(WorkPayload.Content)).ToObject(type);
-        }
-
-        /// <summary>
-        ///     Gets the validated data.
-        /// </summary>
-        /// <param name="payload">The payload.</param>
-        /// <returns></returns>
-        /// <exception cref="System.Security.SecurityException">Signature does not match the computed hash</exception>
-        private byte[] GetValidatedData(byte[] payload)
-        {
-            var hash = new byte[32];
-            Buffer.BlockCopy(payload, 0, hash, 0, hash.Length);
-            var data = new byte[payload.Length - hash.Length];
-            Buffer.BlockCopy(payload, hash.Length, data, 0, data.Length);
-            if (!ComputeHash(data).SequenceEqual(hash))
-            {
-                throw new SecurityException("Signature does not match the computed hash");
-            }
-
-            return data;
-        }
-
-        /// <summary>
-        ///     Computes the hash.
-        /// </summary>
-        /// <param name="data">The data.</param>
-        /// <returns></returns>
-        private byte[] ComputeHash(byte[] data)
-        {
-            using (var hasher = SHA256.Create())
-            {
-                return hasher.ComputeHash(data);
-            }
+            var content = jToken.SelectToken(nameof(WorkPayload.Content));
+            var command = content.ToObject(commandType);
+            return (IQuidjiboCommand)command;
         }
     }
 }

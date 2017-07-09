@@ -48,7 +48,9 @@ namespace Quidjibo.Aws.Sqs.Providers
 
             var response = await _client.SendMessageAsync(request, cancellationToken);
 
-            if (response.HttpStatusCode == HttpStatusCode.OK) { }
+            if (response.HttpStatusCode == HttpStatusCode.OK)
+            {
+            }
         }
 
         public async Task<List<WorkItem>> ReceiveAsync(string worker, CancellationToken cancellationToken)
@@ -62,11 +64,11 @@ namespace Quidjibo.Aws.Sqs.Providers
 
             var messages = await _client.ReceiveMessageAsync(request, cancellationToken);
             return messages.Messages.Select(message => new WorkItem
-                           {
-                               Id = new Guid(message.MessageAttributes[WorkItemId].StringValue),
-                               CorrelationId = new Guid(message.MessageAttributes[WorkItemId].StringValue),
-                               Token = message.ReceiptHandle
-                           }).ToList();
+            {
+                Id = new Guid(message.MessageAttributes[WorkItemId].StringValue),
+                CorrelationId = new Guid(message.MessageAttributes[WorkItemId].StringValue),
+                Token = message.ReceiptHandle
+            }).ToList();
         }
 
         public async Task<DateTime> RenewAsync(WorkItem workItem, CancellationToken cancellationToken)

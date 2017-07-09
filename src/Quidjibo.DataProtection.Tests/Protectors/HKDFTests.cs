@@ -10,7 +10,6 @@ namespace Quidjibo.DataProtection.Tests.Protectors
     [TestClass]
     public class HKDFTests
     {
-
         [DataTestMethod]
         [DataRow(
             "000102030405060708090a0b0c",
@@ -46,7 +45,6 @@ namespace Quidjibo.DataProtection.Tests.Protectors
                 var okm = hkdf.Expand(prk, StringToByteArray(info), length);
                 ByteArrayToString(okm).ShouldBeEquivalentTo(expectedOkm);
             }
-
         }
 
         [DataTestMethod]
@@ -92,23 +90,26 @@ namespace Quidjibo.DataProtection.Tests.Protectors
                 var okm = hkdf.Expand(prk, StringToByteArray(info), length);
                 ByteArrayToString(okm).ShouldBeEquivalentTo(expectedOkm);
             }
-
         }
 
         public static string ByteArrayToString(byte[] ba)
         {
-            StringBuilder hex = new StringBuilder(ba.Length * 2);
-            foreach (byte b in ba)
+            var hex = new StringBuilder(ba.Length * 2);
+            foreach (var b in ba)
+            {
                 hex.AppendFormat("{0:x2}", b);
+            }
             return hex.ToString();
         }
 
-        public static byte[] StringToByteArray(String hex)
+        public static byte[] StringToByteArray(string hex)
         {
-            int NumberChars = hex.Length;
-            byte[] bytes = new byte[NumberChars / 2];
-            for (int i = 0; i < NumberChars; i += 2)
+            var NumberChars = hex.Length;
+            var bytes = new byte[NumberChars / 2];
+            for (var i = 0; i < NumberChars; i += 2)
+            {
                 bytes[i / 2] = Convert.ToByte(hex.Substring(i, 2), 16);
+            }
             return bytes;
         }
     }

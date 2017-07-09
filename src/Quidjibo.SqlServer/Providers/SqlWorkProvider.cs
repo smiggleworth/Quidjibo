@@ -169,13 +169,13 @@ namespace Quidjibo.SqlServer.Providers
             }, cancellationToken);
         }
 
+        public void Dispose()
+        {
+        }
+
         private Task ExecuteAsync(Func<SqlCommand, Task> func, CancellationToken cancellationToken)
         {
             return SqlRunner.ExecuteAsync(func, _connectionString, true, cancellationToken);
-        }
-
-        public void Dispose()
-        {
         }
     }
 }

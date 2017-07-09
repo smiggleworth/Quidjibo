@@ -8,14 +8,13 @@ using Microsoft.Azure.ServiceBus.Core;
 using Quidjibo.Models;
 using Quidjibo.Providers;
 
-
 namespace Quidjibo.Azure.ServiceBus.Providers
 {
-    public class ServiceBusWorkProvider : IWorkProvider 
+    public class ServiceBusWorkProvider : IWorkProvider
     {
-        private readonly MessageSender _sender;
-        private readonly MessageReceiver _receiver;
         private readonly int _batchSize;
+        private readonly MessageReceiver _receiver;
+        private readonly MessageSender _sender;
 
         public ServiceBusWorkProvider(MessageSender sender, MessageReceiver receiver, int batchSize)
         {

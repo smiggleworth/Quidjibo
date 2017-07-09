@@ -1,9 +1,6 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Auth;
-using Microsoft.WindowsAzure.Storage.Queue;
 using Quidjibo.Azure.Storage.Providers;
 using Quidjibo.Factories;
 using Quidjibo.Providers;
@@ -12,8 +9,8 @@ namespace Quidjibo.Azure.Storage.Factories
 {
     public class AzureStorageWorkProviderFactory : IWorkProviderFactory
     {
-        private readonly string _connectionString;
         private readonly int _batchSize;
+        private readonly string _connectionString;
         private readonly int _visibilityTimeout;
 
         public AzureStorageWorkProviderFactory(string connectionString, int visibilityTimeout = 60, int batchSize = 5)
