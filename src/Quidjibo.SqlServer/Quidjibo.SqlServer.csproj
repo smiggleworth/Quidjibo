@@ -40,7 +40,7 @@
     <EmbeddedResource Include="Scripts\Schedule\Create.sql" />
     <EmbeddedResource Include="Scripts\Schedule\List.sql" />
     <EmbeddedResource Include="Scripts\Schedule\Load.sql" />
-    <EmbeddedResource Include="Scripts\Schedule\DeleteByName.sql" />
+    <EmbeddedResource Include="Scripts\Schedule\Delete.sql" />
     <EmbeddedResource Include="Scripts\Schedule\Exists.sql" />
     <EmbeddedResource Include="Scripts\Schedule\LoadByName.sql" />
     <EmbeddedResource Include="Scripts\Schedule\Receive.sql" />

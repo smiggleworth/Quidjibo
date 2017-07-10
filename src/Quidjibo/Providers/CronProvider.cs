@@ -30,7 +30,7 @@ namespace Quidjibo.Providers
 
         public IEnumerable<DateTime> GetSchedule(string expression)
         {
-            return GetSchedule(expression, DateTime.Now);
+            return GetSchedule(expression, DateTime.UtcNow);
         }
 
         public IEnumerable<DateTime> GetSchedule(string expression, DateTime start)

@@ -111,12 +111,19 @@ namespace Quidjibo.Clients
                 VisibleOn = now
             };
             var provider = await GetOrCreateScheduleProvider(queue, cancellationToken);
-            var exists = await provider.ExistsAsync(name, cancellationToken);
-            if (exists)
+            var existingItem = await provider.LoadByNameAsync(name, cancellationToken);
+            if (existingItem != null)
             {
-                await provider.DeleteByNameAsync(name, cancellationToken);
+                if (!item.EquivalentTo(existingItem))
+                {
+                    await provider.DeleteAsync(existingItem.Id, cancellationToken);
+                    await provider.CreateAsync(item, cancellationToken);
+                }
             }
-            await provider.CreateAsync(item, cancellationToken);
+            else
+            {
+                await provider.CreateAsync(item, cancellationToken);
+            }
         }
 
         public void Clear()
@@ -138,8 +145,7 @@ namespace Quidjibo.Clients
             return provider;
         }
 
-        private async Task<IScheduleProvider> GetOrCreateScheduleProvider(string queueName,
-            CancellationToken cancellationToken)
+        private async Task<IScheduleProvider> GetOrCreateScheduleProvider(string queueName, CancellationToken cancellationToken)
         {
             IScheduleProvider provider;
             var key = new ProviderCacheKey<TKey>(queueName);

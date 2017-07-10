@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using GenFu.ValueGenerators.Lorem;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -187,6 +188,66 @@ namespace Quidjibo.Tests.Clients
             await _sut.ScheduleAsync(name, command, cron, cancellationToken);
 
             // Assert
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == queueName && x.CronExpression == cron.Expression), cancellationToken);
+        }
+
+        [TestMethod]
+        public async Task ScheduleAsync_SkipSchedulesThatAlreadyExists()
+        {
+            // Arrange
+            var name = Lorem.Word();
+            var queueName = "default";
+            var cron = Cron.Weekly();
+            var payload = Guid.NewGuid().ToByteArray();
+            var command = new BasicCommand();
+            var cancellationToken = CancellationToken.None;
+            var existingItem = new ScheduleItem
+            {
+                CronExpression = cron.Expression,
+                Name = name,
+                Payload = payload,
+                Queue =  queueName,
+            };
+
+            _payloadSerializer.SerializeAsync(command, cancellationToken).Returns(Task.FromResult(payload));
+            _scheduleProviderFactory.CreateAsync(queueName, cancellationToken).Returns(Task.FromResult(_scheduleProvider));
+            _scheduleProvider.LoadByNameAsync(name, cancellationToken).Returns(Task.FromResult(existingItem));
+
+            // Act 
+            await _sut.ScheduleAsync(name, command, cron, cancellationToken);
+
+            // Assert
+            await _scheduleProvider.DidNotReceiveWithAnyArgs().CreateAsync(default(ScheduleItem), cancellationToken);
+        }
+
+        [TestMethod]
+        public async Task ScheduleAsync_DeleteSchedulesThatExistButAreDifferent()
+        {
+            // Arrange
+            var name = Lorem.Word();
+            var queueName = "default";
+            var cron = Cron.Weekly();
+            var payload = Guid.NewGuid().ToByteArray();
+            var command = new BasicCommand();
+            var cancellationToken = CancellationToken.None;
+            var existingItem = new ScheduleItem
+            {
+                Id = Guid.NewGuid(),
+                CronExpression = cron.Expression,
+                Name = name,
+                Payload = Guid.NewGuid().ToByteArray(),
+                Queue = queueName,
+            };
+
+            _payloadSerializer.SerializeAsync(command, cancellationToken).Returns(Task.FromResult(payload));
+            _scheduleProviderFactory.CreateAsync(queueName, cancellationToken).Returns(Task.FromResult(_scheduleProvider));
+            _scheduleProvider.LoadByNameAsync(name, cancellationToken).Returns(Task.FromResult(existingItem));
+
+            // Act 
+            await _sut.ScheduleAsync(name, command, cron, cancellationToken);
+
+            // Assert
+            await _scheduleProvider.Received(1).DeleteAsync(existingItem.Id, cancellationToken);
             await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == queueName && x.CronExpression == cron.Expression), cancellationToken);
         }
     }

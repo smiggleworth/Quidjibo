@@ -59,17 +59,7 @@ namespace Quidjibo.SqlServer.Providers
                 {
                     while (await rdr.ReadAsync(cancellationToken))
                     {
-                        var item = new ScheduleItem
-                        {
-                            CreatedOn = rdr.Map<DateTime>(nameof(ScheduleItem.CreatedOn)),
-                            CronExpression = rdr.Map<string>(nameof(ScheduleItem.CronExpression)),
-                            EnqueuedOn = rdr.Map<DateTime?>(nameof(ScheduleItem.EnqueuedOn)),
-                            EnqueueOn = rdr.Map<DateTime?>(nameof(ScheduleItem.EnqueueOn)),
-                            Id = rdr.Map<Guid>(nameof(ScheduleItem.Id)),
-                            Name = rdr.Map<string>(nameof(ScheduleItem.Name)),
-                            Payload = rdr.Map<byte[]>(nameof(ScheduleItem.Payload)),
-                            Queue = rdr.Map<string>(nameof(ScheduleItem.Queue))
-                        };
+                        var item = MapScheduleItem(rdr);
                         items.Add(item);
                     }
                 }
@@ -115,6 +105,29 @@ namespace Quidjibo.SqlServer.Providers
             }, cancellationToken);
         }
 
+        public async Task<ScheduleItem> LoadByNameAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (_existsSql == null)
+            {
+                _existsSql = await SqlLoader.GetScript("Schedule.LoadByName");
+            }
+            var item = default(ScheduleItem);
+            await ExecuteAsync(async cmd =>
+            {
+                cmd.CommandText = _existsSql;
+                cmd.AddParameter("@Name", name);
+                using (var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
+                {
+                    if (await rdr.ReadAsync(cancellationToken))
+                    {
+                         item = MapScheduleItem(rdr);
+                    }
+                }
+            }, cancellationToken);
+            return item;
+        }
+
+
         public Task UpdateAsync(ScheduleItem item, CancellationToken cancellationToken = default(CancellationToken))
         {
             throw new NotImplementedException();
@@ -134,21 +147,7 @@ namespace Quidjibo.SqlServer.Providers
             }, cancellationToken);
         }
 
-        public async Task DeleteByNameAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (_deleteByNameSql == null)
-            {
-                _deleteByNameSql = await SqlLoader.GetScript("Schedule.DeleteByName");
-            }
-            await ExecuteAsync(async cmd =>
-            {
-                cmd.CommandText = _deleteByNameSql;
-                cmd.AddParameter("@Name", name);
-                await cmd.ExecuteNonQueryAsync(cancellationToken);
-            }, cancellationToken);
-        }
-
-        public async Task<bool> ExistsAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<bool> ExistsAsync(string name,  CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_existsSql == null)
             {
@@ -163,6 +162,22 @@ namespace Quidjibo.SqlServer.Providers
             }, cancellationToken);
             return count > 0;
         }
+
+        private ScheduleItem MapScheduleItem(SqlDataReader rdr)
+        {
+           return new ScheduleItem
+            {
+                CreatedOn = rdr.Map<DateTime>(nameof(ScheduleItem.CreatedOn)),
+                CronExpression = rdr.Map<string>(nameof(ScheduleItem.CronExpression)),
+                EnqueuedOn = rdr.Map<DateTime?>(nameof(ScheduleItem.EnqueuedOn)),
+                EnqueueOn = rdr.Map<DateTime?>(nameof(ScheduleItem.EnqueueOn)),
+                Id = rdr.Map<Guid>(nameof(ScheduleItem.Id)),
+                Name = rdr.Map<string>(nameof(ScheduleItem.Name)),
+                Payload = rdr.Map<byte[]>(nameof(ScheduleItem.Payload)),
+                Queue = rdr.Map<string>(nameof(ScheduleItem.Queue))
+            };
+        }
+
 
         private Task ExecuteAsync(Func<SqlCommand, Task> func, CancellationToken cancellationToken)
         {
