@@ -8,9 +8,7 @@ namespace Quidjibo.Tests.Samples
 {
     public class DependentHandler : IQuidjiboHandler<DependentCommand>
     {
-        public DependentHandler(IDependency dependency)
-        {
-        }
+        public DependentHandler(IDependency dependency) { }
 
         public async Task ProcessAsync(DependentCommand command, IProgress<Tracker> progress, CancellationToken cancellationToken)
         {

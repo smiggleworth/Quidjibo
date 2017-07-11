@@ -39,12 +39,8 @@ namespace Quidjibo.Tests.Misc
             key2.Should().NotBe(key1);
         }
 
-        public class TestClientKey1 : IQuidjiboClientKey
-        {
-        }
+        public class TestClientKey1 : IQuidjiboClientKey { }
 
-        public class TestClientKey2 : IQuidjiboClientKey
-        {
-        }
+        public class TestClientKey2 : IQuidjiboClientKey { }
     }
 }

@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Quidjibo.Models;
 using Quidjibo.Providers;
 
 namespace Quidjibo.Tests.Providers
@@ -37,9 +32,10 @@ namespace Quidjibo.Tests.Providers
             action.ShouldThrow<InvalidOperationException>().WithMessage("Expression must contain 5 parts");
         }
 
-//        [TestMethod]
-//        public void GetSchedule_ScheduleBeginsAtStart()
 //        {
+//        public void GetSchedule_ScheduleBeginsAtStart()
+
+//        [TestMethod]
 //            // Arrange
 //            var expression = "0 0 * * 0";
 //            var start = DateTime.UtcNow;
@@ -50,6 +46,5 @@ namespace Quidjibo.Tests.Providers
 //            // Assert
 //            result.Should().BeEquivalentTo();
 //        }
-
     }
 }

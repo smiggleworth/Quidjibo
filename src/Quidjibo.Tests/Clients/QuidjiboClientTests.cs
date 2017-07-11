@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using GenFu.ValueGenerators.Lorem;
+using GenFu;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Quidjibo.Clients;
@@ -11,20 +11,19 @@ using Quidjibo.Providers;
 using Quidjibo.Serializers;
 using Quidjibo.Tests.Samples;
 
-
 namespace Quidjibo.Tests.Clients
 {
     [TestClass]
     public class QuidjiboClientTests
     {
-        private QuidjiboClient _sut;
+        private ICronProvider _cronProvider;
+        private IPayloadSerializer _payloadSerializer;
+        private IScheduleProvider _scheduleProvider;
 
         private IScheduleProviderFactory _scheduleProviderFactory;
-        private IScheduleProvider _scheduleProvider;
-        private IWorkProviderFactory _workProviderFactory;
+        private QuidjiboClient _sut;
         private IWorkProvider _workProvider;
-        private IPayloadSerializer _payloadSerializer;
-        private ICronProvider _cronProvider;
+        private IWorkProviderFactory _workProviderFactory;
 
         [TestInitialize]
         public void Init()
@@ -102,7 +101,7 @@ namespace Quidjibo.Tests.Clients
         public async Task PublishAsync_WithQueueName()
         {
             // Arrange
-            var queueName = Lorem.Word();
+            var queueName = BaseValueGenerator.Word();
             var command = new BasicCommand();
             var delay = 0;
             var cancellationToken = CancellationToken.None;
@@ -120,7 +119,7 @@ namespace Quidjibo.Tests.Clients
         public async Task PublishAsync_WithDelayAndQueueName()
         {
             // Arrange
-            var queueName = Lorem.Word();
+            var queueName = BaseValueGenerator.Word();
             var command = new BasicCommand();
             var delay = GenFu.GenFu.Random.Next();
             var cancellationToken = CancellationToken.None;
@@ -138,7 +137,7 @@ namespace Quidjibo.Tests.Clients
         public async Task ScheduleAsync()
         {
             // Arrange
-            var name = Lorem.Word();
+            var name = BaseValueGenerator.Word();
             var queueName = "default";
             var cron = Cron.Daily();
             var command = new BasicCommand();
@@ -157,8 +156,8 @@ namespace Quidjibo.Tests.Clients
         public async Task ScheduleAsync_WithQueueName()
         {
             // Arrange
-            var name = Lorem.Word();
-            var queueName = Lorem.Word();
+            var name = BaseValueGenerator.Word();
+            var queueName = BaseValueGenerator.Word();
             var cron = Cron.Weekly();
             var command = new BasicCommand();
             var cancellationToken = CancellationToken.None;
@@ -176,7 +175,7 @@ namespace Quidjibo.Tests.Clients
         public async Task ScheduleAsync_WithQueueNameAttribute()
         {
             // Arrange
-            var name = Lorem.Word();
+            var name = BaseValueGenerator.Word();
             var queueName = "custom-queue-name";
             var cron = Cron.Weekly();
             var command = new BasicWithAttributeCommand();
@@ -195,7 +194,7 @@ namespace Quidjibo.Tests.Clients
         public async Task ScheduleAsync_SkipSchedulesThatAlreadyExists()
         {
             // Arrange
-            var name = Lorem.Word();
+            var name = BaseValueGenerator.Word();
             var queueName = "default";
             var cron = Cron.Weekly();
             var payload = Guid.NewGuid().ToByteArray();
@@ -206,7 +205,7 @@ namespace Quidjibo.Tests.Clients
                 CronExpression = cron.Expression,
                 Name = name,
                 Payload = payload,
-                Queue =  queueName,
+                Queue = queueName
             };
 
             _payloadSerializer.SerializeAsync(command, cancellationToken).Returns(Task.FromResult(payload));
@@ -224,7 +223,7 @@ namespace Quidjibo.Tests.Clients
         public async Task ScheduleAsync_DeleteSchedulesThatExistButAreDifferent()
         {
             // Arrange
-            var name = Lorem.Word();
+            var name = BaseValueGenerator.Word();
             var queueName = "default";
             var cron = Cron.Weekly();
             var payload = Guid.NewGuid().ToByteArray();
@@ -236,7 +235,7 @@ namespace Quidjibo.Tests.Clients
                 CronExpression = cron.Expression,
                 Name = name,
                 Payload = Guid.NewGuid().ToByteArray(),
-                Queue = queueName,
+                Queue = queueName
             };
 
             _payloadSerializer.SerializeAsync(command, cancellationToken).Returns(Task.FromResult(payload));
