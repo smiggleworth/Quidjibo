@@ -66,10 +66,10 @@ namespace Quidjibo.Tests.Serializers
             var command3 = new ComplexCommand(id3, modelData3);
 
             var workflow = new WorkflowCommand(command1).Then(i => new[]
-                {
-                    command2,
-                    command3
-                });
+            {
+                command2,
+                command3
+            });
 
             _protector.ProtectAsync(Arg.Any<byte[]>(), CancellationToken.None).Returns(x => Task.FromResult(x.Arg<byte[]>()));
             _protector.UnprotectAysnc(Arg.Any<byte[]>(), CancellationToken.None).Returns(x => Task.FromResult(x.Arg<byte[]>()));
@@ -102,7 +102,5 @@ namespace Quidjibo.Tests.Serializers
             deserializedCommand3.Data.Sequence.Should().Be(modelData3.Sequence);
             deserializedCommand3.Data.Name.Should().Be(modelData3.Name);
         }
-
-       
     }
 }

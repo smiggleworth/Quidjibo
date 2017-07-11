@@ -25,7 +25,7 @@ namespace Quidjibo.Providers
 
         public DateTime GetNextSchedule(string expression, DateTime start)
         {
-            return GetSchedule(expression).First(x => x > start);
+            return GetSchedule(expression, start).First(x => x > start);
         }
 
         public IEnumerable<DateTime> GetSchedule(string expression)

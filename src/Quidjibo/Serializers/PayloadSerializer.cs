@@ -51,12 +51,7 @@ namespace Quidjibo.Serializers
             var data = await _payloadProtector.UnprotectAysnc(payload, cancellationToken);
             var json = Encoding.UTF8.GetString(data);
             var jToken = JToken.Parse(json);
-            if (jToken != null)
-            {
-                return Deserialize(jToken);
-            }
-
-            return null;
+            return Deserialize(jToken);
         }
 
         private static object GetContent(IQuidjiboCommand command)

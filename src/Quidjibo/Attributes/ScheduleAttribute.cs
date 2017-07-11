@@ -7,14 +7,23 @@ namespace Quidjibo.Attributes
     [AttributeUsage(AttributeTargets.Class)]
     public class ScheduleAttribute : Attribute
     {
-        public IQuidjiboClientKey ClientKey { get; set; }
+        public Type ClientKey { get; set; }
 
         public Cron Cron { get; set; }
 
-        public ScheduleAttribute(string expression, IQuidjiboClientKey clientKey)
+        public ScheduleAttribute(Cron cron)
+            : this(cron, typeof(DefaultClientKey)) { }
+
+        public ScheduleAttribute(string expression)
+            : this(new Cron(expression), typeof(DefaultClientKey)) { }
+
+        public ScheduleAttribute(string expression, Type type)
+            : this(new Cron(expression), type) { }
+
+        public ScheduleAttribute(Cron cron, Type type)
         {
-            Cron = new Cron(expression);
-            ClientKey = clientKey;
+            Cron = cron;
+            ClientKey = type;
         }
     }
 }
