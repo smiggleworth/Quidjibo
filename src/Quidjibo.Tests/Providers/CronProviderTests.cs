@@ -18,6 +18,36 @@ namespace Quidjibo.Tests.Providers
         }
 
 
+        [TestMethod]
+        public void GetNextSchedule_DefaultStart_UtcNow()
+        {
+            // Act
+            var result = _sut.GetNextSchedule("0 * * * *");
+
+            // Assert
+            var utc = DateTime.UtcNow.AddHours(1);
+            result.Date.Should().Be(utc.Date);
+            result.Hour.Should().Be(utc.Hour);
+            result.Minute.Should().Be(0);
+        }
+
+        [TestMethod]
+        public void GetSchedule_DefaultStart_UtcNow()
+        {
+            // Act
+            var results = _sut.GetSchedule("0 * * * *");
+
+            // Assert
+            var utc = DateTime.UtcNow;
+            foreach (var result in results.Take(50))
+            {
+                utc= utc.AddHours(1);
+                result.Date.Should().Be(utc.Date);
+                result.Hour.Should().Be(utc.Hour);
+                result.Minute.Should().Be(0);
+            }
+        }
+
         [DataTestMethod]
         [DataRow("", DisplayName = "No Parts")]
         [DataRow("*", DisplayName = "One Parts")]
@@ -35,6 +65,10 @@ namespace Quidjibo.Tests.Providers
 
         [DataTestMethod]
         [DataRow("* * * * *", "2017-07-11 09:14:00", DisplayName = "Every minute")]
+        [DataRow("*/23 * * * *", "2017-07-11 09:23:00", DisplayName = "Every 23 minutes")]
+        [DataRow("0 * * * *", "2017-07-11 10:0:00", DisplayName = "Every hour")]
+        [DataRow("0 */3 * * *", "2017-07-11 12:0:00", DisplayName = "Every 3 hours")]
+        [DataRow("0 0 * * *", "2017-07-12 00:0:00", DisplayName = "Every day")]
         public void GetNextScheduleTests(string expression, string expected)
         {
             // Arrange

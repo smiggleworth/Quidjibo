@@ -190,7 +190,6 @@ namespace Quidjibo.Servers
                         await _dispatcher.DispatchAsync(workCommand, progress, linkedTokenSource.Token);
                     }
                     await provider.CompleteAsync(item, linkedTokenSource.Token);
-
                     _logger.LogDebug("Completed : {0}", item.Id);
                 }
                 catch (Exception exception)
@@ -202,6 +201,7 @@ namespace Quidjibo.Servers
                 {
                     _logger.LogDebug("Release : {0}", item.Id);
                     linkedTokenSource.Cancel();
+                    await renewTask;
                 }
             }
         }
