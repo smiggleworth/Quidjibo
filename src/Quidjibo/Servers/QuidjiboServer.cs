@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Quidjibo.Commands;
 using Quidjibo.Configurations;
 using Quidjibo.Dispatchers;
+using Quidjibo.Extensions;
 using Quidjibo.Factories;
 using Quidjibo.Models;
 using Quidjibo.Providers;
@@ -16,6 +17,9 @@ namespace Quidjibo.Servers
 {
     public class QuidjiboServer : IQuidjiboServer
     {
+        private readonly object _syncRoot = new object();
+        private bool _running = false;
+
         private readonly ICronProvider _cronProvider;
         private readonly IWorkDispatcher _dispatcher;
         private readonly ILogger _logger;
@@ -24,10 +28,12 @@ namespace Quidjibo.Servers
         private readonly IScheduleProviderFactory _scheduleProviderFactory;
         private readonly IPayloadSerializer _serializer;
         private readonly IWorkProviderFactory _workProviderFactory;
-        private List<Task> _activeListeners;
+        private List<Task> _loopTasks;
 
         private CancellationTokenSource _cts;
         private SemaphoreSlim _throttle;
+
+
 
         public QuidjiboServer(
             ILoggerFactory loggerFactory,
@@ -54,41 +60,55 @@ namespace Quidjibo.Servers
 
         public void Start()
         {
-            _cts = new CancellationTokenSource();
-            _activeListeners = new List<Task>();
-            _throttle = new SemaphoreSlim(0, _quidjiboConfiguration.Throttle);
-
-            if (_quidjiboConfiguration.SingleLoop)
+            lock (_syncRoot)
             {
-                _logger.LogInformation("All queues can share the same loop");
-                var queues = string.Join(",", _quidjiboConfiguration.Queues);
-                _activeListeners.Add(WorkAsync(queues).ContinueWith(HandleException));
-            }
-            else
-            {
-                _logger.LogInformation("Each queue will need a designated loop");
-                _activeListeners.AddRange(_quidjiboConfiguration.Queues.Select(queue => WorkAsync(queue).ContinueWith(HandleException)));
-            }
+                if (_running)
+                {
+                    return;
+                }
+                _cts = new CancellationTokenSource();
+                _loopTasks = new List<Task>();
+                _throttle = new SemaphoreSlim(0, _quidjiboConfiguration.Throttle);
 
-            _logger.LogInformation("Enabling scheduler");
-            _activeListeners.Add(ScheduleAsync(_quidjiboConfiguration.Queues).ContinueWith(HandleException, TaskContinuationOptions.OnlyOnFaulted));
-            _throttle.Release(_quidjiboConfiguration.Throttle);
+                if (_quidjiboConfiguration.SingleLoop)
+                {
+                    _logger.LogInformation("All queues can share the same loop");
+                    var queues = string.Join(",", _quidjiboConfiguration.Queues);
+                    _loopTasks.Add(WorkLoopAsync(queues));
+                }
+                else
+                {
+                    _logger.LogInformation("Each queue will need a designated loop");
+                    _loopTasks.AddRange(_quidjiboConfiguration.Queues.Select(WorkLoopAsync));
+                }
+
+                _logger.LogInformation("Enabling scheduler");
+                _loopTasks.Add(ScheduleLoopAsync(_quidjiboConfiguration.Queues));
+                _throttle.Release(_quidjiboConfiguration.Throttle);
+                _running = true;
+            }
         }
 
         public void Stop()
         {
-            _cts?.Cancel();
-            _cts?.Dispose();
-            _activeListeners = null;
+            lock (_syncRoot)
+            {
+                if (!_running)
+                {
+                    return;
+                }
+                _cts?.Cancel();
+                _cts?.Dispose();
+                _loopTasks = null;
+            }
         }
 
         public void Dispose()
         {
             Stop();
-            _cts.Dispose();
         }
 
-        private async Task WorkAsync(string queue)
+        private async Task WorkLoopAsync(string queue)
         {
             var workProvider = await _workProviderFactory.CreateAsync(queue, _cts.Token);
             while (!_cts.IsCancellationRequested)
@@ -102,7 +122,7 @@ namespace Quidjibo.Servers
                     var items = await workProvider.ReceiveAsync(Worker, _cts.Token);
                     if (items.Any())
                     {
-                        var tasks = items.Select(item => DispatchAsync(workProvider, item).ContinueWith(HandleException, TaskContinuationOptions.OnlyOnFaulted));
+                        var tasks = items.Select(item => DispatchAsync(workProvider, item));
                         await Task.WhenAll(tasks);
                         _throttle.Release();
                         continue;
@@ -121,7 +141,7 @@ namespace Quidjibo.Servers
             }
         }
 
-        private async Task ScheduleAsync(List<string> queues)
+        private async Task ScheduleLoopAsync(List<string> queues)
         {
             var scheduleProvider = await _scheduleProviderFactory.CreateAsync(queues, _cts.Token);
             while (!_cts.IsCancellationRequested)
@@ -173,6 +193,7 @@ namespace Quidjibo.Servers
                 };
                 await progressProvider.ReportAsync(progressItem, _cts.Token);
             };
+
 
             using (var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token))
             {
@@ -245,20 +266,11 @@ namespace Quidjibo.Servers
                     await provider.RenewAsync(item, cancellationToken);
                     _logger.LogDebug("Renewed : {0}", item.Id);
                 }
-                catch (Exception exception)
+                catch (OperationCanceledException exception)
                 {
                     _logger.LogError(default(EventId), exception, exception.Message);
                 }
             }
-        }
-
-        private Task HandleException(Task task)
-        {
-            if (task.IsFaulted)
-            {
-                _logger.LogError(0, task.Exception, "The task has faulted");
-            }
-            return task;
         }
     }
 }
