@@ -17,7 +17,6 @@ namespace Quidjibo.SqlServer.Providers
         private readonly List<string> _queues;
         private string _completeSql;
         private string _createSql;
-        private string _deleteByNameSql;
         private string _existsSql;
         private string _receiveSql;
 
@@ -49,10 +48,10 @@ namespace Quidjibo.SqlServer.Providers
 
                 // dynamic parameters
                 _queues.Select((q, i) => new
-                       {
-                           q,
-                           i
-                       })
+                {
+                    q,
+                    i
+                })
                        .ToList()
                        .ForEach(x => cmd.Parameters.AddWithValue($"@Queue{x.i}", x.q));
                 using (var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
@@ -107,26 +106,21 @@ namespace Quidjibo.SqlServer.Providers
 
         public async Task<ScheduleItem> LoadByNameAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (_existsSql == null)
-            {
-                _existsSql = await SqlLoader.GetScript("Schedule.LoadByName");
-            }
             var item = default(ScheduleItem);
             await ExecuteAsync(async cmd =>
             {
-                cmd.CommandText = _existsSql;
+                cmd.CommandText = await SqlLoader.GetScript("Schedule.LoadByName");
                 cmd.AddParameter("@Name", name);
                 using (var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
                 {
                     if (await rdr.ReadAsync(cancellationToken))
                     {
-                         item = MapScheduleItem(rdr);
+                        item = MapScheduleItem(rdr);
                     }
                 }
             }, cancellationToken);
             return item;
         }
-
 
         public Task UpdateAsync(ScheduleItem item, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -135,19 +129,15 @@ namespace Quidjibo.SqlServer.Providers
 
         public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (_completeSql == null)
-            {
-                _completeSql = await SqlLoader.GetScript("Schedule.Delete");
-            }
             await ExecuteAsync(async cmd =>
             {
-                cmd.CommandText = _completeSql;
+                cmd.CommandText = await SqlLoader.GetScript("Schedule.Delete");
                 cmd.AddParameter("@Id", id);
                 await cmd.ExecuteNonQueryAsync(cancellationToken);
             }, cancellationToken);
         }
 
-        public async Task<bool> ExistsAsync(string name,  CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<bool> ExistsAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_existsSql == null)
             {
@@ -165,7 +155,7 @@ namespace Quidjibo.SqlServer.Providers
 
         private ScheduleItem MapScheduleItem(SqlDataReader rdr)
         {
-           return new ScheduleItem
+            return new ScheduleItem
             {
                 CreatedOn = rdr.Map<DateTime>(nameof(ScheduleItem.CreatedOn)),
                 CronExpression = rdr.Map<string>(nameof(ScheduleItem.CronExpression)),
@@ -177,7 +167,6 @@ namespace Quidjibo.SqlServer.Providers
                 Queue = rdr.Map<string>(nameof(ScheduleItem.Queue))
             };
         }
-
 
         private Task ExecuteAsync(Func<SqlCommand, Task> func, CancellationToken cancellationToken)
         {

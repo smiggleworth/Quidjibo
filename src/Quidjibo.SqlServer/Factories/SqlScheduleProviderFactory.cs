@@ -30,6 +30,8 @@ namespace Quidjibo.SqlServer.Factories
             return await Task.FromResult<IScheduleProvider>(new SqlScheduleProvider(_connectionString, queues));
         }
 
+        public int PollingInterval => 60;
+
         public async Task<IScheduleProvider> CreateAsync(string queue,
             CancellationToken cancellationToken = default(CancellationToken))
         {

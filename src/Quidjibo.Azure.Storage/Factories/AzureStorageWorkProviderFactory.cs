@@ -21,6 +21,8 @@ namespace Quidjibo.Azure.Storage.Factories
         }
 
 
+        public int PollingInterval => 10;
+
         public async Task<IWorkProvider> CreateAsync(string queue, CancellationToken cancellationToken = new CancellationToken())
         {
             var storageAccount = CloudStorageAccount.Parse(_connectionString);

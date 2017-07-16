@@ -20,6 +20,8 @@ namespace Quidjibo.SqlServer.Factories
             _batchSize = batchSize;
         }
 
+        public int PollingInterval => 10;
+
         public async Task<IWorkProvider> CreateAsync(string queue, CancellationToken cancellationToken = default(CancellationToken))
         {
             var queues = queue.Split(',');

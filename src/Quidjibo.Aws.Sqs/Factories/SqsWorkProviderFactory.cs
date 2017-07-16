@@ -25,6 +25,8 @@ namespace Quidjibo.Aws.Sqs.Factories
         }
 
 
+        public int PollingInterval => 10;
+
         public async Task<IWorkProvider> CreateAsync(string queue,
             CancellationToken cancellationToken = default(CancellationToken))
         {

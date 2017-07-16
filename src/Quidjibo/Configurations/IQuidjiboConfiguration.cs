@@ -15,11 +15,6 @@ namespace Quidjibo.Configurations
         bool SingleLoop { get; }
 
         /// <summary>
-        ///     The polling interval in seconds
-        /// </summary>
-        int PollingInterval { get; }
-
-        /// <summary>
         ///     The max attempts to retry work
         /// </summary>
         int MaxAttempts { get; }

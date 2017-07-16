@@ -7,6 +7,11 @@ namespace Quidjibo.Factories
 {
     public interface IScheduleProviderFactory
     {
+        /// <summary>
+        ///     The polling interval in seconds
+        /// </summary>
+        int PollingInterval { get; }
+
         Task<IScheduleProvider> CreateAsync(string queue,
             CancellationToken cancellationToken = default(CancellationToken));
 

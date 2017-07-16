@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using Quidjibo.Commands;
 using Quidjibo.Configurations;
 using Quidjibo.Dispatchers;
-using Quidjibo.Extensions;
 using Quidjibo.Factories;
 using Quidjibo.Models;
 using Quidjibo.Providers;
@@ -17,9 +16,6 @@ namespace Quidjibo.Servers
 {
     public class QuidjiboServer : IQuidjiboServer
     {
-        private readonly object _syncRoot = new object();
-        private bool _running = false;
-
         private readonly ICronProvider _cronProvider;
         private readonly IWorkDispatcher _dispatcher;
         private readonly ILogger _logger;
@@ -28,12 +24,7 @@ namespace Quidjibo.Servers
         private readonly IScheduleProviderFactory _scheduleProviderFactory;
         private readonly IPayloadSerializer _serializer;
         private readonly IWorkProviderFactory _workProviderFactory;
-        private List<Task> _loopTasks;
-
-        private CancellationTokenSource _cts;
-        private SemaphoreSlim _throttle;
-
-
+        public string Worker { get; }
 
         public QuidjiboServer(
             ILoggerFactory loggerFactory,
@@ -56,8 +47,6 @@ namespace Quidjibo.Servers
             Worker = $"{Environment.GetEnvironmentVariable("COMPUTERNAME")}-{Guid.NewGuid()}";
         }
 
-        public string Worker { get; }
-
         public void Start()
         {
             lock (_syncRoot)
@@ -69,7 +58,6 @@ namespace Quidjibo.Servers
                 _cts = new CancellationTokenSource();
                 _loopTasks = new List<Task>();
                 _throttle = new SemaphoreSlim(0, _quidjiboConfiguration.Throttle);
-
                 if (_quidjiboConfiguration.SingleLoop)
                 {
                     _logger.LogInformation("All queues can share the same loop");
@@ -81,7 +69,6 @@ namespace Quidjibo.Servers
                     _logger.LogInformation("Each queue will need a designated loop");
                     _loopTasks.AddRange(_quidjiboConfiguration.Queues.Select(WorkLoopAsync));
                 }
-
                 _logger.LogInformation("Enabling scheduler");
                 _loopTasks.Add(ScheduleLoopAsync(_quidjiboConfiguration.Queues));
                 _throttle.Release(_quidjiboConfiguration.Throttle);
@@ -108,8 +95,17 @@ namespace Quidjibo.Servers
             Stop();
         }
 
+        #region Internals
+
+        private readonly object _syncRoot = new object();
+        private bool _running;
+        private List<Task> _loopTasks;
+        private CancellationTokenSource _cts;
+        private SemaphoreSlim _throttle;
+
         private async Task WorkLoopAsync(string queue)
         {
+            var pollingInterval = TimeSpan.FromSeconds(_workProviderFactory.PollingInterval);
             var workProvider = await _workProviderFactory.CreateAsync(queue, _cts.Token);
             while (!_cts.IsCancellationRequested)
             {
@@ -127,12 +123,8 @@ namespace Quidjibo.Servers
                         _throttle.Release();
                         continue;
                     }
-
                     _throttle.Release();
-                    if (_quidjiboConfiguration.PollingInterval > 0)
-                    {
-                        await Task.Delay(TimeSpan.FromSeconds(_quidjiboConfiguration.PollingInterval), _cts.Token);
-                    }
+                    await Task.Delay(pollingInterval, _cts.Token);
                 }
                 catch (Exception exception)
                 {
@@ -143,34 +135,42 @@ namespace Quidjibo.Servers
 
         private async Task ScheduleLoopAsync(List<string> queues)
         {
+            var pollingInterval = TimeSpan.FromSeconds(_scheduleProviderFactory.PollingInterval);
             var scheduleProvider = await _scheduleProviderFactory.CreateAsync(queues, _cts.Token);
             while (!_cts.IsCancellationRequested)
             {
-                var items = await scheduleProvider.ReceiveAsync(_cts.Token);
-                foreach (var item in items)
+                try
                 {
-                    var work = new WorkItem
+                    var items = await scheduleProvider.ReceiveAsync(_cts.Token);
+                    foreach (var item in items)
                     {
-                        Attempts = 0,
-                        CorrelationId = Guid.NewGuid(),
-                        Id = Guid.NewGuid(),
-                        Name = item.Name,
-                        Payload = item.Payload,
-                        Queue = item.Queue,
-                        ScheduleId = item.Id
-                    };
-
-                    _logger.LogDebug("Enqueue the scheduled item : {0}", item.Id);
-                    var workProvider = await _workProviderFactory.CreateAsync(work.Queue, _cts.Token);
-                    await workProvider.SendAsync(work, 1, _cts.Token);
-
-                    _logger.LogDebug("Update the schedule for the next run : {0}", item.Id);
-                    item.EnqueueOn = _cronProvider.GetNextSchedule(item.CronExpression);
-                    item.EnqueuedOn = DateTime.UtcNow;
-                    await scheduleProvider.CompleteAsync(item, _cts.Token);
+                        var work = new WorkItem
+                        {
+                            Attempts = 0,
+                            CorrelationId = Guid.NewGuid(),
+                            Id = Guid.NewGuid(),
+                            Name = item.Name,
+                            Payload = item.Payload,
+                            Queue = item.Queue,
+                            ScheduleId = item.Id
+                        };
+                        _logger.LogDebug("Enqueue the scheduled item : {0}", item.Id);
+                        var workProvider = await _workProviderFactory.CreateAsync(work.Queue, _cts.Token);
+                        await workProvider.SendAsync(work, 1, _cts.Token);
+                        _logger.LogDebug("Update the schedule for the next run : {0}", item.Id);
+                        item.EnqueueOn = _cronProvider.GetNextSchedule(item.CronExpression);
+                        item.EnqueuedOn = DateTime.UtcNow;
+                        await scheduleProvider.CompleteAsync(item, _cts.Token);
+                    }
                 }
-
-                await Task.Delay(TimeSpan.FromMinutes(1), _cts.Token);
+                catch (Exception exception)
+                {
+                    _logger.LogWarning(0, exception, exception.Message);
+                }
+                finally
+                {
+                    await Task.Delay(pollingInterval, _cts.Token);
+                }
             }
         }
 
@@ -193,8 +193,6 @@ namespace Quidjibo.Servers
                 };
                 await progressProvider.ReportAsync(progressItem, _cts.Token);
             };
-
-
             using (var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token))
             {
                 var renewTask = RenewAsync(provider, item, linkedTokenSource.Token);
@@ -238,7 +236,6 @@ namespace Quidjibo.Servers
                                        .SelectMany(e => e.Value, (e, c) => _dispatcher.DispatchAsync(c, progress, cancellationToken))
                                        .ToList();
             await Task.WhenAll(tasks);
-
             workflowCommand.NextStep();
             if (workflowCommand.Step >= workflowCommand.CurrentStep)
             {
@@ -272,5 +269,7 @@ namespace Quidjibo.Servers
                 }
             }
         }
+
+        #endregion
     }
 }

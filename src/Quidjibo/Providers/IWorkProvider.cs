@@ -12,7 +12,7 @@ namespace Quidjibo.Providers
         ///     Sends the asynchronous.
         /// </summary>
         /// <param name="item">The work item.</param>
-        /// <param name="delay">The delay.</param>
+        /// <param name="delay">The delay in seconds.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         Task SendAsync(WorkItem item, int delay, CancellationToken cancellationToken);
