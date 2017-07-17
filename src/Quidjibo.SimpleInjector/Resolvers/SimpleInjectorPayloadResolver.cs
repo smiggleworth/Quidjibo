@@ -25,10 +25,5 @@ namespace Quidjibo.SimpleInjector.Resolvers
         {
             return _container.GetInstance(type);
         }
-
-        public void Dispose()
-        {
-            _scope?.Dispose();
-        }
     }
 }

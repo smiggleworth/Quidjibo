@@ -24,10 +24,5 @@ namespace Quidjibo.DependencyInjection.Resolvers
         {
             return _serviceScope.ServiceProvider.GetService(type);
         }
-
-        public void Dispose()
-        {
-            _serviceScope?.Dispose();
-        }
     }
 }

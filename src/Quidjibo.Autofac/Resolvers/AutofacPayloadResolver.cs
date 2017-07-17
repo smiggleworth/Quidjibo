@@ -24,10 +24,5 @@ namespace Quidjibo.Autofac.Resolvers
         {
             return _nestedLifetimeScope.Resolve(type);
         }
-
-        public void Dispose()
-        {
-            _nestedLifetimeScope?.Dispose();
-        }
     }
 }

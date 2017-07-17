@@ -24,10 +24,5 @@ namespace Quidjibo.StructureMap.Resolvers
         {
             return _nestedLifetimeScope.GetInstance(type);
         }
-
-        public void Dispose()
-        {
-            _nestedLifetimeScope?.Dispose();
-        }
     }
 }
