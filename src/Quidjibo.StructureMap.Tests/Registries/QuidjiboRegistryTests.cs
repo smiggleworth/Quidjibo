@@ -21,7 +21,7 @@ namespace Quidjibo.StructureMap.Tests.Registries
         public QuidjiboRegistryTests()
         {
             var registry = new Registry();
-            registry.IncludeRegistry(new QuidjiboRegistry());
+            registry.IncludeRegistry(new QuidjiboRegistry(this.GetType().Assembly));
 
             _container = new Container(registry);
         }
@@ -59,9 +59,21 @@ namespace Quidjibo.StructureMap.Tests.Registries
         }
 
         [TestMethod]
-        public void RegisteredDefaultQuidjiboClientTest()
+        public void RegisterQuidjiboClientTest()
         {
             QuidjiboClient.Instance = new QuidjiboClient(
+                Substitute.For<IWorkProviderFactory>(),
+                Substitute.For<IScheduleProviderFactory>(),
+                Substitute.For<IPayloadSerializer>(),
+                Substitute.For<ICronProvider>());
+
+            QuidjiboClient<CustomClientKey1>.Instance = new QuidjiboClient<CustomClientKey1>(
+                Substitute.For<IWorkProviderFactory>(),
+                Substitute.For<IScheduleProviderFactory>(),
+                Substitute.For<IPayloadSerializer>(),
+                Substitute.For<ICronProvider>());
+
+            QuidjiboClient<CustomClientKey2>.Instance = new QuidjiboClient<CustomClientKey2>(
                 Substitute.For<IWorkProviderFactory>(),
                 Substitute.For<IScheduleProviderFactory>(),
                 Substitute.For<IPayloadSerializer>(),
@@ -72,6 +84,17 @@ namespace Quidjibo.StructureMap.Tests.Registries
                 var client = nestedContainer.GetInstance<IQuidjiboClient>();
                 client.Should().NotBeNull();
                 client.Should().BeAssignableTo<IQuidjiboClient>();
+                client.Should().Be(QuidjiboClient.Instance);
+
+                var client1 = nestedContainer.GetInstance<IQuidjiboClient<CustomClientKey1>>();
+                client1.Should().NotBeNull();
+                client1.Should().BeAssignableTo<IQuidjiboClient<CustomClientKey1>>();
+                client1.Should().Be(QuidjiboClient<CustomClientKey1>.Instance);
+
+                var client2 = nestedContainer.GetInstance<IQuidjiboClient<CustomClientKey2>>();
+                client2.Should().NotBeNull();
+                client2.Should().BeAssignableTo<IQuidjiboClient<CustomClientKey2>>();
+                client2.Should().Be(QuidjiboClient<CustomClientKey2>.Instance);
             }
         }
     }

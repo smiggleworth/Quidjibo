@@ -30,7 +30,7 @@ namespace Quidjibo.Clients
     public class QuidjiboClient<TKey> : IQuidjiboClient<TKey>
         where TKey : IQuidjiboClientKey
     {
-        public static IQuidjiboClient<TKey> Instance;
+        public static IQuidjiboClient<TKey> Instance { get; set; }
 
         private static readonly ConcurrentDictionary<ProviderCacheKey<TKey>, IWorkProvider> WorkProviders = new ConcurrentDictionary<ProviderCacheKey<TKey>, IWorkProvider>();
         private static readonly ConcurrentDictionary<ProviderCacheKey<TKey>, IScheduleProvider> ScheduleProviders = new ConcurrentDictionary<ProviderCacheKey<TKey>, IScheduleProvider>();

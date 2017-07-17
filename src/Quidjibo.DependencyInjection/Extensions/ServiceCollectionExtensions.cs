@@ -3,6 +3,7 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Quidjibo.Clients;
 using Quidjibo.Handlers;
+using Quidjibo.Misc;
 
 namespace Quidjibo.DependencyInjection.Extensions
 {
@@ -22,8 +23,24 @@ namespace Quidjibo.DependencyInjection.Extensions
                 serviceCollection.Add(serviceDescriptor);
             }
 
-            serviceCollection.Add(new ServiceDescriptor(typeof(IQuidjiboClient), _ => (IQuidjiboClient)QuidjiboClient.Instance, ServiceLifetime.Singleton));
+            serviceCollection.Add(new ServiceDescriptor(typeof(IQuidjiboClient), _ => QuidjiboClient.Instance, ServiceLifetime.Singleton));
 
+
+            var keys = from a in assemblies
+                       from t in a.GetTypes()
+                       where typeof(IQuidjiboClientKey).IsAssignableFrom(t)
+                       select t;
+            foreach (var key in keys)
+            {
+                var keyedInterface = typeof(IQuidjiboClient<>).MakeGenericType(key);
+                var keyedClient = typeof(QuidjiboClient<>).MakeGenericType(key);
+
+                serviceCollection.Add(new ServiceDescriptor(
+                    keyedInterface,
+                    _ => keyedClient.GetProperty("Instance").GetValue(null, null),
+                    ServiceLifetime.Singleton
+                ));
+            }
             return serviceCollection;
         }
     }
