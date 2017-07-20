@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.3</TargetFramework>
+    <Authors>Smiggleworth</Authors>
+    <Copyright>Copyright © 2017</Copyright>
+    <Description>Autofac integration pack for Quidjibo</Description>
+    <PackageProjectUrl>http://quidjibo.com/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/smiggleworth/Quidjibo</RepositoryUrl>
+    <Company>Smiggleworth</Company>
+    <PackageLicenseUrl>https://github.com/smiggleworth/Quidjibo/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageTags>async, tasks, workers, cron</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="4.6.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Quidjibo\Quidjibo.csproj" />
+  </ItemGroup>
+
+</Project>
