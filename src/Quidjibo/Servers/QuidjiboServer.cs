@@ -26,6 +26,8 @@ namespace Quidjibo.Servers
         private readonly IWorkProviderFactory _workProviderFactory;
         public string Worker { get; }
 
+        public bool IsRunning { get; private set; }
+
         public QuidjiboServer(
             ILoggerFactory loggerFactory,
             IQuidjiboConfiguration quidjiboConfiguration,
@@ -51,10 +53,11 @@ namespace Quidjibo.Servers
         {
             lock (_syncRoot)
             {
-                if (_running)
+                if (IsRunning)
                 {
                     return;
                 }
+                _logger.LogDebug("Starting loops");
                 _cts = new CancellationTokenSource();
                 _loopTasks = new List<Task>();
                 _throttle = new SemaphoreSlim(0, _quidjiboConfiguration.Throttle);
@@ -72,7 +75,7 @@ namespace Quidjibo.Servers
                 _logger.LogInformation("Enabling scheduler");
                 _loopTasks.Add(ScheduleLoopAsync(_quidjiboConfiguration.Queues));
                 _throttle.Release(_quidjiboConfiguration.Throttle);
-                _running = true;
+                IsRunning = true;
             }
         }
 
@@ -80,13 +83,14 @@ namespace Quidjibo.Servers
         {
             lock (_syncRoot)
             {
-                if (!_running)
+                if (!IsRunning)
                 {
                     return;
                 }
                 _cts?.Cancel();
                 _cts?.Dispose();
                 _loopTasks = null;
+                IsRunning = false;
             }
         }
 
@@ -98,7 +102,7 @@ namespace Quidjibo.Servers
         #region Internals
 
         private readonly object _syncRoot = new object();
-        private bool _running;
+
         private List<Task> _loopTasks;
         private CancellationTokenSource _cts;
         private SemaphoreSlim _throttle;
@@ -237,7 +241,7 @@ namespace Quidjibo.Servers
                                        .ToList();
             await Task.WhenAll(tasks);
             workflowCommand.NextStep();
-            if (workflowCommand.Step >= workflowCommand.CurrentStep)
+            if (workflowCommand.CurrentStep < workflowCommand.Step)
             {
                 var payload = await _serializer.SerializeAsync(workflowCommand, cancellationToken);
                 var next = new WorkItem
