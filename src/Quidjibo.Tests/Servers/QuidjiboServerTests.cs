@@ -43,7 +43,7 @@ namespace Quidjibo.Tests.Servers
         [TestInitialize]
         public void Init()
         {
-            _cts = new CancellationTokenSource(TimeSpan.FromSeconds(60));
+            _cts = new CancellationTokenSource(TimeSpan.FromSeconds(120));
             _loggerFactory = Substitute.For<ILoggerFactory>();
             _logger = Substitute.For<ILogger<QuidjiboServer>>();
             _loggerFactory.CreateLogger<QuidjiboServer>().Returns(_logger);
