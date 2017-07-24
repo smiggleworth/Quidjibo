@@ -50,11 +50,18 @@ namespace Quidjibo.EndToEnd
                 workServer.Start();
 
                 var i = 1;
+                var random = new Random();
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    await client.PublishAsync(new Job.Command(i), cancellationToken);
-                    await Task.Delay(10, cancellationToken);
-                    i++;
+                    var count = random.Next(1,50);
+                    for (var j = 0; j < count; j++)
+                    {
+                        await client.PublishAsync(new Job.Command(i), cancellationToken);
+                        i++;
+                    }
+
+                    var delay = random.Next(0, 300);
+                    await Task.Delay(delay, cancellationToken);
                 }
             }
             await Task.CompletedTask;
