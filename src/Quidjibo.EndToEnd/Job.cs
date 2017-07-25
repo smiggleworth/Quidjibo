@@ -26,7 +26,6 @@ namespace Quidjibo.EndToEnd
                 progress.Report(new Tracker(1, $"Starting this {command.Id}"));
                 await Task.Delay(25, cancellationToken);
                 progress.Report(new Tracker(100, $"Finished this {command.Id}"));
-                Console.WriteLine((int)command.Id);
             }
         }
     }
