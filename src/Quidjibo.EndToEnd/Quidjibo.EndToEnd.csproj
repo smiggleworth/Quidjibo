@@ -2,10 +2,15 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net46</TargetFramework>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="1.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Quidjibo.DataProtection\Quidjibo.DataProtection.csproj" />
     <ProjectReference Include="..\Quidjibo.SqlServer\Quidjibo.SqlServer.csproj" />
     <ProjectReference Include="..\Quidjibo\Quidjibo.csproj" />
   </ItemGroup>

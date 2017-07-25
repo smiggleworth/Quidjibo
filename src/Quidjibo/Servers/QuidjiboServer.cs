@@ -57,9 +57,10 @@ namespace Quidjibo.Servers
                 {
                     return;
                 }
-                _logger.LogDebug("Starting loops");
+                _logger.LogInformation("Starting Worker {0}", Worker);
                 _cts = new CancellationTokenSource();
                 _loopTasks = new List<Task>();
+
                 _throttle = new SemaphoreSlim(0, _quidjiboConfiguration.Throttle);
                 if (_quidjiboConfiguration.SingleLoop)
                 {
@@ -72,10 +73,13 @@ namespace Quidjibo.Servers
                     _logger.LogInformation("Each queue will need a designated loop");
                     _loopTasks.AddRange(_quidjiboConfiguration.Queues.Select(WorkLoopAsync));
                 }
+
                 _logger.LogInformation("Enabling scheduler");
                 _loopTasks.Add(ScheduleLoopAsync(_quidjiboConfiguration.Queues));
+
                 _throttle.Release(_quidjiboConfiguration.Throttle);
                 IsRunning = true;
+                _logger.LogInformation("Started Worker {0}", Worker);
             }
         }
 
@@ -91,6 +95,7 @@ namespace Quidjibo.Servers
                 _cts?.Dispose();
                 _loopTasks = null;
                 IsRunning = false;
+                _logger.LogInformation("Stopped Worker {0}", Worker);
             }
         }
 
@@ -267,9 +272,9 @@ namespace Quidjibo.Servers
                     await provider.RenewAsync(item, cancellationToken);
                     _logger.LogDebug("Renewed : {0}", item.Id);
                 }
-                catch (OperationCanceledException exception)
+                catch (OperationCanceledException)
                 {
-                    _logger.LogError(default(EventId), exception, exception.Message);
+                    // ignore OperationCanceledExceptions
                 }
             }
         }
