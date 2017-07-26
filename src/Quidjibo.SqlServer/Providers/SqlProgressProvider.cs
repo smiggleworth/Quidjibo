@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +13,6 @@ namespace Quidjibo.SqlServer.Providers
     public class SqlProgressProvider : IProgressProvider
     {
         private readonly string _connectionString;
-        private string _reportSql;
 
         public SqlProgressProvider(string connectionString)
         {
@@ -21,13 +21,10 @@ namespace Quidjibo.SqlServer.Providers
 
         public async Task ReportAsync(ProgressItem item, CancellationToken cancellationToken)
         {
-            if (_reportSql == null)
-            {
-                _reportSql = await SqlLoader.GetScript("Progress.Create");
-            }
+            var reportSql = await SqlLoader.GetScript("Progress.Create");
             await ExecuteAsync(async cmd =>
             {
-                cmd.CommandText = _reportSql;
+                cmd.CommandText = reportSql;
                 cmd.AddParameter("@Id", item.Id);
                 cmd.AddParameter("@WorkId", item.WorkId);
                 cmd.AddParameter("@CorrelationId", item.CorrelationId);
@@ -39,6 +36,36 @@ namespace Quidjibo.SqlServer.Providers
                 await cmd.ExecuteNonQueryAsync(cancellationToken);
             }, cancellationToken);
             await Task.CompletedTask;
+        }
+
+        public async Task<List<ProgressItem>> LoadByCorrelationIdAsync(Guid correlationId, CancellationToken cancellationToken)
+        {
+            var reportSql = await SqlLoader.GetScript("Progress.LoadByCorrelationId");
+            var items = new List<ProgressItem>();
+            await ExecuteAsync(async cmd =>
+            {
+                cmd.CommandText = reportSql;
+                cmd.AddParameter("@CorrelationId", correlationId);
+                using (var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
+                {
+                    while (await rdr.ReadAsync(cancellationToken))
+                    {
+                        var workItem = new ProgressItem()
+                        {
+                            CorrelationId = rdr.Map<Guid>(nameof(ProgressItem.CorrelationId)),
+                            Id = rdr.Map<Guid>(nameof(ProgressItem.Id)),
+                            Name = rdr.Map<string>(nameof(ProgressItem.Name)),
+                            Note = rdr.Map<string>(nameof(ProgressItem.Note)),
+                            Queue = rdr.Map<string>(nameof(ProgressItem.Queue)),
+                            RecordedOn = rdr.Map<DateTime>(nameof(ProgressItem.RecordedOn)),
+                            Value = rdr.Map<int>(nameof(ProgressItem.Value)),
+                            WorkId = rdr.Map<Guid>(nameof(ProgressItem.WorkId))
+                        };
+                        items.Add(workItem);
+                    }
+                }
+            }, cancellationToken);
+            return items;
         }
 
         private Task ExecuteAsync(Func<SqlCommand, Task> func, CancellationToken cancellationToken)
