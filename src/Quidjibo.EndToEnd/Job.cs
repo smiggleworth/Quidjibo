@@ -23,9 +23,13 @@ namespace Quidjibo.EndToEnd
         {
             public async Task ProcessAsync(Command command, IProgress<Tracker> progress, CancellationToken cancellationToken)
             {
-                progress.Report(new Tracker(1, $"Starting this {command.Id}"));
-                await Task.Delay(25, cancellationToken);
-                progress.Report(new Tracker(100, $"Finished this {command.Id}"));
+                progress.Report(new Tracker(0, $"Starting : {command.Id}"));
+
+                await Task.Delay(10, cancellationToken);
+                progress.Report(new Tracker(50, $"Half way : {command.Id}"));
+
+                await Task.Delay(10, cancellationToken);
+                progress.Report(new Tracker(100, $"Finished : {command.Id}"));
             }
         }
     }
