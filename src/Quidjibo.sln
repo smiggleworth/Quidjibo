@@ -59,6 +59,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quidjibo.WebProxy", "Quidji
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quidjibo.WebProxy.Tests", "Quidjibo.WebProxy.Tests\Quidjibo.WebProxy.Tests.csproj", "{CD3DB3BF-C69D-4952-B34A-271E2C976A95}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quidjibo.Owin", "Quidjibo.Owin\Quidjibo.Owin.csproj", "{229EAB36-10AC-46EC-B68F-371F8D5AD0E5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -161,6 +163,10 @@ Global
 		{CD3DB3BF-C69D-4952-B34A-271E2C976A95}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD3DB3BF-C69D-4952-B34A-271E2C976A95}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD3DB3BF-C69D-4952-B34A-271E2C976A95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{229EAB36-10AC-46EC-B68F-371F8D5AD0E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{229EAB36-10AC-46EC-B68F-371F8D5AD0E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{229EAB36-10AC-46EC-B68F-371F8D5AD0E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{229EAB36-10AC-46EC-B68F-371F8D5AD0E5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -190,5 +196,6 @@ Global
 		{FAB65379-D9C5-4C6D-8CE0-F34CFF168EF2} = {AA9130CD-0F49-4955-AF45-68B2BC4EFBA9}
 		{3A56AE76-E029-4C73-AF25-C9EAA8AC745B} = {DEEE8D69-EEEC-4DA6-A628-0DF86297B175}
 		{CD3DB3BF-C69D-4952-B34A-271E2C976A95} = {B71B87C8-3E4C-4648-BF70-EB21446E297F}
+		{229EAB36-10AC-46EC-B68F-371F8D5AD0E5} = {DEEE8D69-EEEC-4DA6-A628-0DF86297B175}
 	EndGlobalSection
 EndGlobal
