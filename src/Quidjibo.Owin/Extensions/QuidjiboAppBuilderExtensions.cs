@@ -1,6 +1,6 @@
 ﻿using Microsoft.Owin.BuilderProperties;
 using Owin;
-using Quidjibo.Owin.Middleware;
+
 
 namespace Quidjibo.Owin.Extensions
 {
@@ -18,7 +18,7 @@ namespace Quidjibo.Owin.Extensions
 
         public static IAppBuilder UseQuidjiboProxyServer(this IAppBuilder appBuilder, QuidjiboBuilder quidjiboBuilder)
         {
-            appBuilder.Use<QuidjiboProxyServerMiddleware>(quidjiboBuilder);
+
             return appBuilder;
         }
     }
