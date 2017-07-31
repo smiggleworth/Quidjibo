@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Quidjibo.Attributes;
 using Quidjibo.Commands;
 using Quidjibo.Extensions;
 using Quidjibo.Factories;
@@ -84,6 +87,19 @@ namespace Quidjibo.Clients
             var provider = await GetOrCreateWorkProvider(queueName, cancellationToken);
             await provider.SendAsync(item, delay, cancellationToken);
             return item.CorrelationId;
+        }
+
+        public async Task ScheduleAsync(params Assembly[] assemblies)
+        {
+            var schedules = from a in assemblies
+                            from t in a.GetExportedTypes()
+                            from attr in t.GetTypeInfo().GetCustomAttributes<ScheduleAttribute>()
+                            select new
+                            {
+                                Command =Activator.CreateInstance(t),
+                                Name = attr.Cron,
+
+                            }
         }
 
         public async Task ScheduleAsync(string name, IQuidjiboCommand command, Cron cron, CancellationToken cancellationToken = default(CancellationToken))
