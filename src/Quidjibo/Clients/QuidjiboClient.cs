@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.PlatformAbstractions;
 using Quidjibo.Attributes;
 using Quidjibo.Commands;
 using Quidjibo.Extensions;
@@ -89,17 +90,25 @@ namespace Quidjibo.Clients
             return item.CorrelationId;
         }
 
-        public async Task ScheduleAsync(params Assembly[] assemblies)
+        public async Task ScheduleAsync(Assembly[] assemblies, CancellationToken cancellationToken)
         {
+            if (assemblies == null)
+            {
+                return;
+            }
+            var interfaceType = typeof(IQuidjiboCommand);
             var schedules = from a in assemblies
                             from t in a.GetExportedTypes()
+                            where interfaceType.IsAssignableFrom(t)
                             from attr in t.GetTypeInfo().GetCustomAttributes<ScheduleAttribute>()
-                            select new
-                            {
-                                Command =Activator.CreateInstance(t),
-                                Name = attr.Cron,
+                            let name = !string.IsNullOrWhiteSpace(attr.Name) ? attr.Name : t.Name.Replace("Command", string.Empty)
+                            let queue = !string.IsNullOrWhiteSpace(attr.Queue) ? attr.Queue : "default"
+                            let command = (IQuidjiboCommand)Activator.CreateInstance(t)
+                            let cron = attr.Cron
+                            select ScheduleAsync(name, queue, command, cron, cancellationToken);
 
-                            }
+            await Task.WhenAll(schedules);
+
         }
 
         public async Task ScheduleAsync(string name, IQuidjiboCommand command, Cron cron, CancellationToken cancellationToken = default(CancellationToken))
