@@ -27,23 +27,26 @@ namespace Quidjibo.Attributes
         /// </summary>
         public Type ClientKey { get; set; }
 
+
         public ScheduleAttribute(string expression)
-            : this(new Cron(expression)) { }
+            : this(expression, "default")
+        {
+        }
+        public ScheduleAttribute(string expression, string queue)
+            : this(expression, queue, null)
+        {
+        }
 
-        public ScheduleAttribute(string expression, Type clientKey)
-            : this(new Cron(expression), clientKey) { }
+        public ScheduleAttribute(string expression, string queue, string name)
+            : this(expression, queue, name, typeof(DefaultClientKey))
+        {
+        }
 
-        public ScheduleAttribute(Cron cron)
-            : this(cron, typeof(DefaultClientKey)) { }
-
-        public ScheduleAttribute(Cron cron, Type clientKey)
-            : this(null, null, cron, clientKey) { }
-
-        public ScheduleAttribute(string name, string queue, Cron cron, Type clientKey)
+        public ScheduleAttribute(string expression, string queue, string name, Type clientKey)
         {
             Name = name;
             Queue = queue;
-            Cron = cron;
+            Cron = new Cron(expression);
             ClientKey = clientKey;
         }
     }

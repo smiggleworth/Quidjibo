@@ -38,9 +38,5 @@ namespace Quidjibo.Tests.Misc
             var key2 = new ProviderCacheKey<TestClientKey2>("test2");
             key2.Should().NotBe(key1);
         }
-
-        public class TestClientKey1 : IQuidjiboClientKey { }
-
-        public class TestClientKey2 : IQuidjiboClientKey { }
     }
 }

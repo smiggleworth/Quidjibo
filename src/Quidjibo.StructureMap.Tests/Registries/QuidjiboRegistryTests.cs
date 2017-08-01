@@ -1,5 +1,6 @@
 ﻿using System;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Quidjibo.Clients;
@@ -62,18 +63,21 @@ namespace Quidjibo.StructureMap.Tests.Registries
         public void RegisterQuidjiboClientTest()
         {
             QuidjiboClient.Instance = new QuidjiboClient(
+                Substitute.For<ILoggerFactory>(),
                 Substitute.For<IWorkProviderFactory>(),
                 Substitute.For<IScheduleProviderFactory>(),
                 Substitute.For<IPayloadSerializer>(),
                 Substitute.For<ICronProvider>());
 
             QuidjiboClient<CustomClientKey1>.Instance = new QuidjiboClient<CustomClientKey1>(
+                Substitute.For<ILoggerFactory>(),
                 Substitute.For<IWorkProviderFactory>(),
                 Substitute.For<IScheduleProviderFactory>(),
                 Substitute.For<IPayloadSerializer>(),
                 Substitute.For<ICronProvider>());
 
             QuidjiboClient<CustomClientKey2>.Instance = new QuidjiboClient<CustomClientKey2>(
+                Substitute.For<ILoggerFactory>(),
                 Substitute.For<IWorkProviderFactory>(),
                 Substitute.For<IScheduleProviderFactory>(),
                 Substitute.For<IPayloadSerializer>(),
