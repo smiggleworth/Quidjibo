@@ -102,18 +102,18 @@ namespace Quidjibo.Clients
                 return;
             }
             var interfaceType = typeof(IQuidjiboCommand);
+
             var schedules = from a in assemblies
                             from t in a.GetExportedTypes()
                             where interfaceType.IsAssignableFrom(t)
                             from attr in t.GetTypeInfo().GetCustomAttributes<ScheduleAttribute>()
-                            let name = !string.IsNullOrWhiteSpace(attr.Name) ? attr.Name : t.Name.Replace("Command", string.Empty)
+                            let name = attr.Name
                             let queue = !string.IsNullOrWhiteSpace(attr.Queue) ? attr.Queue : "default"
                             let command = (IQuidjiboCommand)Activator.CreateInstance(t)
                             let cron = attr.Cron
                             select ScheduleAsync(name, queue, command, cron, cancellationToken);
 
             await Task.WhenAll(schedules);
-
         }
 
         public async Task ScheduleAsync(string name, IQuidjiboCommand command, Cron cron, CancellationToken cancellationToken = default(CancellationToken))

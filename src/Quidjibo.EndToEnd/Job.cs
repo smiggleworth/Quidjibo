@@ -22,7 +22,7 @@ namespace Quidjibo.EndToEnd
         public class Handler : IQuidjiboHandler<Command>
         {
             public async Task ProcessAsync(Command command, IProgress<Tracker> progress, CancellationToken cancellationToken)
-            {
+            { 
                 progress.Report(new Tracker(1, $"Starting this {command.Id}"));
                 await Task.Delay(25, cancellationToken);
                 progress.Report(new Tracker(100, $"Finished this {command.Id}"));

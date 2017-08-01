@@ -268,27 +268,24 @@ namespace Quidjibo.Tests.Clients
             await _sut.ScheduleAsync(assemblies, cancellationToken);
 
             // Assert
-            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == queueName && x.CronExpression == cron.Expression), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "default"), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-1" && x.CronExpression == "1 * * * *"), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-2" && x.CronExpression == "1 1 * * *"), cancellationToken);
 
         }
 
-        [Schedule("* * * * *")]
+        [Schedule(nameof(ScheduleDefaultCommand), "* * * * *")]
         public class ScheduleDefaultCommand : IQuidjiboCommand
         {
         }
 
-        [Schedule("* * * * *", "other")]
-        public class ScheduleDefaultAndQueueCommand : IQuidjiboCommand
+        [Schedule(nameof(SchedulCustomQueueCommand), "1 * * * *", "queue-1")]
+        public class SchedulCustomQueueCommand : IQuidjiboCommand
         {
         }
 
-        [Schedule("* * * * *", "other", "FancyPants")]
-        public class ScheduleDefaultQueueAndNameCommand : IQuidjiboCommand
-        {
-        }
-
-        [Schedule("* * * * *", "other", "FancyPants", typeof(TestClientKey1))]
-        public class ScheduleDefaultQueueNameAndKeyedCommand : IQuidjiboCommand
+        [Schedule(nameof(ScheduleCustomeQueueAndKeyedCommand), "1 1 * * *", "queue-2", typeof(TestClientKey1))]
+        public class ScheduleCustomeQueueAndKeyedCommand : IQuidjiboCommand
         {
         }
     }

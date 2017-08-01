@@ -13,13 +13,16 @@ namespace Quidjibo.Tests.Attributes
         public void ScheduleAttributeTest_WithExpression()
         {
             // Arrange
+            var name = "Test";
             var expression = "* * * * *";
 
             // Act
-            var attribute = new ScheduleAttribute(expression);
+            var attribute = new ScheduleAttribute(name, expression);
 
             // Assert
+            attribute.Name.Should().Be(name);
             attribute.Cron.Expression.Should().Be(expression);
+            attribute.Queue.Should().Be("default");
             attribute.ClientKey.Should().Be(typeof(DefaultClientKey));
         }
 
@@ -27,13 +30,17 @@ namespace Quidjibo.Tests.Attributes
         public void ScheduleAttributeTest_WithCron()
         {
             // Arrange
-            var cron = new Cron("* * * * *");
+            var name = "Test";
+            var expression = "* * * * *";
+            var queue = "custom";
 
             // Act
-            var attribute = new ScheduleAttribute(cron);
+            var attribute = new ScheduleAttribute(name, expression, queue);
 
             // Assert
-            attribute.Cron.Should().Be(cron);
+            attribute.Name.Should().Be(name);
+            attribute.Cron.Expression.Should().Be(expression);
+            attribute.Queue.Should().Be(queue);
             attribute.ClientKey.Should().Be(typeof(DefaultClientKey));
         }
 
@@ -41,15 +48,19 @@ namespace Quidjibo.Tests.Attributes
         public void ScheduleAttributeTest_WithCustomKey()
         {
             // Arrange
+            var name = "Test";
             var expression = "* * * * *";
+            var queue = "custom";
             var key = typeof(CustomClientKey);
 
             // Act
-            var attribute = new ScheduleAttribute(expression, key);
+            var attribute = new ScheduleAttribute(name, expression, queue, typeof(CustomClientKey));
 
             // Assert
+            attribute.Name.Should().Be(name);
             attribute.Cron.Expression.Should().Be(expression);
-            attribute.ClientKey.Should().Be(typeof(CustomClientKey));
+            attribute.Queue.Should().Be(queue);
+            attribute.ClientKey.Should().Be(key);
         }
 
 

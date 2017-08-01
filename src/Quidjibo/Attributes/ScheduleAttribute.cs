@@ -8,41 +8,33 @@ namespace Quidjibo.Attributes
     public class ScheduleAttribute : Attribute
     {
         /// <summary>
-        /// The unique name of the scheduled job
+        ///     The unique name of the scheduled job
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; }
 
         /// <summary>
-        /// The name of the queue
+        ///     The name of the queue
         /// </summary>
-        public string Queue { get; set; }
+        public string Queue { get; }
 
         /// <summary>
-        /// The cron to parse for scheduling
+        ///     The cron to parse for scheduling
         /// </summary>
-        public Cron Cron { get; set; }
+        public Cron Cron { get; }
 
         /// <summary>
-        /// The client key to restrict which configuration this should be included
+        ///     The client key to restrict which configuration this should be included
         /// </summary>
-        public Type ClientKey { get; set; }
+        public Type ClientKey { get; }
 
 
-        public ScheduleAttribute(string expression)
-            : this(expression, "default")
-        {
-        }
-        public ScheduleAttribute(string expression, string queue)
-            : this(expression, queue, null)
-        {
-        }
+        public ScheduleAttribute(string name, string expression)
+            : this(name, expression, "default") { }
 
-        public ScheduleAttribute(string expression, string queue, string name)
-            : this(expression, queue, name, typeof(DefaultClientKey))
-        {
-        }
+        public ScheduleAttribute(string name, string expression, string queue)
+            : this(name, expression, queue, typeof(DefaultClientKey)) { }
 
-        public ScheduleAttribute(string expression, string queue, string name, Type clientKey)
+        public ScheduleAttribute(string name, string expression, string queue, Type clientKey)
         {
             Name = name;
             Queue = queue;
