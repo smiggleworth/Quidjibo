@@ -101,12 +101,11 @@ namespace Quidjibo.Clients
             {
                 return;
             }
-            var interfaceType = typeof(IQuidjiboCommand);
-
             var schedules = from a in assemblies
                             from t in a.GetExportedTypes()
-                            where interfaceType.IsAssignableFrom(t)
+                            where typeof(IQuidjiboCommand).IsAssignableFrom(t)
                             from attr in t.GetTypeInfo().GetCustomAttributes<ScheduleAttribute>()
+                            where attr.ClientKey == typeof(TKey)
                             let name = attr.Name
                             let queue = !string.IsNullOrWhiteSpace(attr.Queue) ? attr.Queue : "default"
                             let command = (IQuidjiboCommand)Activator.CreateInstance(t)

@@ -10,23 +10,23 @@ namespace Quidjibo.Tests.Misc
         [TestMethod]
         public void When_Same_KeyType_And_Name()
         {
-            var key1 = new ProviderCacheKey<TestClientKey1>("test");
-            var key2 = new ProviderCacheKey<TestClientKey1>("test");
+            var key1 = new ProviderCacheKey<CustomClientKey1>("test");
+            var key2 = new ProviderCacheKey<CustomClientKey1>("test");
             key2.Should().Be(key1);
         }
 
         [TestMethod]
         public void When_Same_KeyType_And_Different_Name()
         {
-            var key1 = new ProviderCacheKey<TestClientKey1>("test1");
-            var key2 = new ProviderCacheKey<TestClientKey1>("test2");
+            var key1 = new ProviderCacheKey<CustomClientKey1>("test1");
+            var key2 = new ProviderCacheKey<CustomClientKey1>("test2");
             key2.Should().NotBe(key1);
         }
 
         [TestMethod]
         public void When_Different_KeyType_And_Same_Name()
         {
-            var key1 = new ProviderCacheKey<TestClientKey1>("test");
+            var key1 = new ProviderCacheKey<CustomClientKey1>("test");
             var key2 = new ProviderCacheKey<TestClientKey2>("test");
             key2.Should().NotBe(key1);
         }
@@ -34,7 +34,7 @@ namespace Quidjibo.Tests.Misc
         [TestMethod]
         public void When_Different_KeyType_And_Different_Name()
         {
-            var key1 = new ProviderCacheKey<TestClientKey1>("test1");
+            var key1 = new ProviderCacheKey<CustomClientKey1>("test1");
             var key2 = new ProviderCacheKey<TestClientKey2>("test2");
             key2.Should().NotBe(key1);
         }
