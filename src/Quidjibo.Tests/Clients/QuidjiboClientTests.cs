@@ -281,7 +281,17 @@ namespace Quidjibo.Tests.Clients
 
             // Assert
             await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "default" && x.CronExpression == "* * * * *"), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "default" && x.Name == "MinuteIntervalsScheduleDefaultCommand"), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "default" && x.Name == "DailyScheduleDefaultCommand"), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "default" && x.Name == "WeeklyScheduleDefaultCommand"), cancellationToken);
+
             await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-1" && x.CronExpression == "1 * * * *"), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-1" && x.Name == "MinuteIntervalsScheduleDefaultCommand"), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-1" && x.Name == "DailyScheduleDefaultCommand"), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-1" && x.Name == "WeeklyScheduleDefaultCommand"), cancellationToken);
+
+
+
             await _scheduleProvider.DidNotReceive().CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-2" && x.CronExpression == "1 1 * * *"), cancellationToken);
         }
 
@@ -330,11 +340,17 @@ namespace Quidjibo.Tests.Clients
             await _scheduleProvider.DidNotReceiveWithAnyArgs().CreateAsync(Arg.Any<ScheduleItem>(), cancellationToken);
         }
 
+        [MinuteIntervalsSchedule("MinuteIntervalsScheduleDefaultCommand",7)]
+        [DailySchedule("DailyScheduleDefaultCommand",1,0)]
+        [WeeklySchedule("WeeklyScheduleDefaultCommand",DayOfWeek.Friday, 1,0)]
         [Schedule(nameof(ScheduleDefaultCommand), "* * * * *")]
         public class ScheduleDefaultCommand : IQuidjiboCommand
         {
         }
 
+        [MinuteIntervalsSchedule("MinuteIntervalsScheduleDefaultCommand", 7, "queue-1")]
+        [DailySchedule("DailyScheduleDefaultCommand", 1, 0, "queue-1")]
+        [WeeklySchedule("WeeklyScheduleDefaultCommand", DayOfWeek.Friday, 1, 0, "queue-1")]
         [Schedule(nameof(SchedulCustomQueueCommand), "1 * * * *", "queue-1")]
         public class SchedulCustomQueueCommand : IQuidjiboCommand
         {

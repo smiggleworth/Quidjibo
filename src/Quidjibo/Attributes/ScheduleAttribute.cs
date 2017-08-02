@@ -4,7 +4,7 @@ using Quidjibo.Models;
 
 namespace Quidjibo.Attributes
 {
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class ScheduleAttribute : Attribute
     {
         /// <summary>
@@ -35,10 +35,13 @@ namespace Quidjibo.Attributes
             : this(name, expression, queue, typeof(DefaultClientKey)) { }
 
         public ScheduleAttribute(string name, string expression, string queue, Type clientKey)
+            : this(name, new Cron(expression), queue, clientKey) { }
+
+        protected ScheduleAttribute(string name, Cron cron, string queue, Type clientKey)
         {
             Name = name;
             Queue = queue;
-            Cron = new Cron(expression);
+            Cron = cron;
             ClientKey = clientKey;
         }
     }
