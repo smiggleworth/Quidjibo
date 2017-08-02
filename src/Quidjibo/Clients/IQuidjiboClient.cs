@@ -11,7 +11,7 @@ namespace Quidjibo.Clients
     {
     }
 
-    public interface IQuidjiboClient<TKey>
+    public interface IQuidjiboClient<TKey> : IDisposable
         where TKey : IQuidjiboClientKey
     {
         /// <summary>

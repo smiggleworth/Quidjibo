@@ -5,8 +5,11 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Quidjibo.Clients;
+using Quidjibo.Commands;
 using Quidjibo.SqlServer.Configurations;
 using Quidjibo.DataProtection.Extensions;
+using Quidjibo.Misc;
 using Quidjibo.SqlServer.Extensions;
 
 namespace Quidjibo.EndToEnd
@@ -16,15 +19,13 @@ namespace Quidjibo.EndToEnd
         /// <summary>
         /// This is not how you should store your key.
         /// </summary>
-        static byte[] fakeAesKey = new byte[]{ 140,52,131,108,237,60,103,138,79,217,220,226,228,192,105,56,239,39,69,247,82,55,152,94,130,99,171,120,96,247,158,216};
+        static byte[] fakeAesKey = new byte[] { 140, 52, 131, 108, 237, 60, 103, 138, 79, 217, 220, 226, 228, 192, 105, 56, 239, 39, 69, 247, 82, 55, 152, 94, 130, 99, 171, 120, 96, 247, 158, 216 };
 
 
         static void Main(string[] args)
         {
             var aes = Aes.Create();
-            var key = string.Join(",",aes.Key);
-
-
+            var key = string.Join(",", aes.Key);
 
             var cts = new CancellationTokenSource();
             MainAsync(args, cts.Token).GetAwaiter().GetResult();
@@ -37,9 +38,7 @@ namespace Quidjibo.EndToEnd
         static async Task MainAsync(string[] args, CancellationToken cancellationToken)
         {
             var loggerFactory = new LoggerFactory().AddConsole(LogLevel.Debug);
-
             var logger = loggerFactory.CreateLogger<Program>();
-
             logger.LogDebug("Hello Quidjibo!");
 
             var quidjiboBuilder = new QuidjiboBuilder()
@@ -78,7 +77,7 @@ namespace Quidjibo.EndToEnd
                     var count = random.Next(1, 50);
                     for (var j = 0; j < count; j++)
                     {
-                        await client.PublishAsync(new Job.Command(i), cancellationToken);
+                        await client.PublishAsync(new Job.Command(i),300, cancellationToken);
                         i++;
                     }
 
@@ -88,5 +87,8 @@ namespace Quidjibo.EndToEnd
             }
             await Task.CompletedTask;
         }
+
+
+        public class CustomKey : IQuidjiboClientKey { }
     }
 }
