@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using GenFu.ValueGenerators.Cooking;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
@@ -194,6 +195,12 @@ namespace Quidjibo.Tests.Servers
                              return Task.CompletedTask;
                          });
             _scheduleProvider.ReceiveAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(scheduledItems));
+
+            _dispatcher.DispatchAsync(Arg.Any<IQuidjiboCommand>(), Arg.Any<IProgress<Tracker>>(), Arg.Any<CancellationToken>()).Returns(info =>
+            {
+                info.Arg<IProgress<Tracker>>().Report(new Tracker(1, "Hello Tracker"));
+                return Task.CompletedTask;
+            });
 
             // Act
             _sut.Start();

@@ -4,26 +4,45 @@ using Quidjibo.Models;
 
 namespace Quidjibo.Attributes
 {
-    [AttributeUsage(AttributeTargets.Class)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public class ScheduleAttribute : Attribute
     {
-        public Type ClientKey { get; set; }
+        /// <summary>
+        ///     The unique name of the scheduled job
+        /// </summary>
+        public string Name { get; }
 
-        public Cron Cron { get; set; }
+        /// <summary>
+        ///     The name of the queue
+        /// </summary>
+        public string Queue { get; }
 
-        public ScheduleAttribute(Cron cron)
-            : this(cron, typeof(DefaultClientKey)) { }
+        /// <summary>
+        ///     The cron to parse for scheduling
+        /// </summary>
+        public Cron Cron { get; }
 
-        public ScheduleAttribute(string expression)
-            : this(new Cron(expression), typeof(DefaultClientKey)) { }
+        /// <summary>
+        ///     The client key to restrict which configuration this should be included
+        /// </summary>
+        public Type ClientKey { get; }
 
-        public ScheduleAttribute(string expression, Type type)
-            : this(new Cron(expression), type) { }
 
-        public ScheduleAttribute(Cron cron, Type type)
+        public ScheduleAttribute(string name, string expression)
+            : this(name, expression, "default") { }
+
+        public ScheduleAttribute(string name, string expression, string queue)
+            : this(name, expression, queue, typeof(DefaultClientKey)) { }
+
+        public ScheduleAttribute(string name, string expression, string queue, Type clientKey)
+            : this(name, new Cron(expression), queue, clientKey) { }
+
+        protected ScheduleAttribute(string name, Cron cron, string queue, Type clientKey)
         {
+            Name = name;
+            Queue = queue;
             Cron = cron;
-            ClientKey = type;
+            ClientKey = clientKey;
         }
     }
 }

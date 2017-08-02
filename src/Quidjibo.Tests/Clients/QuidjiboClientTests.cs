@@ -1,14 +1,19 @@
 ﻿using System;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using GenFu;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
+using Quidjibo.Attributes;
 using Quidjibo.Clients;
+using Quidjibo.Commands;
 using Quidjibo.Factories;
 using Quidjibo.Models;
 using Quidjibo.Providers;
 using Quidjibo.Serializers;
+using Quidjibo.Tests.Misc;
 using Quidjibo.Tests.Samples;
 
 namespace Quidjibo.Tests.Clients
@@ -20,26 +25,39 @@ namespace Quidjibo.Tests.Clients
         private IPayloadSerializer _payloadSerializer;
         private IScheduleProvider _scheduleProvider;
 
+        private ILoggerFactory _loggerFactory;
         private IScheduleProviderFactory _scheduleProviderFactory;
         private QuidjiboClient _sut;
+        private QuidjiboClient<CustomClientKey1> _sutCustom;
         private IWorkProvider _workProvider;
         private IWorkProviderFactory _workProviderFactory;
 
         [TestInitialize]
         public void Init()
         {
+            _loggerFactory = Substitute.For<ILoggerFactory>();
             _scheduleProviderFactory = Substitute.For<IScheduleProviderFactory>();
             _scheduleProvider = Substitute.For<IScheduleProvider>();
             _workProviderFactory = Substitute.For<IWorkProviderFactory>();
             _workProvider = Substitute.For<IWorkProvider>();
             _payloadSerializer = Substitute.For<IPayloadSerializer>();
             _cronProvider = Substitute.For<ICronProvider>();
+            
             _sut = new QuidjiboClient(
+                _loggerFactory,
                 _workProviderFactory,
                 _scheduleProviderFactory,
                 _payloadSerializer,
                 _cronProvider);
             _sut.Clear();
+
+            _sutCustom = new QuidjiboClient<CustomClientKey1>(
+                _loggerFactory,
+                _workProviderFactory,
+                _scheduleProviderFactory,
+                _payloadSerializer,
+                _cronProvider);
+            _sutCustom.Clear();
         }
 
         [TestMethod]
@@ -248,6 +266,99 @@ namespace Quidjibo.Tests.Clients
             // Assert
             await _scheduleProvider.Received(1).DeleteAsync(existingItem.Id, cancellationToken);
             await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == queueName && x.CronExpression == cron.Expression), cancellationToken);
+        }
+
+        [TestMethod]
+        public async Task ScheduleAsync_ScheduleAttributeScanningDefaultClientKey()
+        {
+            // Arrange 
+            var cancellationToken = CancellationToken.None;
+            var assemblies = new[] { GetType().Assembly };
+            _scheduleProviderFactory.CreateAsync(Arg.Any<string>(), cancellationToken).Returns(Task.FromResult(_scheduleProvider));
+
+            // Act 
+            await _sut.ScheduleAsync(assemblies, cancellationToken);
+
+            // Assert
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "default" && x.CronExpression == "* * * * *"), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "default" && x.Name == "MinuteIntervalsScheduleDefaultCommand"), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "default" && x.Name == "DailyScheduleDefaultCommand"), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "default" && x.Name == "WeeklyScheduleDefaultCommand"), cancellationToken);
+
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-1" && x.CronExpression == "1 * * * *"), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-1" && x.Name == "MinuteIntervalsScheduleDefaultCommand"), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-1" && x.Name == "DailyScheduleDefaultCommand"), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-1" && x.Name == "WeeklyScheduleDefaultCommand"), cancellationToken);
+
+
+
+            await _scheduleProvider.DidNotReceive().CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-2" && x.CronExpression == "1 1 * * *"), cancellationToken);
+        }
+
+        [TestMethod]
+        public async Task ScheduleAsync_ScheduleAttributeScanningCustomClientKey()
+        {
+            // Arrange 
+            var cancellationToken = CancellationToken.None;
+            var assemblies = new[] { GetType().Assembly };
+            _scheduleProviderFactory.CreateAsync(Arg.Any<string>(), cancellationToken).Returns(Task.FromResult(_scheduleProvider));
+
+            // Act 
+            await _sutCustom.ScheduleAsync(assemblies, cancellationToken);
+
+            // Assert
+            await _scheduleProvider.DidNotReceive().CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "default" && x.CronExpression == "* * * * *"), cancellationToken);
+            await _scheduleProvider.DidNotReceive().CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-1" && x.CronExpression == "1 * * * *"), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-2" && x.CronExpression == "1 1 * * *"), cancellationToken);
+        }
+
+        [TestMethod]
+        public async Task ScheudleAsync_ShouldHandleNoAssemblies()
+        {
+            // Arrange 
+            var cancellationToken = CancellationToken.None;
+            _scheduleProviderFactory.CreateAsync(Arg.Any<string>(), cancellationToken).Returns(Task.FromResult(_scheduleProvider));
+
+            // Act 
+            await _sut.ScheduleAsync(new Assembly[0], cancellationToken);
+
+            // Assert
+            await _scheduleProvider.DidNotReceiveWithAnyArgs().CreateAsync(Arg.Any<ScheduleItem>(), cancellationToken);
+        }
+
+        [TestMethod]
+        public async Task ScheudleAsync_ShouldHandleNullAssemblies()
+        {
+            // Arrange 
+            var cancellationToken = CancellationToken.None;
+            _scheduleProviderFactory.CreateAsync(Arg.Any<string>(), cancellationToken).Returns(Task.FromResult(_scheduleProvider));
+
+            // Act 
+            await _sut.ScheduleAsync(null, cancellationToken);
+
+            // Assert
+            await _scheduleProvider.DidNotReceiveWithAnyArgs().CreateAsync(Arg.Any<ScheduleItem>(), cancellationToken);
+        }
+
+        [MinuteIntervalsSchedule("MinuteIntervalsScheduleDefaultCommand",7)]
+        [DailySchedule("DailyScheduleDefaultCommand",1,0)]
+        [WeeklySchedule("WeeklyScheduleDefaultCommand",DayOfWeek.Friday, 1,0)]
+        [Schedule(nameof(ScheduleDefaultCommand), "* * * * *")]
+        public class ScheduleDefaultCommand : IQuidjiboCommand
+        {
+        }
+
+        [MinuteIntervalsSchedule("MinuteIntervalsScheduleDefaultCommand", 7, "queue-1")]
+        [DailySchedule("DailyScheduleDefaultCommand", 1, 0, "queue-1")]
+        [WeeklySchedule("WeeklyScheduleDefaultCommand", DayOfWeek.Friday, 1, 0, "queue-1")]
+        [Schedule(nameof(SchedulCustomQueueCommand), "1 * * * *", "queue-1")]
+        public class SchedulCustomQueueCommand : IQuidjiboCommand
+        {
+        }
+
+        [Schedule(nameof(ScheduleCustomeQueueAndKeyedCommand), "1 1 * * *", "queue-2", typeof(CustomClientKey1))]
+        public class ScheduleCustomeQueueAndKeyedCommand : IQuidjiboCommand
+        {
         }
     }
 }
