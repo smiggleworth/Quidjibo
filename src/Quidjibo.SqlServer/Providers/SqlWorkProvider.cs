@@ -48,6 +48,9 @@ namespace Quidjibo.SqlServer.Providers
                 _sendSql = await SqlLoader.GetScript("Work.Send");
             }
             var createdOn = DateTime.UtcNow;
+            var visibleOn = createdOn.AddSeconds(delay);
+            var expireOn = visibleOn.AddDays(7);
+
             await ExecuteAsync(async cmd =>
             {
                 cmd.CommandText = _sendSql;
@@ -59,8 +62,8 @@ namespace Quidjibo.SqlServer.Providers
                 cmd.AddParameter("@Queue", item.Queue);
                 cmd.AddParameter("@Attempts", item.Attempts);
                 cmd.AddParameter("@CreatedOn", createdOn);
-                cmd.AddParameter("@ExpireOn", createdOn.AddDays(4));
-                cmd.AddParameter("@VisibleOn", createdOn.AddSeconds(delay));
+                cmd.AddParameter("@ExpireOn", expireOn);
+                cmd.AddParameter("@VisibleOn", visibleOn);
                 cmd.AddParameter("@Status", StatusFlags.New);
                 cmd.AddParameter("@Payload", item.Payload);
                 await cmd.ExecuteNonQueryAsync(cancellationToken);
@@ -89,6 +92,7 @@ namespace Quidjibo.SqlServer.Providers
                 cmd.AddParameter("@VisibleOn", receiveOn.AddSeconds(Math.Max(_visibilityTimeout, 30)));
                 cmd.AddParameter("@ReceiveOn", receiveOn);
                 cmd.AddParameter("@MaxAttempts", _maxAttempts);
+                cmd.AddParameter("@DeleteOn", receiveOn.AddMonths(1));
 
                 // dynamic parameters
                 _queues.Select((q, i) => new

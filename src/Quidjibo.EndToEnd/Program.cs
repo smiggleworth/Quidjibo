@@ -68,7 +68,7 @@ namespace Quidjibo.EndToEnd
             var client = quidjiboBuilder.BuildClient();
             using (var workServer = quidjiboBuilder.BuildServer())
             {
-                workServer.Start();
+                //workServer.Start();
 
                 var i = 1;
                 var random = new Random();
