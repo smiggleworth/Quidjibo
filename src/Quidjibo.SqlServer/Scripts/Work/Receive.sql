@@ -1,6 +1,6 @@
 ﻿DELETE FROM [Quidjibo].[Work] WITH (ROWLOCK, READPAST, UPDLOCK) 
-WHERE CreatedOn < @DeleteOn 
-       AND (ExpireOn IS NULL OR ExpireOn < @DeleteOn);
+WHERE [CreatedOn] < @DeleteOn 
+       AND ([ExpireOn] IS NULL OR [ExpireOn] < @DeleteOn);
 
 WITH wrk AS 
 (
