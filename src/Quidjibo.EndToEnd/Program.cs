@@ -77,7 +77,7 @@ namespace Quidjibo.EndToEnd
                     var count = random.Next(1, 50);
                     for (var j = 0; j < count; j++)
                     {
-                        await client.PublishAsync(new Job.Command(i),300, cancellationToken);
+                        await client.PublishAsync(new Job.Command(i), 10, cancellationToken);
                         i++;
                     }
 
