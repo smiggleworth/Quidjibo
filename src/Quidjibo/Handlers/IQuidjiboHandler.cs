@@ -8,6 +8,6 @@ namespace Quidjibo.Handlers
 {
     public interface IQuidjiboHandler<in T> where T : IQuidjiboCommand
     {
-        Task ProcessAsync(T command, IProgress<Tracker> progress, CancellationToken cancellationToken);
+        Task ProcessAsync(T command, IQuidjiboProgress progress, CancellationToken cancellationToken);
     }
 }

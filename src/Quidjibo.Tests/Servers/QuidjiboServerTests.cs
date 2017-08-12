@@ -5,11 +5,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using GenFu.ValueGenerators.Cooking;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
-using NSubstitute.Core.Arguments;
 using Quidjibo.Commands;
 using Quidjibo.Configurations;
 using Quidjibo.Dispatchers;
@@ -196,9 +194,9 @@ namespace Quidjibo.Tests.Servers
                          });
             _scheduleProvider.ReceiveAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(scheduledItems));
 
-            _dispatcher.DispatchAsync(Arg.Any<IQuidjiboCommand>(), Arg.Any<IProgress<Tracker>>(), Arg.Any<CancellationToken>()).Returns(info =>
+            _dispatcher.DispatchAsync(Arg.Any<IQuidjiboCommand>(), Arg.Any<IQuidjiboProgress>(), Arg.Any<CancellationToken>()).Returns(info =>
             {
-                info.Arg<IProgress<Tracker>>().Report(new Tracker(1, "Hello Tracker"));
+                info.Arg<IQuidjiboProgress>().Report(new Tracker(1, "Hello Tracker"));
                 return Task.CompletedTask;
             });
 
@@ -221,7 +219,7 @@ namespace Quidjibo.Tests.Servers
                 _workProviderFactory.Received(1).CreateAsync(Arg.Is<string>(x => x == "primary"), Arg.Any<CancellationToken>());
                 _workProviderFactory.Received(1).CreateAsync(Arg.Is<string>(x => x == "secondary"), Arg.Any<CancellationToken>());
             }
-            _dispatcher.ReceivedWithAnyArgs(75).DispatchAsync(Arg.Any<IQuidjiboCommand>(), Arg.Any<IProgress<Tracker>>(), Arg.Any<CancellationToken>());
+            _dispatcher.ReceivedWithAnyArgs(75).DispatchAsync(Arg.Any<IQuidjiboCommand>(), Arg.Any<IQuidjiboProgress>(), Arg.Any<CancellationToken>());
         }
 
         [TestMethod]
@@ -275,7 +273,7 @@ namespace Quidjibo.Tests.Servers
 
             _workProviderFactory.Received(1).CreateAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
 
-            _dispatcher.ReceivedWithAnyArgs(5).DispatchAsync(Arg.Any<IQuidjiboCommand>(), Arg.Any<IProgress<Tracker>>(), Arg.Any<CancellationToken>());
+            _dispatcher.ReceivedWithAnyArgs(5).DispatchAsync(Arg.Any<IQuidjiboCommand>(), Arg.Any<IQuidjiboProgress>(), Arg.Any<CancellationToken>());
             _workProvider.ReceivedWithAnyArgs(10).RenewAsync(Arg.Any<WorkItem>(), Arg.Any<CancellationToken>());
         }
 
@@ -345,7 +343,7 @@ namespace Quidjibo.Tests.Servers
 
             _workProviderFactory.Received(1).CreateAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
 
-            _dispatcher.ReceivedWithAnyArgs(6).DispatchAsync(Arg.Any<IQuidjiboCommand>(), Arg.Any<IProgress<Tracker>>(), Arg.Any<CancellationToken>());
+            _dispatcher.ReceivedWithAnyArgs(6).DispatchAsync(Arg.Any<IQuidjiboCommand>(), Arg.Any<IQuidjiboProgress>(), Arg.Any<CancellationToken>());
         }
 
         [TestMethod]

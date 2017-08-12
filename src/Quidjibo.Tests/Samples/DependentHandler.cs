@@ -10,7 +10,7 @@ namespace Quidjibo.Tests.Samples
     {
         public DependentHandler(IDependency dependency) { }
 
-        public async Task ProcessAsync(DependentCommand command, IProgress<Tracker> progress, CancellationToken cancellationToken)
+        public async Task ProcessAsync(DependentCommand command, IQuidjiboProgress progress, CancellationToken cancellationToken)
         {
             await Task.CompletedTask;
         }
