@@ -5,37 +5,32 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Quidjibo.Clients;
-using Quidjibo.Commands;
-using Quidjibo.SqlServer.Configurations;
 using Quidjibo.DataProtection.Extensions;
 using Quidjibo.Misc;
+using Quidjibo.SqlServer.Configurations;
 using Quidjibo.SqlServer.Extensions;
 
 namespace Quidjibo.EndToEnd
 {
-    class Program
+    internal class Program
     {
         /// <summary>
-        /// This is not how you should store your key.
+        ///     This is not how you should store your key.
         /// </summary>
-        static byte[] fakeAesKey = new byte[] { 140, 52, 131, 108, 237, 60, 103, 138, 79, 217, 220, 226, 228, 192, 105, 56, 239, 39, 69, 247, 82, 55, 152, 94, 130, 99, 171, 120, 96, 247, 158, 216 };
+        private static readonly byte[] fakeAesKey = {140, 52, 131, 108, 237, 60, 103, 138, 79, 217, 220, 226, 228, 192, 105, 56, 239, 39, 69, 247, 82, 55, 152, 94, 130, 99, 171, 120, 96, 247, 158, 216};
 
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             var aes = Aes.Create();
             var key = string.Join(",", aes.Key);
 
             var cts = new CancellationTokenSource();
             MainAsync(args, cts.Token).GetAwaiter().GetResult();
-            Console.CancelKeyPress += (s, e) =>
-            {
-                cts.Cancel();
-            };
+            Console.CancelKeyPress += (s, e) => { cts.Cancel(); };
         }
 
-        static async Task MainAsync(string[] args, CancellationToken cancellationToken)
+        private static async Task MainAsync(string[] args, CancellationToken cancellationToken)
         {
             var loggerFactory = new LoggerFactory().AddConsole(LogLevel.Debug);
             var logger = loggerFactory.CreateLogger<Program>();
@@ -81,7 +76,7 @@ namespace Quidjibo.EndToEnd
                         i++;
                     }
 
-                    var delay = random.Next(1, 120);
+                    var delay = random.Next(1, 10);
                     await Task.Delay(TimeSpan.FromSeconds(delay), cancellationToken);
                 }
             }
@@ -89,6 +84,8 @@ namespace Quidjibo.EndToEnd
         }
 
 
-        public class CustomKey : IQuidjiboClientKey { }
+        public class CustomKey : IQuidjiboClientKey
+        {
+        }
     }
 }

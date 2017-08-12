@@ -8,7 +8,7 @@ namespace Quidjibo.DependencyInjection.Tests.Samples
 {
     public class BasicHandler : IQuidjiboHandler<BasicCommand>
     {
-        public Task ProcessAsync(BasicCommand command, IProgress<Tracker> progress, CancellationToken cancellationToken)
+        public Task ProcessAsync(BasicCommand command, IQuidjiboProgress progress, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
