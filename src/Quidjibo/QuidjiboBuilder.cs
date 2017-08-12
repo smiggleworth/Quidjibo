@@ -55,7 +55,7 @@ namespace Quidjibo
         {
             BackFillDefaults();
 
-            var client = new QuidjiboClient(_workProviderFactory, _scheduleProviderFactory, _serializer, _cronProvider);
+            var client = new QuidjiboClient(_loggerFactory, _workProviderFactory, _scheduleProviderFactory, _serializer, _cronProvider);
 
             QuidjiboClient.Instance = client;
 
@@ -72,7 +72,7 @@ namespace Quidjibo
         {
             BackFillDefaults();
 
-            var client = new QuidjiboClient<TKey>(_workProviderFactory, _scheduleProviderFactory, _serializer, _cronProvider);
+            var client = new QuidjiboClient<TKey>(_loggerFactory, _workProviderFactory, _scheduleProviderFactory, _serializer, _cronProvider);
 
             QuidjiboClient<TKey>.Instance = client;
 
@@ -188,7 +188,6 @@ namespace Quidjibo
             {
                 return;
             }
-
             _cronProvider = _cronProvider ?? new CronProvider();
             _dispatcher = _dispatcher ?? new WorkDispatcher(new PayloadResolver());
             _loggerFactory = _loggerFactory ?? new LoggerFactory();

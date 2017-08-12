@@ -29,7 +29,7 @@ namespace Quidjibo.Tests.Dispatchers
         {
             // Arrange
             var command = new BasicCommand();
-            var progress = new ProgressTracker(null);
+            var progress = new QuidjiboProgress();
             var handler = Substitute.For<IQuidjiboHandler<BasicCommand>>();
             _resolver.Resolve(typeof(IQuidjiboHandler<BasicCommand>)).Returns(handler);
 

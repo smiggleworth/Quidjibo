@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Quidjibo.Attributes;
 using Quidjibo.Commands;
 using Quidjibo.Extensions;
 using Quidjibo.Factories;
@@ -15,10 +19,12 @@ namespace Quidjibo.Clients
     public class QuidjiboClient : QuidjiboClient<DefaultClientKey>, IQuidjiboClient
     {
         public QuidjiboClient(
+            ILoggerFactory loggerFactory,
             IWorkProviderFactory workProviderFactory,
             IScheduleProviderFactory scheduleProviderFactory,
             IPayloadSerializer payloadSerializer,
             ICronProvider cronProvider) : base(
+                loggerFactory,
             workProviderFactory,
             scheduleProviderFactory,
             payloadSerializer,
@@ -35,45 +41,44 @@ namespace Quidjibo.Clients
         private static readonly ConcurrentDictionary<ProviderCacheKey<TKey>, IWorkProvider> WorkProviders = new ConcurrentDictionary<ProviderCacheKey<TKey>, IWorkProvider>();
         private static readonly ConcurrentDictionary<ProviderCacheKey<TKey>, IScheduleProvider> ScheduleProviders = new ConcurrentDictionary<ProviderCacheKey<TKey>, IScheduleProvider>();
 
+        private bool _disposed;
+        private readonly ILogger _logger;
         private readonly ICronProvider _cronProvider;
         private readonly IPayloadSerializer _payloadSerializer;
         private readonly IScheduleProviderFactory _scheduleProviderFactory;
-
         private readonly IWorkProviderFactory _workProviderFactory;
 
         public QuidjiboClient(
+            ILoggerFactory loggerFactory,
             IWorkProviderFactory workProviderFactory,
             IScheduleProviderFactory scheduleProviderFactory,
             IPayloadSerializer payloadSerializer,
             ICronProvider cronProvider)
         {
+            _logger = loggerFactory.CreateLogger(GetType());
             _workProviderFactory = workProviderFactory;
             _scheduleProviderFactory = scheduleProviderFactory;
             _payloadSerializer = payloadSerializer;
             _cronProvider = cronProvider;
         }
 
-        public async Task PublishAsync(IQuidjiboCommand command,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Guid> PublishAsync(IQuidjiboCommand command, CancellationToken cancellationToken = default(CancellationToken))
         {
-            await PublishAsync(command, 0, cancellationToken);
+            return PublishAsync(command, 0, cancellationToken);
         }
 
-        public async Task PublishAsync(IQuidjiboCommand command, int delay,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Guid> PublishAsync(IQuidjiboCommand command, int delay, CancellationToken cancellationToken = default(CancellationToken))
         {
             var queueName = command.GetQueueName();
-            await PublishAsync(command, queueName, delay, cancellationToken);
+            return PublishAsync(command, queueName, delay, cancellationToken);
         }
 
-        public async Task PublishAsync(IQuidjiboCommand command, string queueName,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Guid> PublishAsync(IQuidjiboCommand command, string queueName, CancellationToken cancellationToken = default(CancellationToken))
         {
-            await PublishAsync(command, queueName, 0, cancellationToken);
+            return PublishAsync(command, queueName, 0, cancellationToken);
         }
 
-        public async Task PublishAsync(IQuidjiboCommand command, string queueName, int delay,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<Guid> PublishAsync(IQuidjiboCommand command, string queueName, int delay, CancellationToken cancellationToken = default(CancellationToken))
         {
             var payload = await _payloadSerializer.SerializeAsync(command, cancellationToken);
             var item = new WorkItem
@@ -87,6 +92,27 @@ namespace Quidjibo.Clients
             };
             var provider = await GetOrCreateWorkProvider(queueName, cancellationToken);
             await provider.SendAsync(item, delay, cancellationToken);
+            return item.CorrelationId;
+        }
+
+        public async Task ScheduleAsync(Assembly[] assemblies, CancellationToken cancellationToken)
+        {
+            if (assemblies == null)
+            {
+                return;
+            }
+            var schedules = from a in assemblies
+                            from t in a.GetExportedTypes()
+                            where typeof(IQuidjiboCommand).IsAssignableFrom(t)
+                            from attr in t.GetTypeInfo().GetCustomAttributes<ScheduleAttribute>()
+                            where attr.ClientKey == typeof(TKey)
+                            let name = attr.Name
+                            let queue = !string.IsNullOrWhiteSpace(attr.Queue) ? attr.Queue : "default"
+                            let command = (IQuidjiboCommand)Activator.CreateInstance(t)
+                            let cron = attr.Cron
+                            select ScheduleAsync(name, queue, command, cron, cancellationToken);
+
+            await Task.WhenAll(schedules);
         }
 
         public async Task ScheduleAsync(string name, IQuidjiboCommand command, Cron cron, CancellationToken cancellationToken = default(CancellationToken))
@@ -97,6 +123,30 @@ namespace Quidjibo.Clients
 
         public async Task ScheduleAsync(string name, string queue, IQuidjiboCommand command, Cron cron, CancellationToken cancellationToken = default(CancellationToken))
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                _logger.LogWarning("The name argument is required");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(queue))
+            {
+                _logger.LogWarning("The queue argument is required");
+                return;
+            }
+
+            if (command == null)
+            {
+                _logger.LogWarning("The command argument is required");
+                return;
+            }
+
+            if (cron == null)
+            {
+                _logger.LogWarning("The cron argument is required");
+                return;
+            }
+
             var now = DateTime.UtcNow;
             var payload = await _payloadSerializer.SerializeAsync(command, cancellationToken);
             var item = new ScheduleItem
@@ -116,12 +166,14 @@ namespace Quidjibo.Clients
             {
                 if (!item.EquivalentTo(existingItem))
                 {
+                    _logger.LogDebug("Replace existing schedule for {0}", name);
                     await provider.DeleteAsync(existingItem.Id, cancellationToken);
                     await provider.CreateAsync(item, cancellationToken);
                 }
             }
             else
             {
+                _logger.LogDebug("Creating new schedule for {0}", name);
                 await provider.CreateAsync(item, cancellationToken);
             }
         }
@@ -133,15 +185,26 @@ namespace Quidjibo.Clients
             ScheduleProviders.Clear();
         }
 
+        public void Dispose()
+        {
+            if (_disposed)
+            {
+                return;
+            }
+            Clear();
+            _disposed = true;
+        }
+
         private async Task<IWorkProvider> GetOrCreateWorkProvider(string queueName, CancellationToken cancellationToken)
         {
             IWorkProvider provider;
             var key = new ProviderCacheKey<TKey>(queueName);
-            if (!WorkProviders.TryGetValue(key, out provider))
+            if (WorkProviders.TryGetValue(key, out provider))
             {
-                provider = await _workProviderFactory.CreateAsync(queueName, cancellationToken);
-                WorkProviders.TryAdd(key, provider);
+                return provider;
             }
+            provider = await _workProviderFactory.CreateAsync(queueName, cancellationToken);
+            WorkProviders.TryAdd(key, provider);
             return provider;
         }
 
@@ -149,11 +212,12 @@ namespace Quidjibo.Clients
         {
             IScheduleProvider provider;
             var key = new ProviderCacheKey<TKey>(queueName);
-            if (!ScheduleProviders.TryGetValue(key, out provider))
+            if (ScheduleProviders.TryGetValue(key, out provider))
             {
-                provider = await _scheduleProviderFactory.CreateAsync(queueName, cancellationToken);
-                ScheduleProviders.TryAdd(key, provider);
+                return provider;
             }
+            provider = await _scheduleProviderFactory.CreateAsync(queueName, cancellationToken);
+            ScheduleProviders.TryAdd(key, provider);
             return provider;
         }
     }

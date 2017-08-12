@@ -10,6 +10,8 @@ namespace Quidjibo.SqlServer.Factories
 {
     public class SqlScheduleProviderFactory : IScheduleProviderFactory
     {
+        private static readonly SemaphoreSlim SyncLock = new SemaphoreSlim(1, 1);
+
         private readonly string _connectionString;
 
         public SqlScheduleProviderFactory(string connectionString)
@@ -20,14 +22,24 @@ namespace Quidjibo.SqlServer.Factories
         public async Task<IScheduleProvider> CreateAsync(List<string> queues,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            await SqlRunner.ExecuteAsync(async cmd =>
+            try
             {
-                cmd.CommandText = await SqlLoader.GetScript("Schedule.Setup");
-                await cmd.ExecuteNonQueryAsync(cancellationToken);
-            }, _connectionString, false, cancellationToken);
+                await SyncLock.WaitAsync(cancellationToken);
+                await SqlRunner.ExecuteAsync(async cmd =>
+                {
+                    var schemaSetup = await SqlLoader.GetScript("Schema.Setup");
+                    var scheduleSetup = await SqlLoader.GetScript("Schedule.Setup");
+                    cmd.CommandText = $"{schemaSetup};\r\n{scheduleSetup}";
+                    await cmd.ExecuteNonQueryAsync(cancellationToken);
+                }, _connectionString, false, cancellationToken);
 
 
-            return await Task.FromResult<IScheduleProvider>(new SqlScheduleProvider(_connectionString, queues));
+                return await Task.FromResult<IScheduleProvider>(new SqlScheduleProvider(_connectionString, queues));
+            }
+            finally
+            {
+                SyncLock.Release();
+            }
         }
 
         public int PollingInterval => 60;
