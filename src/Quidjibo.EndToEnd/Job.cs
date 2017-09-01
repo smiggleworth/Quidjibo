@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Quidjibo.Commands;
@@ -21,11 +20,11 @@ namespace Quidjibo.EndToEnd
 
         public class Handler : IQuidjiboHandler<Command>
         {
-            public async Task ProcessAsync(Command command, IProgress<Tracker> progress, CancellationToken cancellationToken)
-            { 
-                progress.Report(new Tracker(1, $"Starting this {command.Id}"));
+            public async Task ProcessAsync(Command command, IQuidjiboProgress progress, CancellationToken cancellationToken)
+            {
+                progress.Report(1, $"Starting item {command.Id}");
                 await Task.Delay(25, cancellationToken);
-                progress.Report(new Tracker(100, $"Finished this {command.Id}"));
+                progress.Report(100, $"Finished item {command.Id}");
             }
         }
     }

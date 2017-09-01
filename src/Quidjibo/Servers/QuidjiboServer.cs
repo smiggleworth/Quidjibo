@@ -189,7 +189,7 @@ namespace Quidjibo.Servers
 
         private async Task DispatchAsync(IWorkProvider provider, WorkItem item)
         {
-            var progress = new ProgressTracker(item);
+            var progress = new QuidjiboProgress();
             progress.ProgressChanged += async (sender, tracker) =>
             {
                 var progressProvider = await _progressProviderFactory.CreateAsync(_cts.Token);
@@ -238,12 +238,7 @@ namespace Quidjibo.Servers
             }
         }
 
-        private async Task DispatchWorkflowAsync(
-            IWorkProvider provider,
-            WorkItem item,
-            WorkflowCommand workflowCommand,
-            IProgress<Tracker> progress,
-            CancellationToken cancellationToken)
+        private async Task DispatchWorkflowAsync(IWorkProvider provider, WorkItem item, WorkflowCommand workflowCommand, IQuidjiboProgress progress, CancellationToken cancellationToken)
         {
             var tasks = workflowCommand.Entries.Where(e => e.Key == workflowCommand.CurrentStep)
                                        .SelectMany(e => e.Value, (e, c) => _dispatcher.DispatchAsync(c, progress, cancellationToken))
