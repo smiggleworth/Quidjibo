@@ -29,6 +29,8 @@ namespace Quidjibo.Azure.ServiceBus.Factories
         {
             var sender = new MessageSender(_connectionString, queue, RetryPolicy.Default);
             var receiver = new MessageReceiver(_connectionString, queue, ReceiveMode.PeekLock, _retryPolicy, _prefectchCount);
+
+
             var provider = new ServiceBusWorkProvider(sender, receiver, _batchSize);
 
             // todo : Create queue if not exists
