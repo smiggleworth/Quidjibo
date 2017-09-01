@@ -9,6 +9,7 @@ using Quidjibo.Configurations;
 using Quidjibo.Dispatchers;
 using Quidjibo.Factories;
 using Quidjibo.Models;
+using Quidjibo.Protectors;
 using Quidjibo.Providers;
 using Quidjibo.Serializers;
 
@@ -23,6 +24,7 @@ namespace Quidjibo.Servers
         private readonly IQuidjiboConfiguration _quidjiboConfiguration;
         private readonly IScheduleProviderFactory _scheduleProviderFactory;
         private readonly IPayloadSerializer _serializer;
+        private readonly IPayloadProtector _protector;
         private readonly IWorkProviderFactory _workProviderFactory;
         public string Worker { get; }
 
@@ -36,6 +38,7 @@ namespace Quidjibo.Servers
             IProgressProviderFactory progressProviderFactory,
             IWorkDispatcher dispatcher,
             IPayloadSerializer serializer,
+            IPayloadProtector protector,
             ICronProvider cronProvider)
         {
             _logger = loggerFactory.CreateLogger<QuidjiboServer>();
@@ -44,6 +47,7 @@ namespace Quidjibo.Servers
             _scheduleProviderFactory = scheduleProviderFactory;
             _quidjiboConfiguration = quidjiboConfiguration;
             _serializer = serializer;
+            _protector = protector;
             _cronProvider = cronProvider;
             _progressProviderFactory = progressProviderFactory;
             Worker = $"{Environment.GetEnvironmentVariable("COMPUTERNAME")}-{Guid.NewGuid()}";
@@ -207,9 +211,9 @@ namespace Quidjibo.Servers
                 var renewTask = RenewAsync(provider, item, linkedTokenSource.Token);
                 try
                 {
-                    var workCommand = await _serializer.DeserializeAsync(item.Payload, linkedTokenSource.Token);
-                    var workflow = workCommand as WorkflowCommand;
-                    if (workflow != null)
+                    var payload = await _protector.UnprotectAsync(item.Payload, linkedTokenSource.Token);
+                    var workCommand = await _serializer.DeserializeAsync(payload, linkedTokenSource.Token);
+                    if (workCommand is WorkflowCommand workflow)
                     {
                         await DispatchWorkflowAsync(provider, item, workflow, progress, linkedTokenSource.Token);
                     }
@@ -249,12 +253,13 @@ namespace Quidjibo.Servers
             if (workflowCommand.CurrentStep < workflowCommand.Step)
             {
                 var payload = await _serializer.SerializeAsync(workflowCommand, cancellationToken);
+                var protectedPayload = await _protector.ProtectAsync(payload, cancellationToken);
                 var next = new WorkItem
                 {
                     Id = Guid.NewGuid(),
                     CorrelationId = item.CorrelationId,
                     Attempts = 0,
-                    Payload = payload,
+                    Payload = protectedPayload,
                     Queue = item.Queue
                 };
                 _logger.LogDebug("Enqueue the next workflow step : {0}", item.Id);

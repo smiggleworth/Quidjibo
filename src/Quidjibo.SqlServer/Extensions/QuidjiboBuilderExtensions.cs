@@ -28,7 +28,8 @@ namespace Quidjibo.SqlServer.Extensions
         /// <returns></returns>
         public static QuidjiboBuilder UseSqlServer(this QuidjiboBuilder builder, string connectionString)
         {
-            return builder.ConfigureWorkProviderFactory(new SqlWorkProviderFactory(connectionString))
+            return builder.Configure(new SqlServerQuidjiboConfiguration { ConnectionString = connectionString })
+                          .ConfigureWorkProviderFactory(new SqlWorkProviderFactory(connectionString))
                           .ConfigureProgressProviderFactory(new SqlProgressProviderFactory(connectionString))
                           .ConfigureScheduleProviderFactory(new SqlScheduleProviderFactory(connectionString));
         }

@@ -10,6 +10,7 @@ using Quidjibo.DependencyInjection.Extensions;
 using Quidjibo.DependencyInjection.Tests.Samples;
 using Quidjibo.Factories;
 using Quidjibo.Handlers;
+using Quidjibo.Protectors;
 using Quidjibo.Providers;
 using Quidjibo.Serializers;
 
@@ -67,6 +68,7 @@ namespace Quidjibo.DependencyInjection.Tests.Extensions
                 Substitute.For<IWorkProviderFactory>(),
                 Substitute.For<IScheduleProviderFactory>(),
                 Substitute.For<IPayloadSerializer>(),
+                Substitute.For<IPayloadProtector>(),
                 Substitute.For<ICronProvider>());
 
             QuidjiboClient<CustomClientKey1>.Instance = new QuidjiboClient<CustomClientKey1>(
@@ -74,6 +76,7 @@ namespace Quidjibo.DependencyInjection.Tests.Extensions
                 Substitute.For<IWorkProviderFactory>(),
                 Substitute.For<IScheduleProviderFactory>(),
                 Substitute.For<IPayloadSerializer>(),
+                Substitute.For<IPayloadProtector>(),
                 Substitute.For<ICronProvider>());
 
             QuidjiboClient<CustomClientKey2>.Instance = new QuidjiboClient<CustomClientKey2>(
@@ -81,6 +84,7 @@ namespace Quidjibo.DependencyInjection.Tests.Extensions
                 Substitute.For<IWorkProviderFactory>(),
                 Substitute.For<IScheduleProviderFactory>(),
                 Substitute.For<IPayloadSerializer>(),
+                Substitute.For<IPayloadProtector>(),
                 Substitute.For<ICronProvider>());
 
             using (var scope = _serviceProvider.CreateScope())

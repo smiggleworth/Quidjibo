@@ -6,6 +6,6 @@ namespace Quidjibo.Protectors
     public interface IPayloadProtector
     {
         Task<byte[]> ProtectAsync(byte[] payload, CancellationToken cancellationToken);
-        Task<byte[]> UnprotectAysnc(byte[] payload, CancellationToken cancellationToken);
+        Task<byte[]> UnprotectAsync(byte[] payload, CancellationToken cancellationToken);
     }
 }
