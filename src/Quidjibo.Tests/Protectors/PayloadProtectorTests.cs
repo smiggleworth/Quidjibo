@@ -39,7 +39,7 @@ namespace Quidjibo.Tests.Protectors
             var payload = Guid.NewGuid().ToByteArray();
 
             // Act
-            var result = await _sut.UnprotectAysnc(payload, CancellationToken.None);
+            var result = await _sut.UnprotectAsync(payload, CancellationToken.None);
 
             // Assert
             result.SequenceEqual(payload).Should().BeTrue("payload protector is just a pass through");

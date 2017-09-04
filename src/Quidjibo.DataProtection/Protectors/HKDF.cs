@@ -5,12 +5,12 @@ using System.Security.Cryptography;
 
 namespace Quidjibo.DataProtection.Protectors
 {
-    public class HKDF<T> : IDisposable
+    public class Hkdf<T> : IDisposable
         where T : KeyedHashAlgorithm, new()
     {
         private readonly KeyedHashAlgorithm _hmac;
 
-        public HKDF()
+        public Hkdf()
         {
             _hmac = new T();
         }

@@ -11,6 +11,7 @@ using Quidjibo.Extensions;
 using Quidjibo.Factories;
 using Quidjibo.Misc;
 using Quidjibo.Models;
+using Quidjibo.Protectors;
 using Quidjibo.Providers;
 using Quidjibo.Serializers;
 
@@ -23,14 +24,15 @@ namespace Quidjibo.Clients
             IWorkProviderFactory workProviderFactory,
             IScheduleProviderFactory scheduleProviderFactory,
             IPayloadSerializer payloadSerializer,
-            ICronProvider cronProvider) : base(
+            IPayloadProtector payloadProtector,
+            ICronProvider cronProvider)
+            : base(
                 loggerFactory,
-            workProviderFactory,
-            scheduleProviderFactory,
-            payloadSerializer,
-            cronProvider)
-        {
-        }
+                workProviderFactory,
+                scheduleProviderFactory,
+                payloadSerializer,
+                payloadProtector,
+                cronProvider) { }
     }
 
     public class QuidjiboClient<TKey> : IQuidjiboClient<TKey>
@@ -45,6 +47,7 @@ namespace Quidjibo.Clients
         private readonly ILogger _logger;
         private readonly ICronProvider _cronProvider;
         private readonly IPayloadSerializer _payloadSerializer;
+        private readonly IPayloadProtector _payloadProtector;
         private readonly IScheduleProviderFactory _scheduleProviderFactory;
         private readonly IWorkProviderFactory _workProviderFactory;
 
@@ -53,12 +56,14 @@ namespace Quidjibo.Clients
             IWorkProviderFactory workProviderFactory,
             IScheduleProviderFactory scheduleProviderFactory,
             IPayloadSerializer payloadSerializer,
+            IPayloadProtector payloadProtector,
             ICronProvider cronProvider)
         {
             _logger = loggerFactory.CreateLogger(GetType());
             _workProviderFactory = workProviderFactory;
             _scheduleProviderFactory = scheduleProviderFactory;
             _payloadSerializer = payloadSerializer;
+            _payloadProtector = payloadProtector;
             _cronProvider = cronProvider;
         }
 
@@ -81,13 +86,14 @@ namespace Quidjibo.Clients
         public async Task<Guid> PublishAsync(IQuidjiboCommand command, string queueName, int delay, CancellationToken cancellationToken = default(CancellationToken))
         {
             var payload = await _payloadSerializer.SerializeAsync(command, cancellationToken);
+            var protectedPayload = await _payloadProtector.ProtectAsync(payload, cancellationToken);
             var item = new WorkItem
             {
                 Id = Guid.NewGuid(),
                 CorrelationId = Guid.NewGuid(),
                 Name = command.GetName(),
                 Attempts = 0,
-                Payload = payload,
+                Payload = protectedPayload,
                 Queue = queueName
             };
             var provider = await GetOrCreateWorkProvider(queueName, cancellationToken);
@@ -149,6 +155,7 @@ namespace Quidjibo.Clients
 
             var now = DateTime.UtcNow;
             var payload = await _payloadSerializer.SerializeAsync(command, cancellationToken);
+            var protectedPayload = await _payloadProtector.ProtectAsync(payload, cancellationToken);
             var item = new ScheduleItem
             {
                 CreatedOn = now,
@@ -156,7 +163,7 @@ namespace Quidjibo.Clients
                 EnqueueOn = _cronProvider.GetNextSchedule(cron.Expression),
                 Id = Guid.NewGuid(),
                 Name = name,
-                Payload = payload,
+                Payload = protectedPayload,
                 Queue = queue,
                 VisibleOn = now
             };
@@ -197,9 +204,8 @@ namespace Quidjibo.Clients
 
         private async Task<IWorkProvider> GetOrCreateWorkProvider(string queueName, CancellationToken cancellationToken)
         {
-            IWorkProvider provider;
             var key = new ProviderCacheKey<TKey>(queueName);
-            if (WorkProviders.TryGetValue(key, out provider))
+            if (WorkProviders.TryGetValue(key, out IWorkProvider provider))
             {
                 return provider;
             }
@@ -210,9 +216,8 @@ namespace Quidjibo.Clients
 
         private async Task<IScheduleProvider> GetOrCreateScheduleProvider(string queueName, CancellationToken cancellationToken)
         {
-            IScheduleProvider provider;
             var key = new ProviderCacheKey<TKey>(queueName);
-            if (ScheduleProviders.TryGetValue(key, out provider))
+            if (ScheduleProviders.TryGetValue(key, out IScheduleProvider provider))
             {
                 return provider;
             }

@@ -7,6 +7,7 @@ using NSubstitute;
 using Quidjibo.Clients;
 using Quidjibo.Factories;
 using Quidjibo.Handlers;
+using Quidjibo.Protectors;
 using Quidjibo.Providers;
 using Quidjibo.Serializers;
 using Quidjibo.SimpleInjector.Extensions;
@@ -67,6 +68,7 @@ namespace Quidjibo.SimpleInjector.Tests.Extensions
                 Substitute.For<IWorkProviderFactory>(),
                 Substitute.For<IScheduleProviderFactory>(),
                 Substitute.For<IPayloadSerializer>(),
+                Substitute.For<IPayloadProtector>(),
                 Substitute.For<ICronProvider>());
 
             QuidjiboClient<CustomClientKey1>.Instance = new QuidjiboClient<CustomClientKey1>(
@@ -74,6 +76,7 @@ namespace Quidjibo.SimpleInjector.Tests.Extensions
                 Substitute.For<IWorkProviderFactory>(),
                 Substitute.For<IScheduleProviderFactory>(),
                 Substitute.For<IPayloadSerializer>(),
+                Substitute.For<IPayloadProtector>(),
                 Substitute.For<ICronProvider>());
 
             QuidjiboClient<CustomClientKey2>.Instance = new QuidjiboClient<CustomClientKey2>(
@@ -81,6 +84,7 @@ namespace Quidjibo.SimpleInjector.Tests.Extensions
                 Substitute.For<IWorkProviderFactory>(),
                 Substitute.For<IScheduleProviderFactory>(),
                 Substitute.For<IPayloadSerializer>(),
+                Substitute.For<IPayloadProtector>(),
                 Substitute.For<ICronProvider>());
 
             using (AsyncScopedLifestyle.BeginScope(_container))

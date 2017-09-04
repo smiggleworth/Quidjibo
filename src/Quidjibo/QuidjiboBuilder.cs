@@ -18,15 +18,16 @@ namespace Quidjibo
 {
     public class QuidjiboBuilder
     {
+        private bool _validated;
         private IQuidjiboConfiguration _configuration;
         private ICronProvider _cronProvider;
         private IWorkDispatcher _dispatcher;
         private ILoggerFactory _loggerFactory;
+        private IWorkProviderFactory _workProviderFactory;
         private IProgressProviderFactory _progressProviderFactory;
         private IScheduleProviderFactory _scheduleProviderFactory;
         private IPayloadSerializer _serializer;
-        private bool _validated;
-        private IWorkProviderFactory _workProviderFactory;
+        private IPayloadProtector _protector;
 
         /// <summary>
         ///     Build an instance of a QuidjiboServer as configured.
@@ -44,6 +45,7 @@ namespace Quidjibo
                 _progressProviderFactory,
                 _dispatcher,
                 _serializer,
+                _protector,
                 _cronProvider);
         }
 
@@ -55,7 +57,7 @@ namespace Quidjibo
         {
             BackFillDefaults();
 
-            var client = new QuidjiboClient(_loggerFactory, _workProviderFactory, _scheduleProviderFactory, _serializer, _cronProvider);
+            var client = new QuidjiboClient(_loggerFactory, _workProviderFactory, _scheduleProviderFactory, _serializer, _protector, _cronProvider);
 
             QuidjiboClient.Instance = client;
 
@@ -72,7 +74,7 @@ namespace Quidjibo
         {
             BackFillDefaults();
 
-            var client = new QuidjiboClient<TKey>(_loggerFactory, _workProviderFactory, _scheduleProviderFactory, _serializer, _cronProvider);
+            var client = new QuidjiboClient<TKey>(_loggerFactory, _workProviderFactory, _scheduleProviderFactory, _serializer, _protector, _cronProvider);
 
             QuidjiboClient<TKey>.Instance = client;
 
@@ -136,6 +138,17 @@ namespace Quidjibo
         }
 
         /// <summary>
+        ///     Configure a custom protector. (Optional)
+        /// </summary>
+        /// <param name="protector"></param>
+        /// <returns></returns>
+        public QuidjiboBuilder ConfigureProtector(IPayloadProtector protector)
+        {
+            _protector = protector;
+            return this;
+        }
+
+        /// <summary>
         ///     Configure a custom cron provider. (Optional)
         /// </summary>
         /// <param name="cronProvider"></param>
@@ -191,8 +204,8 @@ namespace Quidjibo
             _cronProvider = _cronProvider ?? new CronProvider();
             _dispatcher = _dispatcher ?? new WorkDispatcher(new PayloadResolver());
             _loggerFactory = _loggerFactory ?? new LoggerFactory();
-            _serializer = _serializer ?? new PayloadSerializer(new PayloadProtector());
-
+            _serializer = _serializer ?? new PayloadSerializer();
+            _protector = _protector ?? new PayloadProtector();
             Validate();
         }
 

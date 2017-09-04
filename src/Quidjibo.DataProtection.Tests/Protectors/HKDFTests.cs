@@ -8,7 +8,7 @@ using Quidjibo.DataProtection.Protectors;
 namespace Quidjibo.DataProtection.Tests.Protectors
 {
     [TestClass]
-    public class HKDFTests
+    public class HkdfTests
     {
         [DataTestMethod]
         [DataRow(
@@ -37,7 +37,7 @@ namespace Quidjibo.DataProtection.Tests.Protectors
             DisplayName = "RFC 5869 A.3")]
         public void Rfc5869HmacSha256TestVector(string salt, string ikm, string info, int length, string expectedPrk, string expectedOkm)
         {
-            using (var hkdf = new HKDF<HMACSHA256>())
+            using (var hkdf = new Hkdf<HMACSHA256>())
             {
                 var prk = hkdf.Extract(StringToByteArray(salt), StringToByteArray(ikm));
                 ByteArrayToString(prk).ShouldBeEquivalentTo(expectedPrk);
@@ -82,7 +82,7 @@ namespace Quidjibo.DataProtection.Tests.Protectors
             DisplayName = "RFC 5869 A.7")]
         public void Rfc5869HmacSha1TestVector(string salt, string ikm, string info, int length, string expectedPrk, string expectedOkm)
         {
-            using (var hkdf = new HKDF<HMACSHA1>())
+            using (var hkdf = new Hkdf<HMACSHA1>())
             {
                 var prk = hkdf.Extract(StringToByteArray(salt), StringToByteArray(ikm));
                 ByteArrayToString(prk).ShouldBeEquivalentTo(expectedPrk);

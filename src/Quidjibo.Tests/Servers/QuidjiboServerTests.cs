@@ -13,6 +13,7 @@ using Quidjibo.Configurations;
 using Quidjibo.Dispatchers;
 using Quidjibo.Factories;
 using Quidjibo.Models;
+using Quidjibo.Protectors;
 using Quidjibo.Providers;
 using Quidjibo.Serializers;
 using Quidjibo.Servers;
@@ -35,6 +36,7 @@ namespace Quidjibo.Tests.Servers
         private IScheduleProvider _scheduleProvider;
         private IScheduleProviderFactory _scheduleProviderFactory;
         private IPayloadSerializer _serializer;
+        private IPayloadProtector _protector;
         private QuidjiboServer _sut;
         private IWorkProvider _workProvider;
         private IWorkProviderFactory _workProviderFactory;
@@ -65,6 +67,7 @@ namespace Quidjibo.Tests.Servers
 
             _dispatcher = Substitute.For<IWorkDispatcher>();
             _serializer = Substitute.For<IPayloadSerializer>();
+            _protector = Substitute.For<IPayloadProtector>();
             _cronProvider = Substitute.For<ICronProvider>();
 
             _sut = new QuidjiboServer(
@@ -75,6 +78,7 @@ namespace Quidjibo.Tests.Servers
                 _progressProviderFactory,
                 _dispatcher,
                 _serializer,
+                _protector,
                 _cronProvider);
         }
 
@@ -180,8 +184,7 @@ namespace Quidjibo.Tests.Servers
             _workProvider.ReceiveAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
                          .Returns(x =>
                          {
-                             WorkItem item;
-                             testQueue.TryDequeue(out item);
+                             testQueue.TryDequeue(out WorkItem item);
                              return Task.FromResult(new List<WorkItem> { item });
                          });
 
@@ -247,8 +250,7 @@ namespace Quidjibo.Tests.Servers
             _workProvider.ReceiveAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
                          .Returns(x =>
                          {
-                             WorkItem item;
-                             testQueue.TryDequeue(out item);
+                             testQueue.TryDequeue(out WorkItem item);
                              return Task.FromResult(new List<WorkItem> { item });
                          });
 
@@ -310,8 +312,7 @@ namespace Quidjibo.Tests.Servers
             _workProvider.ReceiveAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
                          .Returns(x =>
                          {
-                             WorkItem item;
-                             testQueue.TryDequeue(out item);
+                             testQueue.TryDequeue(out WorkItem item);
                              return Task.FromResult(new List<WorkItem> { item });
                          });
 

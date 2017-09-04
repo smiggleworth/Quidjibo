@@ -11,6 +11,7 @@ using Quidjibo.Clients;
 using Quidjibo.Commands;
 using Quidjibo.Factories;
 using Quidjibo.Models;
+using Quidjibo.Protectors;
 using Quidjibo.Providers;
 using Quidjibo.Serializers;
 using Quidjibo.Tests.Misc;
@@ -23,6 +24,7 @@ namespace Quidjibo.Tests.Clients
     {
         private ICronProvider _cronProvider;
         private IPayloadSerializer _payloadSerializer;
+        private IPayloadProtector _payloadProtector;
         private IScheduleProvider _scheduleProvider;
 
         private ILoggerFactory _loggerFactory;
@@ -41,6 +43,7 @@ namespace Quidjibo.Tests.Clients
             _workProviderFactory = Substitute.For<IWorkProviderFactory>();
             _workProvider = Substitute.For<IWorkProvider>();
             _payloadSerializer = Substitute.For<IPayloadSerializer>();
+            _payloadProtector = Substitute.For<IPayloadProtector>();
             _cronProvider = Substitute.For<ICronProvider>();
             
             _sut = new QuidjiboClient(
@@ -48,6 +51,7 @@ namespace Quidjibo.Tests.Clients
                 _workProviderFactory,
                 _scheduleProviderFactory,
                 _payloadSerializer,
+                _payloadProtector,
                 _cronProvider);
             _sut.Clear();
 
@@ -55,7 +59,8 @@ namespace Quidjibo.Tests.Clients
                 _loggerFactory,
                 _workProviderFactory,
                 _scheduleProviderFactory,
-                _payloadSerializer,
+                _payloadSerializer, 
+                _payloadProtector,
                 _cronProvider);
             _sutCustom.Clear();
         }
@@ -227,6 +232,7 @@ namespace Quidjibo.Tests.Clients
             };
 
             _payloadSerializer.SerializeAsync(command, cancellationToken).Returns(Task.FromResult(payload));
+            _payloadProtector.ProtectAsync(payload, cancellationToken).Returns(Task.FromResult(payload));
             _scheduleProviderFactory.CreateAsync(queueName, cancellationToken).Returns(Task.FromResult(_scheduleProvider));
             _scheduleProvider.LoadByNameAsync(name, cancellationToken).Returns(Task.FromResult(existingItem));
 
