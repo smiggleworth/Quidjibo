@@ -4,13 +4,14 @@
     <TargetFramework>netstandard1.3</TargetFramework>
     <Authors>Smiggleworth</Authors>
     <Copyright>Copyright © 2017</Copyright>
-    <Description>A task worker library for .NET with an async pipeline</Description>
-    <PackageProjectUrl>http://quidjibo.com/</PackageProjectUrl>
+    <Description>Quidjibo delivers flexible async background jobs for .NET applications</Description>
+    <PackageProjectUrl>https://quidjibo.com/</PackageProjectUrl>
     <RepositoryUrl>https://github.com/smiggleworth/Quidjibo</RepositoryUrl>
     <Company>Smiggleworth</Company>
     <PackageLicenseUrl>https://github.com/smiggleworth/Quidjibo/blob/master/LICENSE</PackageLicenseUrl>
     <PackageTags>async, tasks, workers, cron</PackageTags>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageIconUrl>https://quidjibo.com/images/quidjibo-q.png</PackageIconUrl>
   </PropertyGroup>
 
   <ItemGroup>
