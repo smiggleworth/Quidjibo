@@ -10,7 +10,7 @@
     <Company>Smiggleworth</Company>
     <PackageLicenseUrl>https://github.com/smiggleworth/Quidjibo/blob/master/LICENSE</PackageLicenseUrl>
     <PackageTags>async, tasks, jobs, workers, cron</PackageTags>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageIconUrl>https://quidjibo.com/images/quidjibo-q.png</PackageIconUrl>
   </PropertyGroup>
 
