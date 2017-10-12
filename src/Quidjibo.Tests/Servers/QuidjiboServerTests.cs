@@ -40,6 +40,7 @@ namespace Quidjibo.Tests.Servers
         private QuidjiboServer _sut;
         private IWorkProvider _workProvider;
         private IWorkProviderFactory _workProviderFactory;
+        private IQuidjiboPipeline _quidjiboPipeline;
 
         [TestInitialize]
         public void Init()
@@ -69,17 +70,10 @@ namespace Quidjibo.Tests.Servers
             _serializer = Substitute.For<IPayloadSerializer>();
             _protector = Substitute.For<IPayloadProtector>();
             _cronProvider = Substitute.For<ICronProvider>();
+            _quidjiboPipeline = Substitute.For<IQuidjiboPipeline>();
 
-            _sut = new QuidjiboServer(
-                _loggerFactory,
-                _quidjiboConfiguration,
-                _workProviderFactory,
-                _scheduleProviderFactory,
-                _progressProviderFactory,
-                _dispatcher,
-                _serializer,
-                _protector,
-                _cronProvider);
+
+            _sut = new QuidjiboServer(_loggerFactory, _quidjiboConfiguration, _workProviderFactory, _scheduleProviderFactory, _progressProviderFactory, _cronProvider, _quidjiboPipeline);
         }
 
         [TestCleanup]

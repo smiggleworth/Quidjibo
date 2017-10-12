@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Quidjibo.Clients;
 using Quidjibo.Configurations;
@@ -29,6 +31,35 @@ namespace Quidjibo
         private IPayloadSerializer _serializer;
         private IPayloadProtector _protector;
 
+        private IPipelineServiceProvider _provider = new PipelineServiceProvider();
+        private readonly IList<PipelineStep> _steps = new List<PipelineStep>();
+
+        public QuidjiboPipeline Build()
+        {
+            return new QuidjiboPipeline(_steps, _provider);
+        }
+
+        public QuidjiboBuilder Use(Func<IQuidjiboContext, Func<Task>, Task> middleware)
+        {
+            return Use(new PipelineMiddleware(middleware));
+        }
+
+        public QuidjiboBuilder Use<T>(T middleware = null) where T : class, IPipelineMiddleware
+        {
+            _steps.Add(new PipelineStep
+            {
+                Type = typeof(T),
+                Instance = middleware
+            });
+            return this;
+        }
+
+        public QuidjiboBuilder ConfigurePipelineServiceProvider(IPipelineServiceProvider provider)
+        {
+            _provider = provider ?? new PipelineServiceProvider();
+            return this;
+        }
+
         /// <summary>
         ///     Build an instance of a QuidjiboServer as configured.
         /// </summary>
@@ -36,17 +67,8 @@ namespace Quidjibo
         public IQuidjiboServer BuildServer()
         {
             BackFillDefaults();
-
-            return new QuidjiboServer(
-                _loggerFactory,
-                _configuration,
-                _workProviderFactory,
-                _scheduleProviderFactory,
-                _progressProviderFactory,
-                _dispatcher,
-                _serializer,
-                _protector,
-                _cronProvider);
+            var pipeline = Build();
+            return new QuidjiboServer(_loggerFactory, _configuration, _workProviderFactory, _scheduleProviderFactory, _progressProviderFactory, _cronProvider, pipeline);
         }
 
         /// <summary>

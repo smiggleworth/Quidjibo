@@ -27,4 +27,8 @@
     <PackageReference Include="System.Reflection.TypeExtensions" Version="4.4.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Contexts\" />
+  </ItemGroup>
+
 </Project>
