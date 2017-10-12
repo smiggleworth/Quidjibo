@@ -22,21 +22,21 @@ namespace Quidjibo
     {
         private bool _validated;
         private IQuidjiboConfiguration _configuration;
-        private ICronProvider _cronProvider;
-        private IWorkDispatcher _dispatcher;
-        private ILoggerFactory _loggerFactory;
-        private IWorkProviderFactory _workProviderFactory;
-        private IProgressProviderFactory _progressProviderFactory;
-        private IScheduleProviderFactory _scheduleProviderFactory;
-        private IPayloadSerializer _serializer;
-        private IPayloadProtector _protector;
+        private Func<ICronProvider> _cronProvider;
+        private Func<IWorkDispatcher> _dispatcher;
+        private Func<ILoggerFactory> _loggerFactory;
+        private Func<IWorkProviderFactory> _workProviderFactory;
+        private Func<IProgressProviderFactory> _progressProviderFactory;
+        private Func<IScheduleProviderFactory> _scheduleProviderFactory;
+        private Func<IPayloadSerializer> _serializer;
+        private Func<IPayloadProtector> _protector;
+        private Func<IPayloadResolver> _resolver;
 
-        private IPipelineServiceProvider _provider = new PipelineServiceProvider();
         private readonly IList<PipelineStep> _steps = new List<PipelineStep>();
 
-        public QuidjiboPipeline Build()
+        public IQuidjiboPipeline Build()
         {
-            return new QuidjiboPipeline(_steps, _provider);
+            return new QuidjiboPipeline(_steps, _resolver);
         }
 
         public QuidjiboBuilder Use(Func<IQuidjiboContext, Func<Task>, Task> middleware)
@@ -51,12 +51,6 @@ namespace Quidjibo
                 Type = typeof(T),
                 Instance = middleware
             });
-            return this;
-        }
-
-        public QuidjiboBuilder ConfigurePipelineServiceProvider(IPipelineServiceProvider provider)
-        {
-            _provider = provider ?? new PipelineServiceProvider();
             return this;
         }
 
@@ -130,7 +124,7 @@ namespace Quidjibo
         /// </summary>
         /// <param name="assemblies">The assemblies that contain your QuidjiboHandlers</param>
         /// <returns></returns>
-        public QuidjiboBuilder ConfigureDispatcher(params Assembly[] assemblies)
+        public QuidjiboBuilder ConfigureResolver(params Assembly[] assemblies)
         {
             _dispatcher = new WorkDispatcher(new PayloadResolver(assemblies));
             return this;
@@ -142,7 +136,7 @@ namespace Quidjibo
         /// </summary>
         /// <param name="resolver"></param>
         /// <returns></returns>
-        public QuidjiboBuilder ConfigureDispatcher(IPayloadResolver resolver)
+        public QuidjiboBuilder ConfigureResolver(IPayloadResolver resolver)
         {
             _dispatcher = new WorkDispatcher(resolver);
             return this;
@@ -159,12 +153,13 @@ namespace Quidjibo
             return this;
         }
 
+
         /// <summary>
         ///     Configure a custom protector. (Optional)
         /// </summary>
         /// <param name="protector"></param>
         /// <returns></returns>
-        public QuidjiboBuilder ConfigureProtector(IPayloadProtector protector)
+        public QuidjiboBuilder ConfigureProtector(Func<IPayloadProtector> protector)
         {
             _protector = protector;
             return this;
@@ -175,7 +170,7 @@ namespace Quidjibo
         /// </summary>
         /// <param name="cronProvider"></param>
         /// <returns></returns>
-        public QuidjiboBuilder ConfigureCron(ICronProvider cronProvider)
+        public QuidjiboBuilder ConfigureCron(Func<ICronProvider> cronProvider)
         {
             _cronProvider = cronProvider;
             return this;
@@ -187,7 +182,7 @@ namespace Quidjibo
         /// </summary>
         /// <param name="factory"></param>
         /// <returns></returns>
-        public QuidjiboBuilder ConfigureProgressProviderFactory(IProgressProviderFactory factory)
+        public QuidjiboBuilder ConfigureProgressProviderFactory(Func<IProgressProviderFactory> factory)
         {
             _progressProviderFactory = factory;
             return this;
@@ -199,7 +194,7 @@ namespace Quidjibo
         /// </summary>
         /// <param name="factory"></param>
         /// <returns></returns>
-        public QuidjiboBuilder ConfigureScheduleProviderFactory(IScheduleProviderFactory factory)
+        public QuidjiboBuilder ConfigureScheduleProviderFactory(Func<IScheduleProviderFactory> factory)
         {
             _scheduleProviderFactory = factory;
             return this;
@@ -211,7 +206,7 @@ namespace Quidjibo
         /// </summary>
         /// <param name="factory"></param>
         /// <returns></returns>
-        public QuidjiboBuilder ConfigureWorkProviderFactory(IWorkProviderFactory factory)
+        public QuidjiboBuilder ConfigureWorkProviderFactory(Func<IWorkProviderFactory> factory)
         {
             _workProviderFactory = factory;
             return this;
@@ -223,11 +218,17 @@ namespace Quidjibo
             {
                 return;
             }
-            _cronProvider = _cronProvider ?? new CronProvider();
-            _dispatcher = _dispatcher ?? new WorkDispatcher(new PayloadResolver());
-            _loggerFactory = _loggerFactory ?? new LoggerFactory();
-            _serializer = _serializer ?? new PayloadSerializer();
-            _protector = _protector ?? new PayloadProtector();
+//            if (_cronProvider == null)
+//            {
+//                _cronProvider = () => new CronProvider();
+//            }
+//         
+//
+//            
+//            _dispatcher = _dispatcher ?? new WorkDispatcher(_resolver);
+//            _loggerFactory = _loggerFactory ?? new LoggerFactory();
+//            _serializer = _serializer ?? new PayloadSerializer();
+//            _protector = _protector ?? new PayloadProtector();
             Validate();
         }
 

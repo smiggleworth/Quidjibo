@@ -1,14 +1,15 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Quidjibo.Resolvers;
 
 namespace Quidjibo {
     public class QuidjiboPipeline : IQuidjiboPipeline
     {
-        private readonly IPipelineServiceProvider _provider;
+        private readonly IPayloadResolver _provider;
         private readonly IList<PipelineStep> _steps;
 
-        public QuidjiboPipeline(IList<PipelineStep> steps, IPipelineServiceProvider provider)
+        public QuidjiboPipeline(IList<PipelineStep> steps, IPayloadResolver provider)
         {
             _provider = provider;
             _steps = steps;

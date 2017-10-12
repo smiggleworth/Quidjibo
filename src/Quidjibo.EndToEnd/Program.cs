@@ -38,7 +38,7 @@ namespace Quidjibo.EndToEnd
 
             var quidjiboBuilder = new QuidjiboBuilder()
                 .ConfigureLogging(loggerFactory)
-                .ConfigureDispatcher(typeof(Program).GetTypeInfo().Assembly)
+                .ConfigureResolver(typeof(Program).GetTypeInfo().Assembly)
                 .UseAes(fakeAesKey)
                 .UseSqlServer(new SqlServerQuidjiboConfiguration
                 {

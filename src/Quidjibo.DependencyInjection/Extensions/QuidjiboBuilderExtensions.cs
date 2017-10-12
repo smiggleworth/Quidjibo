@@ -7,7 +7,7 @@ namespace Quidjibo.DependencyInjection.Extensions
     {
         public static QuidjiboBuilder UseDependencyInjection(this QuidjiboBuilder builder, IServiceProvider serviceProvider)
         {
-            return builder.ConfigureDispatcher(new DependencyInjectionPayloadResolver(serviceProvider));
+            return builder.ConfigureResolver(new DependencyInjectionPayloadResolver(serviceProvider));
         }
     }
 }
