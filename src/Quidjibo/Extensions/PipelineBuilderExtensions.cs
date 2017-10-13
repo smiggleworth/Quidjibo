@@ -1,3 +1,5 @@
+using Quidjibo.Middleware;
+
 namespace Quidjibo {
     public static class PipelineBuilderExtensions
     {

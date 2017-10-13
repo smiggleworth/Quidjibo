@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -9,6 +10,7 @@ using Quidjibo.Configurations;
 using Quidjibo.Dispatchers;
 using Quidjibo.Exceptions;
 using Quidjibo.Factories;
+using Quidjibo.Middleware;
 using Quidjibo.Misc;
 using Quidjibo.Protectors;
 using Quidjibo.Providers;
@@ -21,13 +23,16 @@ namespace Quidjibo
     public class QuidjiboBuilder
     {
         private bool _validated;
-        private IQuidjiboConfiguration _configuration;
-        private Func<ICronProvider> _cronProvider;
-        private Func<IWorkDispatcher> _dispatcher;
+
         private Func<ILoggerFactory> _loggerFactory;
+        private Func<IQuidjiboConfiguration> _configuration;
+        private Func<ICronProvider> _cronProvider;
         private Func<IWorkProviderFactory> _workProviderFactory;
         private Func<IProgressProviderFactory> _progressProviderFactory;
         private Func<IScheduleProviderFactory> _scheduleProviderFactory;
+
+
+        private Func<IWorkDispatcher> _dispatcher;
         private Func<IPayloadSerializer> _serializer;
         private Func<IPayloadProtector> _protector;
         private Func<IPayloadResolver> _resolver;
@@ -36,7 +41,7 @@ namespace Quidjibo
 
         public IQuidjiboPipeline Build()
         {
-            return new QuidjiboPipeline(_steps, _resolver);
+            return new QuidjiboPipeline(_steps, _resolver());
         }
 
         public QuidjiboBuilder Use(Func<IQuidjiboContext, Func<Task>, Task> middleware)
@@ -62,7 +67,8 @@ namespace Quidjibo
         {
             BackFillDefaults();
             var pipeline = Build();
-            return new QuidjiboServer(_loggerFactory, _configuration, _workProviderFactory, _scheduleProviderFactory, _progressProviderFactory, _cronProvider, pipeline);
+
+            return new QuidjiboServer(_loggerFactory(), _configuration(), _workProviderFactory(), _scheduleProviderFactory(), _progressProviderFactory(), _cronProvider(), pipeline);
         }
 
         /// <summary>
@@ -103,7 +109,7 @@ namespace Quidjibo
         /// </summary>
         /// <param name="config"></param>
         /// <returns></returns>
-        public QuidjiboBuilder Configure(IQuidjiboConfiguration config)
+        public QuidjiboBuilder Configure(Func<IQuidjiboConfiguration> config)
         {
             _configuration = config;
             return this;
@@ -114,31 +120,21 @@ namespace Quidjibo
         /// </summary>
         /// <param name="factory"></param>
         /// <returns></returns>
-        public QuidjiboBuilder ConfigureLogging(ILoggerFactory factory)
+        public QuidjiboBuilder ConfigureLogging(Func<ILoggerFactory> factory)
         {
             _loggerFactory = factory;
             return this;
         }
 
         /// <summary>
-        /// </summary>
-        /// <param name="assemblies">The assemblies that contain your QuidjiboHandlers</param>
-        /// <returns></returns>
-        public QuidjiboBuilder ConfigureResolver(params Assembly[] assemblies)
-        {
-            _dispatcher = new WorkDispatcher(new PayloadResolver(assemblies));
-            return this;
-        }
-
-        /// <summary>
-        ///     Configure Dispatcher with a custom resolver. Typically this is done in an extension method provided by the DI
+        ///     Configure the resolver. Typically this is done in an extension method provided by the DI
         ///     framework implmentation
         /// </summary>
         /// <param name="resolver"></param>
         /// <returns></returns>
-        public QuidjiboBuilder ConfigureResolver(IPayloadResolver resolver)
+        public QuidjiboBuilder ConfigureResolver(Func<IPayloadResolver> resolver)
         {
-            _dispatcher = new WorkDispatcher(resolver);
+            _resolver = resolver;
             return this;
         }
 
@@ -147,7 +143,7 @@ namespace Quidjibo
         /// </summary>
         /// <param name="serializer"></param>
         /// <returns></returns>
-        public QuidjiboBuilder ConfigureSerializer(IPayloadSerializer serializer)
+        public QuidjiboBuilder ConfigureSerializer(Func<IPayloadSerializer> serializer)
         {
             _serializer = serializer;
             return this;
@@ -218,17 +214,17 @@ namespace Quidjibo
             {
                 return;
             }
-//            if (_cronProvider == null)
-//            {
-//                _cronProvider = () => new CronProvider();
-//            }
-//         
-//
-//            
-//            _dispatcher = _dispatcher ?? new WorkDispatcher(_resolver);
-//            _loggerFactory = _loggerFactory ?? new LoggerFactory();
-//            _serializer = _serializer ?? new PayloadSerializer();
-//            _protector = _protector ?? new PayloadProtector();
+            //            if (_cronProvider == null)
+            //            {
+            //                _cronProvider = () => new CronProvider();
+            //            }
+            //         
+            //
+            //            
+            //            _dispatcher = _dispatcher ?? new WorkDispatcher(_resolver);
+            //            _loggerFactory = _loggerFactory ?? new LoggerFactory();
+            //            _serializer = _serializer ?? new PayloadSerializer();
+            //            _protector = _protector ?? new PayloadProtector();
             Validate();
         }
 

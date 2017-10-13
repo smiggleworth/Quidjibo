@@ -1,4 +1,5 @@
 using System;
+using Quidjibo.Middleware;
 
 namespace Quidjibo {
     public class PipelineStep

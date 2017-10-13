@@ -9,7 +9,7 @@ using Quidjibo.Models;
 using Quidjibo.Protectors;
 using Quidjibo.Serializers;
 
-namespace Quidjibo
+namespace Quidjibo.Middleware
 {
     public class QuidjiboHandlerMiddleware : IPipelineMiddleware
     {
