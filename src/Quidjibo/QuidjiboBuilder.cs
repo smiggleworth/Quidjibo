@@ -24,7 +24,7 @@ namespace Quidjibo
 {
     public class QuidjiboBuilder
     {
-
+        private readonly IQuidjiboPipelineBuilder _pipelineBuilder = new QuidjiboPipelineBuilder();
         private readonly IDictionary<Type, object> _services = new Dictionary<Type, object>();
 
         private bool _validated;
@@ -36,14 +36,10 @@ namespace Quidjibo
         private IWorkProviderFactory _workProviderFactory;
         private IProgressProviderFactory _progressProviderFactory;
         private IScheduleProviderFactory _scheduleProviderFactory;
-        private IQuidjiboPipelineBuilder _pipelineBuilder;
-
         private IDependencyResolver _resolver;
         private IWorkDispatcher _dispatcher;
         private IPayloadSerializer _serializer;
         private IPayloadProtector _protector;
-
-
 
         /// <summary>
         ///     Build an instance of a QuidjiboServer as configured.
@@ -187,9 +183,8 @@ namespace Quidjibo
             return this;
         }
 
-        public QuidjiboBuilder ConfigurePipeline(IQuidjiboPipelineBuilder pipelineBuilder)
+        public QuidjiboBuilder ConfigurePipeline(Action<IQuidjiboPipelineBuilder> pipelineBuilder)
         {
-            _pipelineBuilder = pipelineBuilder;
             return this;
         }
 
@@ -212,7 +207,6 @@ namespace Quidjibo
             _services.Add(typeof(IPayloadProtector), _protector);
             _services.Add(typeof(IPayloadSerializer), _serializer);
             _services.Add(typeof(IWorkDispatcher), _dispatcher);
-            _services.Add(typeof(IWorkDispatcher), _loggerFactory);
             _services.Add(typeof(QuidjiboHandlerMiddleware), new QuidjiboHandlerMiddleware(_loggerFactory, _dispatcher, _serializer, _protector));
 
             _resolver = _resolver ?? new DependencyResolver(_services, _assemblies);

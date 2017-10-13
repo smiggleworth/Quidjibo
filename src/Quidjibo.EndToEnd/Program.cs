@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Quidjibo.DataProtection.Extensions;
+using Quidjibo.Extensions;
 using Quidjibo.Misc;
 using Quidjibo.SqlServer.Configurations;
 using Quidjibo.SqlServer.Extensions;
@@ -58,7 +59,7 @@ namespace Quidjibo.EndToEnd
                     // maximum concurrent requests
                     Throttle = 2,
                     SingleLoop = true
-                });
+                }).ConfigurePipeline(pipeline => pipeline.UseHandlers());
 
             var client = quidjiboBuilder.BuildClient();
             using (var workServer = quidjiboBuilder.BuildServer())
