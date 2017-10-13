@@ -1,9 +1,11 @@
-using Quidjibo.Middleware;
+using Quidjibo.Builders;
+using Quidjibo.Pipeline.Middleware;
 
-namespace Quidjibo {
+namespace Quidjibo.Extensions
+{
     public static class PipelineBuilderExtensions
     {
-        public static IPipelineBuilder UseDispatch(this IPipelineBuilder builder)
+        public static IQuidjiboPipelineBuilder UseHandlers(this IQuidjiboPipelineBuilder builder)
         {
             return builder.Use<QuidjiboHandlerMiddleware>();
         }

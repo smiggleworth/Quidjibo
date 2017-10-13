@@ -7,7 +7,7 @@ namespace Quidjibo.Autofac.Extensions
     {
         public static QuidjiboBuilder UseAutofac(this QuidjiboBuilder builder, IContainer container)
         {
-            return builder.ConfigureResolver(new AutofacPayloadResolver(container));
+            return builder.ConfigureResolver(new AutofacDependencyResolver(container));
         }
     }
 }

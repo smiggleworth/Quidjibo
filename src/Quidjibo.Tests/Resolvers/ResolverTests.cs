@@ -10,12 +10,12 @@ namespace Quidjibo.Tests.Resolvers
     [TestClass]
     public class ResolverTests
     {
-        private PayloadResolver _resolver;
+        private DependencyResolver _resolver;
 
         [TestInitialize]
         public void Init()
         {
-            _resolver = new PayloadResolver(GetType().Assembly);
+            _resolver = new DependencyResolver(null, GetType().Assembly);
         }
 
         [TestMethod]

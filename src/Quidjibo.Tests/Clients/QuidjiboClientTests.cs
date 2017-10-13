@@ -30,7 +30,6 @@ namespace Quidjibo.Tests.Clients
         private ILoggerFactory _loggerFactory;
         private IScheduleProviderFactory _scheduleProviderFactory;
         private QuidjiboClient _sut;
-        private QuidjiboClient<CustomClientKey1> _sutCustom;
         private IWorkProvider _workProvider;
         private IWorkProviderFactory _workProviderFactory;
 
@@ -54,15 +53,6 @@ namespace Quidjibo.Tests.Clients
                 _payloadProtector,
                 _cronProvider);
             _sut.Clear();
-
-            _sutCustom = new QuidjiboClient<CustomClientKey1>(
-                _loggerFactory,
-                _workProviderFactory,
-                _scheduleProviderFactory,
-                _payloadSerializer, 
-                _payloadProtector,
-                _cronProvider);
-            _sutCustom.Clear();
         }
 
         [TestMethod]
@@ -295,27 +285,6 @@ namespace Quidjibo.Tests.Clients
             await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-1" && x.Name == "MinuteIntervalsScheduleDefaultCommand"), cancellationToken);
             await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-1" && x.Name == "DailyScheduleDefaultCommand"), cancellationToken);
             await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-1" && x.Name == "WeeklyScheduleDefaultCommand"), cancellationToken);
-
-
-
-            await _scheduleProvider.DidNotReceive().CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-2" && x.CronExpression == "1 1 * * *"), cancellationToken);
-        }
-
-        [TestMethod]
-        public async Task ScheduleAsync_ScheduleAttributeScanningCustomClientKey()
-        {
-            // Arrange 
-            var cancellationToken = CancellationToken.None;
-            var assemblies = new[] { GetType().Assembly };
-            _scheduleProviderFactory.CreateAsync(Arg.Any<string>(), cancellationToken).Returns(Task.FromResult(_scheduleProvider));
-
-            // Act 
-            await _sutCustom.ScheduleAsync(assemblies, cancellationToken);
-
-            // Assert
-            await _scheduleProvider.DidNotReceive().CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "default" && x.CronExpression == "* * * * *"), cancellationToken);
-            await _scheduleProvider.DidNotReceive().CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-1" && x.CronExpression == "1 * * * *"), cancellationToken);
-            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-2" && x.CronExpression == "1 1 * * *"), cancellationToken);
         }
 
         [TestMethod]

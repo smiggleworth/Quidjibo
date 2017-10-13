@@ -12,6 +12,7 @@ using Quidjibo.Commands;
 using Quidjibo.Configurations;
 using Quidjibo.Dispatchers;
 using Quidjibo.Factories;
+using Quidjibo.Misc;
 using Quidjibo.Models;
 using Quidjibo.Protectors;
 using Quidjibo.Providers;

@@ -6,10 +6,11 @@ using Microsoft.Extensions.Logging;
 using Quidjibo.Commands;
 using Quidjibo.Dispatchers;
 using Quidjibo.Models;
+using Quidjibo.Pipeline.Contexts;
 using Quidjibo.Protectors;
 using Quidjibo.Serializers;
 
-namespace Quidjibo.Middleware
+namespace Quidjibo.Pipeline.Middleware
 {
     public class QuidjiboHandlerMiddleware : IPipelineMiddleware
     {

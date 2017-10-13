@@ -15,14 +15,14 @@ namespace Quidjibo.Autofac.Tests.Resolvers
     [TestClass]
     public class AutofacModuleTests
     {
-        private readonly IPayloadResolver _resolver;
+        private readonly IDependencyResolver _resolver;
 
         public AutofacModuleTests()
         {
             var builder = new ContainerBuilder();
             builder.RegisterModule(new QuidjiboModule(GetType().GetTypeInfo().Assembly));
             var container = builder.Build();
-            _resolver = new AutofacPayloadResolver(container);
+            _resolver = new AutofacDependencyResolver(container);
         }
 
         [TestMethod]

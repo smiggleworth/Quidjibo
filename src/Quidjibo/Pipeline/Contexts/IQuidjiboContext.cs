@@ -1,8 +1,11 @@
 using System.Collections.Generic;
+using Quidjibo.Misc;
 using Quidjibo.Models;
 using Quidjibo.Providers;
+using Quidjibo.Resolvers;
 
-namespace Quidjibo {
+namespace Quidjibo.Pipeline.Contexts
+{
     public interface IQuidjiboContext
     {
         Queue<PipelineStep> Steps { get; set; }

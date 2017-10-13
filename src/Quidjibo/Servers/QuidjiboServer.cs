@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using Quidjibo.Commands;
 using Quidjibo.Configurations;
 using Quidjibo.Factories;
+using Quidjibo.Misc;
 using Quidjibo.Models;
 using Quidjibo.Providers;
 

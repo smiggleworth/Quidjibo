@@ -7,7 +7,7 @@ namespace Quidjibo.SimpleInjector.Extensions
     {
         public static QuidjiboBuilder UseSimpleInjector(this QuidjiboBuilder builder, Container container)
         {
-            return builder.ConfigureResolver(new SimpleInjectorPayloadResolver(container));
+            return builder.ConfigureResolver(new SimpleInjectorDependencyResolver(container));
         }
     }
 }

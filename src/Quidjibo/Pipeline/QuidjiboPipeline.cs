@@ -1,25 +1,27 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Quidjibo.Middleware;
+using Quidjibo.Pipeline;
+using Quidjibo.Pipeline.Contexts;
+using Quidjibo.Pipeline.Middleware;
 using Quidjibo.Resolvers;
 
 namespace Quidjibo {
     public class QuidjiboPipeline : IQuidjiboPipeline
     {
-        private readonly IPayloadResolver _provider;
+        private readonly IDependencyResolver _resolver;
         private readonly IList<PipelineStep> _steps;
 
-        public QuidjiboPipeline(IList<PipelineStep> steps, IPayloadResolver provider)
+        public QuidjiboPipeline(IList<PipelineStep> steps, IDependencyResolver resolver)
         {
-            _provider = provider;
+            _resolver = resolver;
             _steps = steps;
         }
 
         public async Task StartAsync(IQuidjiboContext context, CancellationToken cancellationToken)
         {
             context.Steps = new Queue<PipelineStep>(_steps);
-            using (_provider.Begin())
+            using (_resolver.Begin())
             {
                 await InvokeAsync(context, cancellationToken);
             }
@@ -45,7 +47,7 @@ namespace Quidjibo {
 
             if (step.Instance == null)
             {
-                step.Instance = (IPipelineMiddleware)_provider.Resolve(step.Type);
+                step.Instance = (IPipelineMiddleware)_resolver.Resolve(step.Type);
             }
             return step.Instance.InvokeAsync(context, () => InvokeAsync(context, cancellationToken), cancellationToken);
         }

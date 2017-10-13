@@ -1,7 +1,8 @@
 using System;
-using Quidjibo.Middleware;
+using Quidjibo.Pipeline.Middleware;
 
-namespace Quidjibo {
+namespace Quidjibo.Pipeline
+{
     public class PipelineStep
     {
         public Type Type { get; set; }

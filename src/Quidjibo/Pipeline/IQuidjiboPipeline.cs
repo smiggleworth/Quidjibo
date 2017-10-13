@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Quidjibo.Pipeline.Contexts;
 
 namespace Quidjibo {
     public interface IQuidjiboPipeline {

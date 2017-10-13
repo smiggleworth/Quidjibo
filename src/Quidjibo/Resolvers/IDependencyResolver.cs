@@ -2,7 +2,7 @@
 
 namespace Quidjibo.Resolvers
 {
-    public interface IPayloadResolver
+    public interface IDependencyResolver
     {
         IDisposable Begin();
         object Resolve(Type type);

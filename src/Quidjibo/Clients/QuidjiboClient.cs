@@ -17,31 +17,9 @@ using Quidjibo.Serializers;
 
 namespace Quidjibo.Clients
 {
-    public class QuidjiboClient : QuidjiboClient<DefaultClientKey>, IQuidjiboClient
+    public class QuidjiboClient : IQuidjiboClient
     {
-        public QuidjiboClient(
-            ILoggerFactory loggerFactory,
-            IWorkProviderFactory workProviderFactory,
-            IScheduleProviderFactory scheduleProviderFactory,
-            IPayloadSerializer payloadSerializer,
-            IPayloadProtector payloadProtector,
-            ICronProvider cronProvider)
-            : base(
-                loggerFactory,
-                workProviderFactory,
-                scheduleProviderFactory,
-                payloadSerializer,
-                payloadProtector,
-                cronProvider) { }
-    }
-
-    public class QuidjiboClient<TKey> : IQuidjiboClient<TKey>
-        where TKey : IQuidjiboClientKey
-    {
-        public static IQuidjiboClient<TKey> Instance { get; set; }
-
-        private static readonly ConcurrentDictionary<ProviderCacheKey<TKey>, IWorkProvider> WorkProviders = new ConcurrentDictionary<ProviderCacheKey<TKey>, IWorkProvider>();
-        private static readonly ConcurrentDictionary<ProviderCacheKey<TKey>, IScheduleProvider> ScheduleProviders = new ConcurrentDictionary<ProviderCacheKey<TKey>, IScheduleProvider>();
+        public static IQuidjiboClient Instance { get; set; }
 
         private bool _disposed;
         private readonly ILogger _logger;
@@ -111,7 +89,6 @@ namespace Quidjibo.Clients
                             from t in a.GetExportedTypes()
                             where typeof(IQuidjiboCommand).IsAssignableFrom(t)
                             from attr in t.GetTypeInfo().GetCustomAttributes<ScheduleAttribute>()
-                            where attr.ClientKey == typeof(TKey)
                             let name = attr.Name
                             let queue = !string.IsNullOrWhiteSpace(attr.Queue) ? attr.Queue : "default"
                             let command = (IQuidjiboCommand)Activator.CreateInstance(t)
@@ -188,8 +165,6 @@ namespace Quidjibo.Clients
         public void Clear()
         {
             Instance = null;
-            WorkProviders.Clear();
-            ScheduleProviders.Clear();
         }
 
         public void Dispose()
@@ -202,28 +177,14 @@ namespace Quidjibo.Clients
             _disposed = true;
         }
 
-        private async Task<IWorkProvider> GetOrCreateWorkProvider(string queueName, CancellationToken cancellationToken)
+        private Task<IWorkProvider> GetOrCreateWorkProvider(string queueName, CancellationToken cancellationToken)
         {
-            var key = new ProviderCacheKey<TKey>(queueName);
-            if (WorkProviders.TryGetValue(key, out IWorkProvider provider))
-            {
-                return provider;
-            }
-            provider = await _workProviderFactory.CreateAsync(queueName, cancellationToken);
-            WorkProviders.TryAdd(key, provider);
-            return provider;
+            return _workProviderFactory.CreateAsync(queueName, cancellationToken);
         }
 
-        private async Task<IScheduleProvider> GetOrCreateScheduleProvider(string queueName, CancellationToken cancellationToken)
+        private Task<IScheduleProvider> GetOrCreateScheduleProvider(string queueName, CancellationToken cancellationToken)
         {
-            var key = new ProviderCacheKey<TKey>(queueName);
-            if (ScheduleProviders.TryGetValue(key, out IScheduleProvider provider))
-            {
-                return provider;
-            }
-            provider = await _scheduleProviderFactory.CreateAsync(queueName, cancellationToken);
-            ScheduleProviders.TryAdd(key, provider);
-            return provider;
+            return _scheduleProviderFactory.CreateAsync(queueName, cancellationToken);
         }
     }
 }

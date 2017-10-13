@@ -1,8 +1,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Quidjibo.Pipeline.Contexts;
 
-namespace Quidjibo.Middleware {
+namespace Quidjibo.Pipeline.Middleware {
     public class PipelineMiddleware : IPipelineMiddleware
     {
         private readonly Func<IQuidjiboContext, Func<Task>, Task> _func;

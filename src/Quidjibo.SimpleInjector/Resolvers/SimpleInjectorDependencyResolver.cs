@@ -5,20 +5,18 @@ using SimpleInjector.Lifestyles;
 
 namespace Quidjibo.SimpleInjector.Resolvers
 {
-    public class SimpleInjectorPayloadResolver : IPayloadResolver
+    public class SimpleInjectorDependencyResolver : IDependencyResolver
     {
         private readonly Container _container;
-        private Scope _scope;
 
-        public SimpleInjectorPayloadResolver(Container container)
+        public SimpleInjectorDependencyResolver(Container container)
         {
             _container = container;
         }
 
         public IDisposable Begin()
         {
-            _scope = AsyncScopedLifestyle.BeginScope(_container);
-            return _scope;
+            return AsyncScopedLifestyle.BeginScope(_container);
         }
 
         public object Resolve(Type type)
