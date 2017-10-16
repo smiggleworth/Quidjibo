@@ -14,6 +14,7 @@ using Quidjibo.Dispatchers;
 using Quidjibo.Factories;
 using Quidjibo.Misc;
 using Quidjibo.Models;
+using Quidjibo.Pipeline;
 using Quidjibo.Pipeline.Contexts;
 using Quidjibo.Protectors;
 using Quidjibo.Providers;

@@ -59,7 +59,7 @@ namespace Quidjibo.EndToEnd
                     // maximum concurrent requests
                     Throttle = 2,
                     SingleLoop = true
-                }).ConfigurePipeline(pipeline => pipeline.UseHandlers());
+                }).ConfigurePipeline(pipeline =>pipeline.UseHandlers());
 
             var client = quidjiboBuilder.BuildClient();
             using (var workServer = quidjiboBuilder.BuildServer())

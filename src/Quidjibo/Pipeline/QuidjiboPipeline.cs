@@ -1,12 +1,14 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Quidjibo.Pipeline;
 using Quidjibo.Pipeline.Contexts;
 using Quidjibo.Pipeline.Middleware;
+using Quidjibo.Pipeline.Misc;
 using Quidjibo.Resolvers;
 
-namespace Quidjibo {
+namespace Quidjibo.Pipeline
+{
     public class QuidjiboPipeline : IQuidjiboPipeline
     {
         private readonly IDependencyResolver _resolver;
@@ -20,7 +22,11 @@ namespace Quidjibo {
 
         public async Task StartAsync(IQuidjiboContext context, CancellationToken cancellationToken)
         {
-            context.Steps = new Queue<PipelineStep>(_steps);
+            context.Steps = new Queue<PipelineStep>(_steps.Select(x => new PipelineStep
+            {
+                Type = x.Type,
+                Instance = x.Instance
+            }));
             using (_resolver.Begin())
             {
                 await InvokeAsync(context, cancellationToken);

@@ -1,12 +1,11 @@
 using System.Collections.Generic;
 using Quidjibo.Misc;
 using Quidjibo.Models;
-using Quidjibo.Pipeline;
-using Quidjibo.Pipeline.Contexts;
+using Quidjibo.Pipeline.Misc;
 using Quidjibo.Providers;
 using Quidjibo.Resolvers;
 
-namespace Quidjibo
+namespace Quidjibo.Pipeline.Contexts
 {
     public class QuidjiboContext : IQuidjiboContext
     {
@@ -14,5 +13,6 @@ namespace Quidjibo
         public IQuidjiboProgress Progress { get; set; }
         public IWorkProvider Provider { get; set; }
         public WorkItem Item { get; set; }
+        public PipelineState State { get; set; }
     }
 }

@@ -6,13 +6,13 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Quidjibo.Builders;
 using Quidjibo.Clients;
 using Quidjibo.Configurations;
 using Quidjibo.Dispatchers;
 using Quidjibo.Exceptions;
 using Quidjibo.Factories;
 using Quidjibo.Misc;
+using Quidjibo.Pipeline.Builders;
 using Quidjibo.Pipeline.Middleware;
 using Quidjibo.Protectors;
 using Quidjibo.Providers;
@@ -48,7 +48,7 @@ namespace Quidjibo
         public IQuidjiboServer BuildServer()
         {
             BackFillDefaults();
-            var pipeline = _pipelineBuilder.Build();
+            var pipeline = _pipelineBuilder.Build(_resolver);
             return new QuidjiboServer(_loggerFactory, _configuration, _workProviderFactory, _scheduleProviderFactory, _progressProviderFactory, _cronProvider, pipeline);
         }
 
@@ -183,8 +183,9 @@ namespace Quidjibo
             return this;
         }
 
-        public QuidjiboBuilder ConfigurePipeline(Action<IQuidjiboPipelineBuilder> pipelineBuilder)
+        public QuidjiboBuilder ConfigurePipeline(Action<IQuidjiboPipelineBuilder> pipeline)
         {
+            pipeline.Invoke(_pipelineBuilder);
             return this;
         }
 
@@ -195,22 +196,20 @@ namespace Quidjibo
             {
                 return;
             }
-            _cronProvider = _cronProvider ?? new CronProvider();
 
-
-            _dispatcher = _dispatcher ?? new WorkDispatcher(_resolver);
             _loggerFactory = _loggerFactory ?? new LoggerFactory();
             _serializer = _serializer ?? new PayloadSerializer();
             _protector = _protector ?? new PayloadProtector();
+            _cronProvider = _cronProvider ?? new CronProvider();
+            _resolver = _resolver ?? new DependencyResolver(_services, _assemblies);
+            _dispatcher = _dispatcher ?? new WorkDispatcher(_resolver);
+
 
             _services.Add(typeof(ILoggerFactory), _loggerFactory);
             _services.Add(typeof(IPayloadProtector), _protector);
             _services.Add(typeof(IPayloadSerializer), _serializer);
             _services.Add(typeof(IWorkDispatcher), _dispatcher);
             _services.Add(typeof(QuidjiboHandlerMiddleware), new QuidjiboHandlerMiddleware(_loggerFactory, _dispatcher, _serializer, _protector));
-
-            _resolver = _resolver ?? new DependencyResolver(_services, _assemblies);
-
 
             Validate();
         }

@@ -9,6 +9,9 @@ using Quidjibo.Configurations;
 using Quidjibo.Factories;
 using Quidjibo.Misc;
 using Quidjibo.Models;
+using Quidjibo.Pipeline;
+using Quidjibo.Pipeline.Contexts;
+using Quidjibo.Pipeline.Misc;
 using Quidjibo.Providers;
 
 namespace Quidjibo.Servers
@@ -181,33 +184,48 @@ namespace Quidjibo.Servers
 
         private async Task InvokePipelineAsync(IWorkProvider provider, WorkItem item)
         {
-            var context = new QuidjiboContext();
-            var progress = new QuidjiboProgress();
-            progress.ProgressChanged += async (sender, tracker) =>
-            {
-                var progressProvider = await _progressProviderFactory.CreateAsync(_cts.Token);
-                var progressItem = new ProgressItem
-                {
-                    Id = Guid.NewGuid(),
-                    CorrelationId = item.CorrelationId,
-                    RecordedOn = DateTime.UtcNow,
-                    Name = item.Name,
-                    Queue = item.Queue,
-                    Note = tracker.Text,
-                    Value = tracker.Value,
-                    WorkId = item.Id
-                };
-                await progressProvider.ReportAsync(progressItem, _cts.Token);
-            };
             using (var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token))
             {
+                var progress = new QuidjiboProgress();
+                progress.ProgressChanged += async (sender, tracker) =>
+                {
+                    var progressProvider = await _progressProviderFactory.CreateAsync(_cts.Token);
+                    var progressItem = new ProgressItem
+                    {
+                        Id = Guid.NewGuid(),
+                        CorrelationId = item.CorrelationId,
+                        RecordedOn = DateTime.UtcNow,
+                        Name = item.Name,
+                        Queue = item.Queue,
+                        Note = tracker.Text,
+                        Value = tracker.Value,
+                        WorkId = item.Id
+                    };
+                    await progressProvider.ReportAsync(progressItem, _cts.Token);
+                };
+
                 var renewTask = RenewAsync(provider, item, linkedTokenSource.Token);
                 try
                 {
+                    var context = new QuidjiboContext
+                    {
+                        Item = item,
+                        Provider = provider,
+                        Progress = progress,
+                        State = new PipelineState()
+                    };
                     await _quidjiboPipeline.StartAsync(context, linkedTokenSource.Token);
 
-                    await provider.CompleteAsync(item, linkedTokenSource.Token);
-                    _logger.LogDebug("Completed : {0}", item.Id);
+                    if (context.State.Success)
+                    {
+                        await provider.CompleteAsync(item, linkedTokenSource.Token);
+                        _logger.LogDebug("Completed : {0}", item.Id);
+                    }
+                    else
+                    {
+                        await provider.FaultAsync(item, linkedTokenSource.Token);
+                        _logger.LogError(null, "Faulted : {0}", item.Id);
+                    }
                 }
                 catch (Exception exception)
                 {

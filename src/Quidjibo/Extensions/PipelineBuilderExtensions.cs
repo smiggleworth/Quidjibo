@@ -1,4 +1,4 @@
-using Quidjibo.Builders;
+using Quidjibo.Pipeline.Builders;
 using Quidjibo.Pipeline.Middleware;
 
 namespace Quidjibo.Extensions
