@@ -4,6 +4,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
 using Quidjibo.Dispatchers;
 using Quidjibo.Handlers;
+using Quidjibo.Misc;
 using Quidjibo.Models;
 using Quidjibo.Resolvers;
 using Quidjibo.Tests.Samples;
@@ -13,14 +14,14 @@ namespace Quidjibo.Tests.Dispatchers
     [TestClass]
     public class WorkDispatcherTests
     {
-        private IPayloadResolver _resolver;
+        private IDependencyResolver _resolver;
 
         private WorkDispatcher _sut;
 
         [TestInitialize]
         public void Init()
         {
-            _resolver = Substitute.For<IPayloadResolver>();
+            _resolver = Substitute.For<IDependencyResolver>();
             _sut = new WorkDispatcher(_resolver);
         }
 
@@ -37,7 +38,6 @@ namespace Quidjibo.Tests.Dispatchers
             await _sut.DispatchAsync(command, progress, CancellationToken.None);
 
             // Assert
-            _resolver.Received(1).Begin();
             _resolver.Received(1).Resolve(typeof(IQuidjiboHandler<BasicCommand>));
             await handler.Received(1).ProcessAsync(command, progress, CancellationToken.None);
         }

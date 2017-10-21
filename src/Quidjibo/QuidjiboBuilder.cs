@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Quidjibo.Clients;
 using Quidjibo.Configurations;
@@ -8,6 +12,8 @@ using Quidjibo.Dispatchers;
 using Quidjibo.Exceptions;
 using Quidjibo.Factories;
 using Quidjibo.Misc;
+using Quidjibo.Pipeline.Builders;
+using Quidjibo.Pipeline.Middleware;
 using Quidjibo.Protectors;
 using Quidjibo.Providers;
 using Quidjibo.Resolvers;
@@ -18,14 +24,20 @@ namespace Quidjibo
 {
     public class QuidjiboBuilder
     {
+        private readonly IQuidjiboPipelineBuilder _pipelineBuilder = new QuidjiboPipelineBuilder();
+        private readonly IDictionary<Type, object> _services = new Dictionary<Type, object>();
+
         private bool _validated;
+
+        private Assembly[] _assemblies;
+        private ILoggerFactory _loggerFactory;
         private IQuidjiboConfiguration _configuration;
         private ICronProvider _cronProvider;
-        private IWorkDispatcher _dispatcher;
-        private ILoggerFactory _loggerFactory;
         private IWorkProviderFactory _workProviderFactory;
         private IProgressProviderFactory _progressProviderFactory;
         private IScheduleProviderFactory _scheduleProviderFactory;
+        private IDependencyResolver _resolver;
+        private IWorkDispatcher _dispatcher;
         private IPayloadSerializer _serializer;
         private IPayloadProtector _protector;
 
@@ -36,17 +48,8 @@ namespace Quidjibo
         public IQuidjiboServer BuildServer()
         {
             BackFillDefaults();
-
-            return new QuidjiboServer(
-                _loggerFactory,
-                _configuration,
-                _workProviderFactory,
-                _scheduleProviderFactory,
-                _progressProviderFactory,
-                _dispatcher,
-                _serializer,
-                _protector,
-                _cronProvider);
+            var pipeline = _pipelineBuilder.Build(_resolver);
+            return new QuidjiboServer(_loggerFactory, _configuration, _workProviderFactory, _scheduleProviderFactory, _progressProviderFactory, _cronProvider, pipeline);
         }
 
         /// <summary>
@@ -65,23 +68,6 @@ namespace Quidjibo
         }
 
         /// <summary>
-        ///     Build an keyed instance of the QuidjiboClient. This is used if you need to work with more than one Quidjibo
-        ///     configuration.
-        /// </summary>
-        /// <returns></returns>
-        public IQuidjiboClient<TKey> BuildClient<TKey>()
-            where TKey : IQuidjiboClientKey
-        {
-            BackFillDefaults();
-
-            var client = new QuidjiboClient<TKey>(_loggerFactory, _workProviderFactory, _scheduleProviderFactory, _serializer, _protector, _cronProvider);
-
-            QuidjiboClient<TKey>.Instance = client;
-
-            return client;
-        }
-
-        /// <summary>
         ///     Apply a configurtion to the builder. Typically this is done in an extension method provided by the integration
         ///     implmentation
         /// </summary>
@@ -90,6 +76,18 @@ namespace Quidjibo
         public QuidjiboBuilder Configure(IQuidjiboConfiguration config)
         {
             _configuration = config;
+            return this;
+        }
+
+        public QuidjiboBuilder ConfigureAssemblies(params Assembly[] assemblies)
+        {
+            _assemblies = assemblies;
+            return this;
+        }
+
+        public QuidjiboBuilder ConfigureDependency(Type type, object instance)
+        {
+            _services.Add(type, instance);
             return this;
         }
 
@@ -105,24 +103,14 @@ namespace Quidjibo
         }
 
         /// <summary>
-        /// </summary>
-        /// <param name="assemblies">The assemblies that contain your QuidjiboHandlers</param>
-        /// <returns></returns>
-        public QuidjiboBuilder ConfigureDispatcher(params Assembly[] assemblies)
-        {
-            _dispatcher = new WorkDispatcher(new PayloadResolver(assemblies));
-            return this;
-        }
-
-        /// <summary>
-        ///     Configure Dispatcher with a custom resolver. Typically this is done in an extension method provided by the DI
+        ///     Configure the resolver. Typically this is done in an extension method provided by the DI
         ///     framework implmentation
         /// </summary>
         /// <param name="resolver"></param>
         /// <returns></returns>
-        public QuidjiboBuilder ConfigureDispatcher(IPayloadResolver resolver)
+        public QuidjiboBuilder ConfigureResolver(IDependencyResolver resolver)
         {
-            _dispatcher = new WorkDispatcher(resolver);
+            _resolver = resolver;
             return this;
         }
 
@@ -195,23 +183,40 @@ namespace Quidjibo
             return this;
         }
 
+        public QuidjiboBuilder ConfigurePipeline(Action<IQuidjiboPipelineBuilder> pipeline)
+        {
+            pipeline.Invoke(_pipelineBuilder);
+            return this;
+        }
+
+
         private void BackFillDefaults()
         {
             if (_validated)
             {
                 return;
             }
-            _cronProvider = _cronProvider ?? new CronProvider();
-            _dispatcher = _dispatcher ?? new WorkDispatcher(new PayloadResolver());
+
             _loggerFactory = _loggerFactory ?? new LoggerFactory();
             _serializer = _serializer ?? new PayloadSerializer();
             _protector = _protector ?? new PayloadProtector();
+            _cronProvider = _cronProvider ?? new CronProvider();
+            _resolver = _resolver ?? new DependencyResolver(_services, _assemblies);
+            _dispatcher = _dispatcher ?? new WorkDispatcher(_resolver);
+
+
+            _services.Add(typeof(ILoggerFactory), _loggerFactory);
+            _services.Add(typeof(IPayloadProtector), _protector);
+            _services.Add(typeof(IPayloadSerializer), _serializer);
+            _services.Add(typeof(IWorkDispatcher), _dispatcher);
+            _services.Add(typeof(QuidjiboHandlerMiddleware), new QuidjiboHandlerMiddleware(_loggerFactory, _dispatcher, _serializer, _protector));
+
             Validate();
         }
 
         private void Validate()
         {
-            var errors = new List<string>(3);
+            var errors = new List<string>(4);
 
             if (_configuration == null)
             {

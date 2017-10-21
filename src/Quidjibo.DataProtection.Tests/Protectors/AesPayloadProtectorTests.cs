@@ -8,6 +8,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Quidjibo.DataProtection.Protectors;
+using Quidjibo.DataProtection.Providers;
 using Quidjibo.Providers;
 
 namespace Quidjibo.DataProtection.Tests.Protectors

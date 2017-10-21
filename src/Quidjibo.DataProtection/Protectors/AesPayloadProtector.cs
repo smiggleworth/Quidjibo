@@ -3,6 +3,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using Quidjibo.DataProtection.Providers;
 using Quidjibo.Protectors;
 using Quidjibo.Providers;
 

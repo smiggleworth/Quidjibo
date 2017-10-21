@@ -1,6 +1,7 @@
 using System;
+using Quidjibo.Models;
 
-namespace Quidjibo.Models
+namespace Quidjibo.Misc
 {
     public class QuidjiboProgress : Progress<Tracker>, IQuidjiboProgress
     {

@@ -14,13 +14,13 @@ namespace Quidjibo.SimpleInjector.Tests.Resolvers
     [TestClass]
     public class SimpleInjectorPayloadResolverTests
     {
-        private readonly IPayloadResolver _resolver;
+        private readonly IDependencyResolver _resolver;
 
         public SimpleInjectorPayloadResolverTests()
         {
             var container = new Container();
             container.RegisterQuidjibo(GetType().GetTypeInfo().Assembly);
-            _resolver = new SimpleInjectorPayloadResolver(container);
+            _resolver = new SimpleInjectorDependencyResolver(container);
         }
 
         [TestMethod]

@@ -1,20 +1,30 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
 namespace Quidjibo.Resolvers
 {
-    public class PayloadResolver : IPayloadResolver
+    public class DependencyResolver : IDependencyResolver, IDisposable
     {
+        private readonly IDictionary<Type, object> _services;
+
         private readonly Assembly[] _assemblies;
 
-        public PayloadResolver(params Assembly[] assemblies)
+        public DependencyResolver(IDictionary<Type, object> services, params Assembly[] assemblies)
         {
+            _services = services;
             _assemblies = assemblies;
         }
 
         public object Resolve(Type type)
         {
+            if (_services != null && _services.TryGetValue(type, out var service))
+            {
+                return service;
+            }
+
             var info = type.GetTypeInfo();
 
             // find the a single implementation or bust
@@ -32,7 +42,9 @@ namespace Quidjibo.Resolvers
 
         public IDisposable Begin()
         {
-            return default(IDisposable);
+            return this;
         }
+
+        public void Dispose() { }
     }
 }

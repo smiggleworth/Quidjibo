@@ -13,14 +13,14 @@ namespace Quidjibo.DependencyInjection.Tests.Resolvers
     [TestClass]
     public class DependencyInjectionPayloadResolverTests
     {
-        private readonly IPayloadResolver _resolver;
+        private readonly IDependencyResolver _resolver;
 
         public DependencyInjectionPayloadResolverTests()
         {
             var services = new ServiceCollection();
             services.AddQuidjibo(GetType().GetTypeInfo().Assembly);
             var serviceProvider = services.BuildServiceProvider();
-            _resolver = new DependencyInjectionPayloadResolver(serviceProvider);
+            _resolver = new DependencyInjectionDependencyResolver(serviceProvider);
         }
 
         [TestMethod]

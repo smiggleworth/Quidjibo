@@ -1,6 +1,6 @@
 ﻿using Quidjibo.Misc;
 
-namespace Quidjibo.Tests.Misc
+namespace Quidjibo.Tests.Samples
 {
     public class TestClientKey2 : IQuidjiboClientKey { }
 }
