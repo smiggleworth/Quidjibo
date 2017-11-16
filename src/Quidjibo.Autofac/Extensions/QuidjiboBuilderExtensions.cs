@@ -5,9 +5,9 @@ namespace Quidjibo.Autofac.Extensions
 {
     public static class QuidjiboBuilderExtensions
     {
-        public static QuidjiboBuilder UseAutofac(this QuidjiboBuilder builder, IContainer container)
+        public static QuidjiboBuilder UseAutofac(this QuidjiboBuilder builder, ILifetimeScope lifetimeScope)
         {
-            return builder.ConfigureResolver(new AutofacDependencyResolver(container));
+            return builder.ConfigureResolver(new AutofacDependencyResolver(lifetimeScope));
         }
     }
 }
