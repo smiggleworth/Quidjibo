@@ -4,19 +4,19 @@ using Quidjibo.Resolvers;
 
 namespace Quidjibo.Autofac.Resolvers
 {
-    public class AutofacPayloadResolver : IPayloadResolver
+    public class AutofacDependencyResolver : IDependencyResolver
     {
         private readonly ILifetimeScope _lifetimeScope;
         private ILifetimeScope _nestedLifetimeScope;
 
-        public AutofacPayloadResolver(ILifetimeScope lifetimeScope)
+        public AutofacDependencyResolver(ILifetimeScope lifetimeScope)
         {
             _lifetimeScope = lifetimeScope;
         }
 
         public IDisposable Begin()
         {
-            _nestedLifetimeScope = _lifetimeScope.BeginLifetimeScope();
+            _nestedLifetimeScope = _lifetimeScope.BeginLifetimeScope("Quidjibo");
             return _nestedLifetimeScope;
         }
 

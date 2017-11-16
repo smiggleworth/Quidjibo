@@ -14,20 +14,13 @@ namespace Quidjibo.Serializers
 {
     public class PayloadSerializer : IPayloadSerializer
     {
-        private readonly IPayloadProtector _payloadProtector;
-
-        public PayloadSerializer(IPayloadProtector payloadProtector)
-        {
-            _payloadProtector = payloadProtector;
-        }
-
         /// <summary>
         ///     Serializes the specified command.
         /// </summary>
         /// <param name="command">The command.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<byte[]> SerializeAsync(IQuidjiboCommand command, CancellationToken cancellationToken)
+        public Task<byte[]> SerializeAsync(IQuidjiboCommand command, CancellationToken cancellationToken)
         {
             var workPayload = new WorkPayload
             {
@@ -35,9 +28,8 @@ namespace Quidjibo.Serializers
                 Content = GetContent(command)
             };
             var json = JsonConvert.SerializeObject(workPayload);
-            var raw = Encoding.UTF8.GetBytes(json);
-            var data = await _payloadProtector.ProtectAsync(raw, cancellationToken);
-            return data;
+            var payload = Encoding.UTF8.GetBytes(json);
+            return Task.FromResult(payload);
         }
 
         /// <summary>
@@ -46,18 +38,17 @@ namespace Quidjibo.Serializers
         /// <param name="payload">The payload.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public async Task<IQuidjiboCommand> DeserializeAsync(byte[] payload, CancellationToken cancellationToken)
+        public  Task<IQuidjiboCommand> DeserializeAsync(byte[] payload, CancellationToken cancellationToken)
         {
-            var data = await _payloadProtector.UnprotectAysnc(payload, cancellationToken);
-            var json = Encoding.UTF8.GetString(data);
+            var json = Encoding.UTF8.GetString(payload);
             var jToken = JToken.Parse(json);
-            return Deserialize(jToken);
+            var command = Deserialize(jToken);
+            return Task.FromResult(command);
         }
 
         private static object GetContent(IQuidjiboCommand command)
         {
-            var workflow = command as WorkflowCommand;
-            if (workflow != null)
+            if (command is WorkflowCommand workflow)
             {
                 return new WorkflowPayload
                 {

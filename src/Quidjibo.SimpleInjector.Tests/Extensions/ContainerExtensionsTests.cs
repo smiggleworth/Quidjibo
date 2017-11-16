@@ -7,6 +7,7 @@ using NSubstitute;
 using Quidjibo.Clients;
 using Quidjibo.Factories;
 using Quidjibo.Handlers;
+using Quidjibo.Protectors;
 using Quidjibo.Providers;
 using Quidjibo.Serializers;
 using Quidjibo.SimpleInjector.Extensions;
@@ -67,20 +68,7 @@ namespace Quidjibo.SimpleInjector.Tests.Extensions
                 Substitute.For<IWorkProviderFactory>(),
                 Substitute.For<IScheduleProviderFactory>(),
                 Substitute.For<IPayloadSerializer>(),
-                Substitute.For<ICronProvider>());
-
-            QuidjiboClient<CustomClientKey1>.Instance = new QuidjiboClient<CustomClientKey1>(
-                Substitute.For<ILoggerFactory>(),
-                Substitute.For<IWorkProviderFactory>(),
-                Substitute.For<IScheduleProviderFactory>(),
-                Substitute.For<IPayloadSerializer>(),
-                Substitute.For<ICronProvider>());
-
-            QuidjiboClient<CustomClientKey2>.Instance = new QuidjiboClient<CustomClientKey2>(
-                Substitute.For<ILoggerFactory>(),
-                Substitute.For<IWorkProviderFactory>(),
-                Substitute.For<IScheduleProviderFactory>(),
-                Substitute.For<IPayloadSerializer>(),
+                Substitute.For<IPayloadProtector>(),
                 Substitute.For<ICronProvider>());
 
             using (AsyncScopedLifestyle.BeginScope(_container))
@@ -89,16 +77,6 @@ namespace Quidjibo.SimpleInjector.Tests.Extensions
                 client.Should().NotBeNull();
                 client.Should().BeAssignableTo<IQuidjiboClient>();
                 client.Should().Be(QuidjiboClient.Instance);
-
-                var client1 = _container.GetInstance<IQuidjiboClient<CustomClientKey1>>();
-                client1.Should().NotBeNull();
-                client1.Should().BeAssignableTo<IQuidjiboClient<CustomClientKey1>>();
-                client1.Should().Be(QuidjiboClient<CustomClientKey1>.Instance);
-
-                var client2 = _container.GetInstance<IQuidjiboClient<CustomClientKey2>>();
-                client2.Should().NotBeNull();
-                client2.Should().BeAssignableTo<IQuidjiboClient<CustomClientKey2>>();
-                client2.Should().Be(QuidjiboClient<CustomClientKey2>.Instance);
             }
         }
     }

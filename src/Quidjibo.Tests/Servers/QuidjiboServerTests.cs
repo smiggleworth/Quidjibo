@@ -5,20 +5,18 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using GenFu.ValueGenerators.Cooking;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
-using NSubstitute.Core.Arguments;
-using Quidjibo.Commands;
 using Quidjibo.Configurations;
 using Quidjibo.Dispatchers;
 using Quidjibo.Factories;
 using Quidjibo.Models;
+using Quidjibo.Pipeline;
+using Quidjibo.Pipeline.Contexts;
 using Quidjibo.Providers;
 using Quidjibo.Serializers;
 using Quidjibo.Servers;
-using Quidjibo.Tests.Samples;
 
 namespace Quidjibo.Tests.Servers
 {
@@ -40,6 +38,7 @@ namespace Quidjibo.Tests.Servers
         private QuidjiboServer _sut;
         private IWorkProvider _workProvider;
         private IWorkProviderFactory _workProviderFactory;
+        private IQuidjiboPipeline _pipeline;
 
         [TestInitialize]
         public void Init()
@@ -68,16 +67,10 @@ namespace Quidjibo.Tests.Servers
             _dispatcher = Substitute.For<IWorkDispatcher>();
             _serializer = Substitute.For<IPayloadSerializer>();
             _cronProvider = Substitute.For<ICronProvider>();
+            _pipeline = Substitute.For<IQuidjiboPipeline>();
 
-            _sut = new QuidjiboServer(
-                _loggerFactory,
-                _quidjiboConfiguration,
-                _workProviderFactory,
-                _scheduleProviderFactory,
-                _progressProviderFactory,
-                _dispatcher,
-                _serializer,
-                _cronProvider);
+
+            _sut = new QuidjiboServer(_loggerFactory, _quidjiboConfiguration, _workProviderFactory, _scheduleProviderFactory, _progressProviderFactory, _cronProvider, _pipeline);
         }
 
         [TestCleanup]
@@ -139,7 +132,6 @@ namespace Quidjibo.Tests.Servers
             _sut.IsRunning.Should().BeFalse();
         }
 
-
         [DataTestMethod]
         [DataRow(1, true, DisplayName = "Throttle 1 in Single Loop")]
         [DataRow(2, true, DisplayName = "Throttle 2 in Single Loop")]
@@ -147,7 +139,7 @@ namespace Quidjibo.Tests.Servers
         [DataRow(1, false, DisplayName = "Throttle 1 in Multiple Loop")]
         [DataRow(2, false, DisplayName = "Throttle 2 in Multiple Loop")]
         [DataRow(3, false, DisplayName = "Throttle 3 in Multiple Loop")]
-        public void WorkLoopAsyncTest(int throttle, bool singleLoop)
+        public async Task WorkLoopAsyncTest(int throttle, bool singleLoop)
         {
             // Arrange 
             var testQueue = new ConcurrentQueue<WorkItem>();
@@ -180,12 +172,7 @@ namespace Quidjibo.Tests.Servers
             _quidjiboConfiguration.SingleLoop.Returns(singleLoop);
             _quidjiboConfiguration.Queues.Returns(new List<string>(2) { "default", "primary", "secondary" });
             _workProvider.ReceiveAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
-                         .Returns(x =>
-                         {
-                             WorkItem item;
-                             testQueue.TryDequeue(out item);
-                             return Task.FromResult(new List<WorkItem> { item });
-                         });
+                         .Returns(x => testQueue.TryDequeue(out WorkItem item) ? Task.FromResult(new List<WorkItem> { item }) : Task.FromResult(new List<WorkItem>(0)));
 
             _workProvider.RenewAsync(Arg.Any<WorkItem>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(DateTime.UtcNow.AddMinutes(1)));
             _workProvider.CompleteAsync(Arg.Any<WorkItem>(), Arg.Any<CancellationToken>())
@@ -196,36 +183,30 @@ namespace Quidjibo.Tests.Servers
                          });
             _scheduleProvider.ReceiveAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(scheduledItems));
 
-            _dispatcher.DispatchAsync(Arg.Any<IQuidjiboCommand>(), Arg.Any<IProgress<Tracker>>(), Arg.Any<CancellationToken>()).Returns(info =>
-            {
-                info.Arg<IProgress<Tracker>>().Report(new Tracker(1, "Hello Tracker"));
-                return Task.CompletedTask;
-            });
-
             // Act
             _sut.Start();
 
             // Assert
-            while (completedWork.Count() != 75 && !_cts.IsCancellationRequested)
+            while (completedWork.Count != 75 && !_cts.IsCancellationRequested)
             {
                 // waiting for server to process all items
             }
             testQueue.Count.Should().Be(0);
             if (singleLoop)
             {
-                _workProviderFactory.Received(1).CreateAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
+                await _workProviderFactory.Received(1).CreateAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
             }
             else
             {
-                _workProviderFactory.Received(1).CreateAsync(Arg.Is<string>(x => x == "default"), Arg.Any<CancellationToken>());
-                _workProviderFactory.Received(1).CreateAsync(Arg.Is<string>(x => x == "primary"), Arg.Any<CancellationToken>());
-                _workProviderFactory.Received(1).CreateAsync(Arg.Is<string>(x => x == "secondary"), Arg.Any<CancellationToken>());
+                await _workProviderFactory.Received(1).CreateAsync(Arg.Is<string>(x => x == "default"), Arg.Any<CancellationToken>());
+                await _workProviderFactory.Received(1).CreateAsync(Arg.Is<string>(x => x == "primary"), Arg.Any<CancellationToken>());
+                await _workProviderFactory.Received(1).CreateAsync(Arg.Is<string>(x => x == "secondary"), Arg.Any<CancellationToken>());
             }
-            _dispatcher.ReceivedWithAnyArgs(75).DispatchAsync(Arg.Any<IQuidjiboCommand>(), Arg.Any<IProgress<Tracker>>(), Arg.Any<CancellationToken>());
+            await _pipeline.ReceivedWithAnyArgs(75).StartAsync(Arg.Any<IQuidjiboContext>(), Arg.Any<CancellationToken>());
         }
 
         [TestMethod]
-        public void WorkLoopAsyncTest_ShouldRenewWhenItemDoesNotCompleteWithinLockInterval()
+        public async Task WorkLoopAsyncTest_ShouldRenewWhenItemDoesNotCompleteWithinLockInterval()
         {
             // Arrange 
             var testQueue = new ConcurrentQueue<WorkItem>();
@@ -249,8 +230,7 @@ namespace Quidjibo.Tests.Servers
             _workProvider.ReceiveAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
                          .Returns(x =>
                          {
-                             WorkItem item;
-                             testQueue.TryDequeue(out item);
+                             testQueue.TryDequeue(out WorkItem item);
                              return Task.FromResult(new List<WorkItem> { item });
                          });
 
@@ -273,83 +253,12 @@ namespace Quidjibo.Tests.Servers
             }
             testQueue.Count.Should().Be(0);
 
-            _workProviderFactory.Received(1).CreateAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
-
-            _dispatcher.ReceivedWithAnyArgs(5).DispatchAsync(Arg.Any<IQuidjiboCommand>(), Arg.Any<IProgress<Tracker>>(), Arg.Any<CancellationToken>());
-            _workProvider.ReceivedWithAnyArgs(10).RenewAsync(Arg.Any<WorkItem>(), Arg.Any<CancellationToken>());
+            await _workProviderFactory.Received(1).CreateAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
+            await _workProvider.ReceivedWithAnyArgs(10).RenewAsync(Arg.Any<WorkItem>(), Arg.Any<CancellationToken>());
         }
 
         [TestMethod]
-        public void WorkLoopAsyncTest_ShouldDispatchWorkflow()
-        {
-            // Arrange 
-            var testQueue = new ConcurrentQueue<WorkItem>();
-            var completedWork = new ConcurrentBag<WorkItem>();
-            var scheduledItems = new List<ScheduleItem>();
-
-            var workflow = new WorkflowCommand(new BasicCommand(), new BasicCommand(), new BasicCommand())
-                .Then(step => new[]
-                {
-                    new BasicCommand(),
-                    new BasicCommand()
-                }).Then(step => new BasicCommand());
-
-
-            var defaultItems = GenFu.GenFu.ListOf<WorkItem>(1);
-            defaultItems.ForEach(x =>
-            {
-                x.Queue = "default";
-                testQueue.Enqueue(x);
-            });
-
-
-            _quidjiboConfiguration.Throttle.Returns(1);
-            _quidjiboConfiguration.LockInterval.Returns(1);
-            _quidjiboConfiguration.SingleLoop.Returns(true);
-            _quidjiboConfiguration.Queues.Returns(new List<string>(2) { "default" });
-
-
-            _workProvider.ReceiveAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
-                         .Returns(x =>
-                         {
-                             WorkItem item;
-                             testQueue.TryDequeue(out item);
-                             return Task.FromResult(new List<WorkItem> { item });
-                         });
-
-            _workProvider.RenewAsync(Arg.Any<WorkItem>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(DateTime.UtcNow.AddSeconds(1)));
-            _workProvider.CompleteAsync(Arg.Any<WorkItem>(), Arg.Any<CancellationToken>())
-                         .Returns(x =>
-                        {
-                            completedWork.Add(x.Arg<WorkItem>());
-                            return Task.CompletedTask;
-                        });
-            _workProvider.SendAsync(Arg.Any<WorkItem>(), 0, Arg.Any<CancellationToken>()).Returns(x =>
-              {
-                  testQueue.Enqueue(x.Arg<WorkItem>());
-                  return Task.CompletedTask;
-              });
-            _scheduleProvider.ReceiveAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(scheduledItems));
-            _serializer.DeserializeAsync(Arg.Any<byte[]>(), Arg.Any<CancellationToken>()).Returns(x => Task.FromResult<IQuidjiboCommand>(workflow));
-
-            // Act
-            _sut.Start();
-
-            // Assert
-            while (completedWork.Count() != 3 && !_cts.IsCancellationRequested)
-            {
-                // waiting for server to process all items
-            }
-            testQueue.Count.Should().Be(0);
-            completedWork.Count.Should().Be(3, "the workflow had three steps");
-
-            _workProviderFactory.Received(1).CreateAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
-
-            _dispatcher.ReceivedWithAnyArgs(6).DispatchAsync(Arg.Any<IQuidjiboCommand>(), Arg.Any<IProgress<Tracker>>(), Arg.Any<CancellationToken>());
-        }
-
-        [TestMethod]
-        public void ScheduleLoopAsyncTest()
+        public async Task ScheduleLoopAsyncTest()
         {
             // Arrange
             var workItems = new List<WorkItem>();
@@ -377,7 +286,7 @@ namespace Quidjibo.Tests.Servers
                 // waiting for server to process all items
             }
             completedSchedules.Should().Contain(scheduledItems);
-            _workProvider.Received(25).SendAsync(Arg.Any<WorkItem>(), 1, Arg.Any<CancellationToken>());
+            await _workProvider.Received(25).SendAsync(Arg.Any<WorkItem>(), 1, Arg.Any<CancellationToken>());
         }
     }
 }

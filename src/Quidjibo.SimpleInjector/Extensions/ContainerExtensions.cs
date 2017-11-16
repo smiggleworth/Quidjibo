@@ -13,18 +13,6 @@ namespace Quidjibo.SimpleInjector.Extensions
         {
             container.Register(typeof(IQuidjiboHandler<>), assemblies);
             container.RegisterSingleton(typeof(IQuidjiboClient), () => (QuidjiboClient)QuidjiboClient.Instance);
-
-
-            var keys = from a in assemblies
-                       from t in a.GetTypes()
-                       where typeof(IQuidjiboClientKey).IsAssignableFrom(t)
-                       select t;
-            foreach (var key in keys)
-            {
-                var keyedInterface = typeof(IQuidjiboClient<>).MakeGenericType(key);
-                var keyedClient = typeof(QuidjiboClient<>).MakeGenericType(key);
-                container.RegisterSingleton(keyedInterface, () => keyedClient.GetProperty("Instance").GetValue(null, null));
-            }
         }
     }
 }

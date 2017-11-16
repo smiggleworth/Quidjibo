@@ -13,14 +13,14 @@ namespace Quidjibo.StructureMap.Tests.Resolvers
     [TestClass]
     public class StructureMapPayloadResolverTests
     {
-        private readonly IPayloadResolver _resolver;
+        private readonly IDependencyResolver _resolver;
 
         public StructureMapPayloadResolverTests()
         {
             var registry = new Registry();
             registry.IncludeRegistry(new QuidjiboRegistry());
             var container = new Container(registry);
-            _resolver = new StructureMapPayloadResolver(container);
+            _resolver = new StructureMapDependencyResolver(container);
         }
 
         [TestMethod]

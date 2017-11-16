@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Quidjibo.Misc;
+using Quidjibo.Tests.Samples;
 
 namespace Quidjibo.Tests.Misc
 {

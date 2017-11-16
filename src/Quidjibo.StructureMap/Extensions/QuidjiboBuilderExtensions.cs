@@ -7,7 +7,7 @@ namespace Quidjibo.StructureMap.Extensions
     {
         public static QuidjiboBuilder UseStructureMap(this QuidjiboBuilder builder, IContainer container)
         {
-            return builder.ConfigureDispatcher(new StructureMapPayloadResolver(container));
+            return builder.ConfigureResolver(new StructureMapDependencyResolver(container));
         }
     }
 }

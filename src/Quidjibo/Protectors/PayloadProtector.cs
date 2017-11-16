@@ -10,7 +10,7 @@ namespace Quidjibo.Protectors
             return Task.FromResult(payload);
         }
 
-        public Task<byte[]> UnprotectAysnc(byte[] payload, CancellationToken cancellationToken)
+        public Task<byte[]> UnprotectAsync(byte[] payload, CancellationToken cancellationToken)
         {
             return Task.FromResult(payload);
         }

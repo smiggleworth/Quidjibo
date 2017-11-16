@@ -15,14 +15,12 @@ namespace Quidjibo.Tests.Serializers
     [TestClass]
     public class PayloadSerializerTests
     {
-        private IPayloadProtector _protector;
         private PayloadSerializer _sut;
 
         [TestInitialize]
         public void Init()
         {
-            _protector = Substitute.For<IPayloadProtector>();
-            _sut = new PayloadSerializer(_protector);
+            _sut = new PayloadSerializer();
         }
 
         [TestMethod]
@@ -32,8 +30,6 @@ namespace Quidjibo.Tests.Serializers
             var id = Guid.NewGuid();
             var modelData = GenFu.GenFu.New<ModelData>();
             var command = new ComplexCommand(id, modelData);
-            _protector.ProtectAsync(Arg.Any<byte[]>(), CancellationToken.None).Returns(x => Task.FromResult(x.Arg<byte[]>()));
-            _protector.UnprotectAysnc(Arg.Any<byte[]>(), CancellationToken.None).Returns(x => Task.FromResult(x.Arg<byte[]>()));
 
             // Act
             var serialized = await _sut.SerializeAsync(command, CancellationToken.None);
@@ -70,9 +66,6 @@ namespace Quidjibo.Tests.Serializers
                 command2,
                 command3
             });
-
-            _protector.ProtectAsync(Arg.Any<byte[]>(), CancellationToken.None).Returns(x => Task.FromResult(x.Arg<byte[]>()));
-            _protector.UnprotectAysnc(Arg.Any<byte[]>(), CancellationToken.None).Returns(x => Task.FromResult(x.Arg<byte[]>()));
 
             // Act
             var serialized = await _sut.SerializeAsync(workflow, CancellationToken.None);

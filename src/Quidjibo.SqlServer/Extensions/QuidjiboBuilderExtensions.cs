@@ -1,4 +1,5 @@
-﻿using Quidjibo.SqlServer.Configurations;
+﻿using System.Collections.Generic;
+using Quidjibo.SqlServer.Configurations;
 using Quidjibo.SqlServer.Factories;
 
 namespace Quidjibo.SqlServer.Extensions
@@ -25,10 +26,27 @@ namespace Quidjibo.SqlServer.Extensions
         /// </summary>
         /// <param name="builder"></param>
         /// <param name="connectionString"></param>
+        /// <param name="queues"></param>
         /// <returns></returns>
-        public static QuidjiboBuilder UseSqlServer(this QuidjiboBuilder builder, string connectionString)
+        public static QuidjiboBuilder UseSqlServer(this QuidjiboBuilder builder, string connectionString, params string[] queues)
         {
-            return builder.ConfigureWorkProviderFactory(new SqlWorkProviderFactory(connectionString))
+            var queueList = new List<string>();
+            if (queues == null || queues.Length == 0)
+            {
+                queueList.Add("default");
+            }
+            else
+            {
+                queueList.AddRange(queues);
+            }
+            var config = new SqlServerQuidjiboConfiguration
+            {
+                ConnectionString = connectionString,
+                Queues = queueList
+            };
+
+            return builder.Configure(config)
+                          .ConfigureWorkProviderFactory(new SqlWorkProviderFactory(connectionString))
                           .ConfigureProgressProviderFactory(new SqlProgressProviderFactory(connectionString))
                           .ConfigureScheduleProviderFactory(new SqlScheduleProviderFactory(connectionString));
         }

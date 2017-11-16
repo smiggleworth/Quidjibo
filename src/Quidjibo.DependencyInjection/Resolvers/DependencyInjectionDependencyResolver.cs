@@ -4,12 +4,12 @@ using Quidjibo.Resolvers;
 
 namespace Quidjibo.DependencyInjection.Resolvers
 {
-    public class DependencyInjectionPayloadResolver : IPayloadResolver
+    public class DependencyInjectionDependencyResolver : IDependencyResolver
     {
         private readonly IServiceProvider _serviceProvider;
         private IServiceScope _serviceScope;
 
-        public DependencyInjectionPayloadResolver(IServiceProvider serviceProvider)
+        public DependencyInjectionDependencyResolver(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
         }

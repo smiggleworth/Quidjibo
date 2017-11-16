@@ -3,22 +3,19 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using Quidjibo.DataProtection.Providers;
 using Quidjibo.Protectors;
+using Quidjibo.Providers;
 
 namespace Quidjibo.DataProtection.Protectors
 {
     public class AesPayloadProtector : IPayloadProtector
     {
-        private readonly byte[] _cipherKey;
-        private readonly byte[] _macKey;
+        private readonly IKeyProvider _keyProvider;
 
-        public AesPayloadProtector(byte[] key)
+        public AesPayloadProtector(IKeyProvider keyProvider)
         {
-            using (var hkdf = new HKDF<HMACSHA256>())
-            {
-                _cipherKey = hkdf.Expand(key, new byte[] {0x01}, 32);
-                _macKey = hkdf.Expand(key, new byte[] {0x02}, 32);
-            }
+            _keyProvider = keyProvider;
         }
 
         /*
@@ -29,15 +26,16 @@ namespace Quidjibo.DataProtection.Protectors
          */
         public async Task<byte[]> ProtectAsync(byte[] payload, CancellationToken cancellationToken)
         {
+            var keys = await ExpandKeysAsync(cancellationToken);
             using (var aes = Aes.Create())
-            using (var crypto = aes.CreateEncryptor(_cipherKey, aes.IV))
+            using (var crypto = aes.CreateEncryptor(keys.CipherKey, aes.IV))
             using (var stream = new MemoryStream())
             using (var cryptoStream = new CryptoStream(stream, crypto, CryptoStreamMode.Write))
             {
                 await cryptoStream.WriteAsync(payload, 0, payload.Length, cancellationToken);
                 cryptoStream.FlushFinalBlock();
                 var encryptedPayload = stream.ToArray();
-                var mac = ComputeMac(encryptedPayload, 0, encryptedPayload.Length);
+                var mac = ComputeMac(keys.MacKey, encryptedPayload, 0, encryptedPayload.Length);
                 var outputBuffer = new byte[encryptedPayload.Length + aes.IV.Length + mac.Length];
                 Buffer.BlockCopy(aes.IV, 0, outputBuffer, 0, aes.IV.Length);
                 Buffer.BlockCopy(mac, 0, outputBuffer, aes.IV.Length, mac.Length);
@@ -46,15 +44,16 @@ namespace Quidjibo.DataProtection.Protectors
             }
         }
 
-        public async Task<byte[]> UnprotectAysnc(byte[] payload, CancellationToken cancellationToken)
+        public async Task<byte[]> UnprotectAsync(byte[] payload, CancellationToken cancellationToken)
         {
+            var keys = await ExpandKeysAsync(cancellationToken);
             var iv = new byte[128 / 8];
             Buffer.BlockCopy(payload, 0, iv, 0, iv.Length);
             var mac = new byte[32];
             Buffer.BlockCopy(payload, iv.Length, mac, 0, 32);
             byte[] plaintext;
             using (var aes = Aes.Create())
-            using (var crypto = aes.CreateDecryptor(_cipherKey, iv))
+            using (var crypto = aes.CreateDecryptor(keys.CipherKey, iv))
             using (var stream = new MemoryStream())
             using (var cryptoStream = new CryptoStream(stream, crypto, CryptoStreamMode.Write))
             {
@@ -63,22 +62,22 @@ namespace Quidjibo.DataProtection.Protectors
                 plaintext = stream.ToArray();
             }
 
-            VerifyMac(payload, mac);
+            VerifyMac(payload, mac,keys.MacKey);
 
             return plaintext;
         }
 
-        private byte[] ComputeMac(byte[] buffer, int offset, int count)
+        private byte[] ComputeMac(byte[] macKey, byte[] buffer, int offset, int count)
         {
-            using (var hmac = new HMACSHA256(_macKey))
+            using (var hmac = new HMACSHA256(macKey))
             {
                 return hmac.ComputeHash(buffer, offset, count);
             }
         }
 
-        private void VerifyMac(byte[] payload, byte[] mac)
+        private void VerifyMac(byte[] payload, byte[] mac, byte[] macKey)
         {
-            var payloadMac = ComputeMac(payload, 16 + 32, payload.Length - (16 + 32));
+            var payloadMac = ComputeMac(macKey, payload, 16 + 32, payload.Length - (16 + 32));
 
             for (var i = 0; i < mac.Length; i++)
             {
@@ -88,5 +87,29 @@ namespace Quidjibo.DataProtection.Protectors
                 }
             }
         }
+
+        private async Task<Keys> ExpandKeysAsync(CancellationToken cancellationToken)
+        {
+            var key = await _keyProvider.GetKeyAsync(cancellationToken);
+            using (var hkdf = new Hkdf<HMACSHA256>())
+            {
+                var cipherKey = hkdf.Expand(key, new byte[] { 0x01 }, 32);
+                var macKey = hkdf.Expand(key, new byte[] { 0x02 }, 32);
+                return new Keys(cipherKey, macKey);
+            }
+        }
+
+        private class Keys
+        {
+            public byte[] CipherKey { get; }
+            public byte[] MacKey { get; }
+
+            public Keys(byte[] cipherKey, byte[] macKey)
+            {
+                CipherKey = cipherKey;
+                MacKey = macKey;
+            }
+        }
+
     }
 }

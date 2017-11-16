@@ -4,12 +4,12 @@ using StructureMap;
 
 namespace Quidjibo.StructureMap.Resolvers
 {
-    public class StructureMapPayloadResolver : IPayloadResolver
+    public class StructureMapDependencyResolver : IDependencyResolver
     {
         private readonly IContainer _container;
         private IContainer _nestedLifetimeScope;
 
-        public StructureMapPayloadResolver(IContainer container)
+        public StructureMapDependencyResolver(IContainer container)
         {
             _container = container;
         }
