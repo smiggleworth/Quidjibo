@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using Quidjibo.AspNetCore.Providers;
 
 namespace Quidjibo.AspNetCore.Middleware
 {
@@ -19,9 +20,15 @@ namespace Quidjibo.AspNetCore.Middleware
         }
 
 
-        public async Task Invoke(HttpContext context)
+        public async Task Invoke(HttpContext context, IQuidjiboAuthProvider provider)
         {
             // check the header for quidjibo Authorization 
+
+            var key = "";
+            if (!await provider.AuthenticateAsync(key))
+            {
+                // return
+            }
 
 
 

@@ -35,8 +35,7 @@ namespace Quidjibo.WebProxy.Factories
 
         public int PollingInterval => 60;
 
-        public async Task<IScheduleProvider> CreateAsync(string queue,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<IScheduleProvider> CreateAsync(string queue, CancellationToken cancellationToken = default(CancellationToken))
         {
             return await CreateAsync(new List<string>
             {
