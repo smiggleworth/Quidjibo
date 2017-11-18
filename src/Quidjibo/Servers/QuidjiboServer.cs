@@ -56,26 +56,31 @@ namespace Quidjibo.Servers
                 {
                     return;
                 }
-                _logger.LogInformation("Starting Worker {0}", Worker);
+                _logger.LogInformation("Starting Server {0}", Worker);
                 _cts = new CancellationTokenSource();
                 _loopTasks = new List<Task>();
 
                 _throttle = new SemaphoreSlim(0, _quidjiboConfiguration.Throttle);
-                if (_quidjiboConfiguration.SingleLoop)
+                if (_quidjiboConfiguration.EnableWorker)
                 {
-                    _logger.LogInformation("All queues can share the same loop");
-                    var queues = string.Join(",", _quidjiboConfiguration.Queues);
-                    _loopTasks.Add(WorkLoopAsync(queues));
-                }
-                else
-                {
-                    _logger.LogInformation("Each queue will need a designated loop");
-                    _loopTasks.AddRange(_quidjiboConfiguration.Queues.Select(WorkLoopAsync));
+                    if (_quidjiboConfiguration.SingleLoop)
+                    {
+                        _logger.LogInformation("All queues can share the same loop");
+                        var queues = string.Join(",", _quidjiboConfiguration.Queues);
+                        _loopTasks.Add(WorkLoopAsync(queues));
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Each queue will need a designated loop");
+                        _loopTasks.AddRange(_quidjiboConfiguration.Queues.Select(WorkLoopAsync));
+                    }
                 }
 
-                _logger.LogInformation("Enabling scheduler");
-                _loopTasks.Add(ScheduleLoopAsync(_quidjiboConfiguration.Queues));
-
+                if (_quidjiboConfiguration.EnableScheduler)
+                {
+                    _logger.LogInformation("Enabling scheduler");
+                    _loopTasks.Add(ScheduleLoopAsync(_quidjiboConfiguration.Queues));
+                }
                 _throttle.Release(_quidjiboConfiguration.Throttle);
                 IsRunning = true;
                 _logger.LogInformation("Started Worker {0}", Worker);

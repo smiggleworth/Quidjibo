@@ -11,5 +11,7 @@ namespace Quidjibo.Azure.Storage.Configurations
         public int MaxAttempts { get; }
         public int LockInterval { get; }
         public int Throttle { get; }
+        public bool EnableWorker { get; set; }
+        public bool EnableScheduler { get; set; }
     }
 }

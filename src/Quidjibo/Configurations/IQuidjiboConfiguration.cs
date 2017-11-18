@@ -28,5 +28,15 @@ namespace Quidjibo.Configurations
         ///     The maximum number of concurrent calls to receive work
         /// </summary>
         int Throttle { get; }
+
+        /// <summary>
+        ///     Enable the worker
+        /// </summary>
+        bool EnableWorker { get; set; }
+
+        /// <summary>
+        ///     Enable the scheduler
+        /// </summary>
+        bool EnableScheduler { get; set; }
     }
 }

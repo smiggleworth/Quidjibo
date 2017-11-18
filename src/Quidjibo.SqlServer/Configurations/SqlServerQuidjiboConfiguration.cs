@@ -26,5 +26,7 @@ namespace Quidjibo.SqlServer.Configurations
         public int MaxAttempts { get; set; }
         public int LockInterval { get; set; }
         public int Throttle { get; set; }
+        public bool EnableWorker { get; set; }
+        public bool EnableScheduler { get; set; }
     }
 }

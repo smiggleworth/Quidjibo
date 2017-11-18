@@ -265,8 +265,7 @@ namespace Quidjibo.WebProxy.Clients
 
                 if (Traverse(propertyInfo.PropertyType))
                 {
-                    var enumerable = propertyValue as IEnumerable;
-                    if (enumerable != null)
+                    if (propertyValue is IEnumerable enumerable)
                     {
                         var i = 0;
                         foreach (var item in enumerable)
