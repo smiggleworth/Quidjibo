@@ -6,6 +6,7 @@ using Quidjibo.Models;
 using Quidjibo.Providers;
 using Quidjibo.WebProxy.Clients;
 using Quidjibo.WebProxy.Models;
+using Quidjibo.WebProxy.Requests;
 
 namespace Quidjibo.WebProxy.Providers
 {
@@ -13,7 +14,6 @@ namespace Quidjibo.WebProxy.Providers
     {
         private readonly string[] _queues;
         private readonly IWebProxyClient _webProxyClient;
-
 
         public WebProxyWorkProvider(IWebProxyClient webProxyClient, string[] queues)
         {
@@ -40,7 +40,7 @@ namespace Quidjibo.WebProxy.Providers
             var request = new WebProxyRequest
             {
                 Path = "/work-items/receive",
-                Data = new
+                Data = new ReceiveWorkRequest
                 {
                     Worker = worker,
                     Queues = _queues

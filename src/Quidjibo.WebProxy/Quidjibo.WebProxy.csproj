@@ -9,4 +9,8 @@
     <ProjectReference Include="..\Quidjibo\Quidjibo.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Handlers\" />
+  </ItemGroup>
+
 </Project>

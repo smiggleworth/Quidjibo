@@ -20,6 +20,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Quidjibo.WebProxy\Quidjibo.WebProxy.csproj" />
     <ProjectReference Include="..\Quidjibo\Quidjibo.csproj" />
   </ItemGroup>
 

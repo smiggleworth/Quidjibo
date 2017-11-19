@@ -20,7 +20,6 @@ namespace Quidjibo.WebProxy.Providers
             _queues = queues;
         }
 
-
         public async Task<List<ScheduleItem>> ReceiveAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var request = new WebProxyRequest
@@ -110,13 +109,13 @@ namespace Quidjibo.WebProxy.Providers
             var request = new WebProxyRequest
             {
                 Path = "/schedule-items/exists",
-                Data = new {name}
+                Data = new { name }
             };
 
-            var response = await _webProxyClient.PostAsync<bool>(request, cancellationToken);
+            var response = await _webProxyClient.GetAsync<bool>(request, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
-                throw new Exception(response.ReasonPhrase);
+                // log
             }
             return response.Data;
         }
