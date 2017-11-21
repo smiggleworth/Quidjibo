@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Quidjibo.Models;
@@ -13,13 +12,13 @@ namespace Quidjibo.WebProxy.Providers
 {
     public class WebProxyProgressProvider : IProgressProvider
     {
-        private readonly IWebProxyClient _webProxyClient;
         private readonly string[] _queues;
+        private readonly IWebProxyClient _webProxyClient;
 
-        public WebProxyProgressProvider(IWebProxyClient webProxyClient, IEnumerable<string> queues)
+        public WebProxyProgressProvider(IWebProxyClient webProxyClient, string[] queues)
         {
             _webProxyClient = webProxyClient;
-            _queues = queues.ToArray();
+            _queues = queues;
         }
 
         public async Task ReportAsync(ProgressItem item, CancellationToken cancellationToken)
@@ -27,15 +26,15 @@ namespace Quidjibo.WebProxy.Providers
             var request = new WebProxyRequest
             {
                 Path = "/progress-items",
-                Data = new RequestWrapper
+                Data = new RequestData<ProgressItem>
                 {
                     Queues = _queues,
-                    //Worker = 
+                    Data = item
                 }
             };
 
             var response = await _webProxyClient.PostAsync(request, cancellationToken);
-            if (!response.IsSuccessStatusCode)
+            if(!response.IsSuccessStatusCode)
             {
                 // log
             }
@@ -53,7 +52,7 @@ namespace Quidjibo.WebProxy.Providers
             };
 
             var response = await _webProxyClient.GetAsync<List<ProgressItem>>(request, cancellationToken);
-            if (!response.IsSuccessStatusCode)
+            if(!response.IsSuccessStatusCode)
             {
                 // log
             }

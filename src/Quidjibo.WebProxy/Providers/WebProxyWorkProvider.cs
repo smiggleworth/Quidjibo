@@ -6,7 +6,6 @@ using Quidjibo.Models;
 using Quidjibo.Providers;
 using Quidjibo.WebProxy.Clients;
 using Quidjibo.WebProxy.Models;
-using Quidjibo.WebProxy.Requests;
 
 namespace Quidjibo.WebProxy.Providers
 {
@@ -17,8 +16,8 @@ namespace Quidjibo.WebProxy.Providers
 
         public WebProxyWorkProvider(IWebProxyClient webProxyClient, string[] queues)
         {
-            _queues = queues;
             _webProxyClient = webProxyClient;
+            _queues = queues;
         }
 
         public async Task SendAsync(WorkItem item, int delay, CancellationToken cancellationToken)
@@ -29,7 +28,7 @@ namespace Quidjibo.WebProxy.Providers
                 Data = item
             };
             var response = await _webProxyClient.PostAsync(request, cancellationToken);
-            if (!response.IsSuccessStatusCode)
+            if(!response.IsSuccessStatusCode)
             {
                 // log
             }
@@ -40,14 +39,14 @@ namespace Quidjibo.WebProxy.Providers
             var request = new WebProxyRequest
             {
                 Path = "/work-items/receive",
-                Data = new 
+                Data = new
                 {
                     Worker = worker,
                     Queues = _queues
                 }
             };
             var response = await _webProxyClient.PostAsync<List<WorkItem>>(request, cancellationToken);
-            if (!response.IsSuccessStatusCode)
+            if(!response.IsSuccessStatusCode)
             {
                 // log
             }
@@ -62,7 +61,7 @@ namespace Quidjibo.WebProxy.Providers
                 Data = workItem
             };
             var response = await _webProxyClient.PostAsync<DateTime>(request, cancellationToken);
-            if (!response.IsSuccessStatusCode)
+            if(!response.IsSuccessStatusCode)
             {
                 // log
             }
@@ -77,7 +76,7 @@ namespace Quidjibo.WebProxy.Providers
                 Data = workItem
             };
             var response = await _webProxyClient.PostAsync(request, cancellationToken);
-            if (!response.IsSuccessStatusCode)
+            if(!response.IsSuccessStatusCode)
             {
                 // log
             }
@@ -91,7 +90,7 @@ namespace Quidjibo.WebProxy.Providers
                 Data = workItem
             };
             var response = await _webProxyClient.PostAsync(request, cancellationToken);
-            if (!response.IsSuccessStatusCode)
+            if(!response.IsSuccessStatusCode)
             {
                 // log
             }

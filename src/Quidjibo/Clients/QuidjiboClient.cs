@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -9,7 +8,6 @@ using Quidjibo.Attributes;
 using Quidjibo.Commands;
 using Quidjibo.Extensions;
 using Quidjibo.Factories;
-using Quidjibo.Misc;
 using Quidjibo.Models;
 using Quidjibo.Protectors;
 using Quidjibo.Providers;

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Quidjibo.Configurations;
+﻿using Quidjibo.Configurations;
 
 namespace Quidjibo.WebProxy.Configurations
 {
@@ -12,7 +11,6 @@ namespace Quidjibo.WebProxy.Configurations
 
         public string ClientKey { get; set; }
 
-        public List<string> PublisherQueues { get; set; }
         public int PollingInterval { get; set; }
 
         public WebProxyQuidjiboConfiguration()

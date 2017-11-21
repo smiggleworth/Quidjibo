@@ -150,7 +150,7 @@ namespace Quidjibo.Servers
         private async Task ScheduleLoopAsync(string[] queues)
         {
             var pollingInterval = TimeSpan.FromSeconds(_scheduleProviderFactory.PollingInterval);
-            var scheduleProvider = await _scheduleProviderFactory.CreateAsync((string[])queues, _cts.Token);
+            var scheduleProvider = await _scheduleProviderFactory.CreateAsync(queues, _cts.Token);
             while (!_cts.IsCancellationRequested)
             {
                 try

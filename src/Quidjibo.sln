@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2008
+VisualStudioVersion = 15.0.27004.2009
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{F0463A62-7F43-43A2-B94D-E8B214BD2875}"
 EndProject
@@ -57,9 +57,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quidjibo.EndToEnd", "Quidji
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quidjibo.WebProxy", "Quidjibo.WebProxy\Quidjibo.WebProxy.csproj", "{3A56AE76-E029-4C73-AF25-C9EAA8AC745B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quidjibo.WebProxy.Tests", "Quidjibo.WebProxy.Tests\Quidjibo.WebProxy.Tests.csproj", "{CD3DB3BF-C69D-4952-B34A-271E2C976A95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quidjibo.WebProxy.Tests", "Quidjibo.WebProxy.Tests\Quidjibo.WebProxy.Tests.csproj", "{CD3DB3BF-C69D-4952-B34A-271E2C976A95}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quidjibo.Owin", "Quidjibo.Owin\Quidjibo.Owin.csproj", "{229EAB36-10AC-46EC-B68F-371F8D5AD0E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quidjibo.Owin", "Quidjibo.Owin\Quidjibo.Owin.csproj", "{229EAB36-10AC-46EC-B68F-371F8D5AD0E5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quidjibo.AspNetCore.WebProxy", "Quidjibo.AspNetCore.WebProxy\Quidjibo.AspNetCore.WebProxy.csproj", "{A76DFBB5-A213-4C58-81DC-0C1FAACEE8DC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -167,6 +169,10 @@ Global
 		{229EAB36-10AC-46EC-B68F-371F8D5AD0E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{229EAB36-10AC-46EC-B68F-371F8D5AD0E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{229EAB36-10AC-46EC-B68F-371F8D5AD0E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A76DFBB5-A213-4C58-81DC-0C1FAACEE8DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A76DFBB5-A213-4C58-81DC-0C1FAACEE8DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A76DFBB5-A213-4C58-81DC-0C1FAACEE8DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A76DFBB5-A213-4C58-81DC-0C1FAACEE8DC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -197,6 +203,7 @@ Global
 		{3A56AE76-E029-4C73-AF25-C9EAA8AC745B} = {DEEE8D69-EEEC-4DA6-A628-0DF86297B175}
 		{CD3DB3BF-C69D-4952-B34A-271E2C976A95} = {B71B87C8-3E4C-4648-BF70-EB21446E297F}
 		{229EAB36-10AC-46EC-B68F-371F8D5AD0E5} = {DEEE8D69-EEEC-4DA6-A628-0DF86297B175}
+		{A76DFBB5-A213-4C58-81DC-0C1FAACEE8DC} = {DEEE8D69-EEEC-4DA6-A628-0DF86297B175}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A114F306-176A-492D-B278-1EF28F9B3570}

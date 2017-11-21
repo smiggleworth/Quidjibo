@@ -14,7 +14,7 @@ namespace Quidjibo.WebProxy.Extensions
         /// <returns></returns>
         public static QuidjiboBuilder UseWebProxyServer(this QuidjiboBuilder builder, WebProxyQuidjiboConfiguration config)
         {
-            var client = new WebProxyClient(config.Url, config.ClientKey);
+            var client = new WebProxyClient(config.Url, TODO, config.ClientKey);
 
             return builder.Configure(config)
                           .ConfigureWorkProviderFactory(new WebProxyWorkProviderFactory(client))

@@ -8,7 +8,7 @@ namespace Quidjibo.Attributes
     public class DailyScheduleAttribute : ScheduleAttribute
     {
         public DailyScheduleAttribute(string name, int hour, int minute)
-            : this(name, hour, minute, (string)"default") { }
+            : this(name, hour, minute, "default") { }
 
         public DailyScheduleAttribute(string name, int hour, int minute, string queue)
             : this(name, hour, minute, queue, typeof(DefaultClientKey)) { }

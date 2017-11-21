@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Quidjibo.Factories;
@@ -24,7 +23,10 @@ namespace Quidjibo.WebProxy.Factories
 
         public async Task<IScheduleProvider> CreateAsync(string queues, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await CreateAsync(new[] { queues }, cancellationToken);
+            return await CreateAsync(new[]
+            {
+                queues
+            }, cancellationToken);
         }
 
         public async Task<IScheduleProvider> CreateAsync(string[] queues, CancellationToken cancellationToken = default(CancellationToken))

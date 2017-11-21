@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -16,10 +17,12 @@ namespace Quidjibo.WebProxy.Clients
     {
         private readonly string _clientSecret;
         private readonly string _url;
+        private readonly string _clientId;
 
-        public WebProxyClient(string url, string clientSecret)
+        public WebProxyClient(string url, string clientId, string clientSecret)
         {
             _url = url;
+            _clientId = clientId;
             _clientSecret = clientSecret;
         }
 
@@ -183,7 +186,8 @@ namespace Quidjibo.WebProxy.Clients
         internal HttpRequestMessage GetHttpRequestMessage(Uri uri, HttpMethod method, HttpContent content = null)
         {
             var request = new HttpRequestMessage(method, uri);
-            request.Headers.Add("Quidjibo", _clientSecret);
+            var authentication = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_clientId}:{_clientSecret}"));
+            request.Headers.Authorization = new AuthenticationHeaderValue("Quidjibo", authentication);
             request.Headers.UserAgent.ParseAdd("quidjibo");
             if (content != null)
             {
