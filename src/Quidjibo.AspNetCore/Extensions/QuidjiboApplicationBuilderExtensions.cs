@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Quidjibo.AspNetCore.Handlers;
 using Quidjibo.Factories;
+using Quidjibo.Models;
 using Quidjibo.Providers;
 using Quidjibo.Servers;
 using Quidjibo.WebProxy.Requests;
@@ -58,39 +60,106 @@ namespace Quidjibo.AspNetCore.Extensions
                 {
                     schedule.Map("/receive", receive => receive.Run(async context =>
                     {
-                        var body = await  ReadBodyAsync(context.Request);
-                        var input = JsonConvert.DeserializeObject<ReceiveWorkRequest>();
-                        var json = "";
-
+                        var queues = await ReadBodyAsync(context.Request);
+                        var authenticated = true;
                         if (!authenticated)
                         {
                             // unauthorized
                             return;
                         }
+                        var validated = true;
                         if (!validated)
                         {
                             // all queues need to be validated
                         }
-
-                        var factory = (IWorkProviderFactory)null;
-                        var provider = await factory.CreateAsync(string.Join(",", input.Queues), context.RequestAborted);
-                        await provider.ReceiveAsync(input.Worker)
-                        await context.Response.WriteAsync(json, token);
+                        var factory = (IScheduleProviderFactory)null;
+                        var provider = await factory.CreateAsync(queues, context.RequestAborted);
+                        var work = await provider.ReceiveAsync(context.RequestAborted);
+                        var json = JsonConvert.SerializeObject(work);
+                        await context.Response.WriteAsync(json, context.RequestAborted);
                     }));
-                    schedule.Map("/complete", receive => receive.Run(context => null));
-                    schedule.Map("/exists", receive => receive.Run(context => null));
+                    schedule.Map("/complete", receive => receive.Run(async context =>
+                    {
+                        var body = await ReadBodyAsync(context.Request);
+                        var wrapper = JsonConvert.DeserializeObject<RequestWrapper<ScheduleItem>>(body);
+                        var authenticated = true;
+                        if (!authenticated)
+                        {
+                            // unauthorized
+                            return;
+                        }
+                        var validated = true;
+                        if (!validated)
+                        {
+                            // all queues need to be validated
+                        }
+                        var factory = (IScheduleProviderFactory)null;
+                        var provider = await factory.CreateAsync(wrapper.GetQueues(), context.RequestAborted);
+                        await provider.CompleteAsync(wrapper.Data, context.RequestAborted);
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                    }));
+                    schedule.Map("/exists", receive => receive.Run(async context =>
+                    {
+                        var body = await ReadBodyAsync(context.Request);
+                        var wrapper = JsonConvert.DeserializeObject<RequestWrapper<string>>(body);
+                        var name = wrapper.Data;
+                        if (string.IsNullOrWhiteSpace(name))
+                        {
+                            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+                            await context.Response.WriteAsync("Name is required.");
+                            return;
+                        }
+                        var authenticated = true;
+                        if (!authenticated)
+                        {
+                            // unauthorized
+                            return;
+                        }
+                        var validated = true;
+                        if (!validated)
+                        {
+                            // all queues need to be validated
+                        }
+                        var factory = (IScheduleProviderFactory)null;
+                        var provider = await factory.CreateAsync(string.Join(",", wrapper.Queues), context.RequestAborted);
+                        await provider.ExistsAsync(name, context.RequestAborted);
+                        context.Response.StatusCode = (int)HttpStatusCode.OK;
+                    }));
                     schedule.MapWhen(x => x.Request.Method == HttpMethods.Get, load => load.Run(context => null));
                     schedule.MapWhen(x => x.Request.Method == HttpMethods.Post, create => create.Run(context => null));
                     schedule.MapWhen(x => x.Request.Method == HttpMethods.Delete, delete => delete.Run(context => null));
 
                 });
-                quidjibo.Map("/work-items", work =>
+                quidjibo.Map("/work-items", workApp =>
                 {
-                    work.Map("/receive", receive => receive.Run(context => null));
-                    work.Map("/renew", renew => renew.Run(context => null));
-                    work.Map("/complete", complete => complete.Run(context => null));
-                    work.Map("/fault", complete => complete.Run(context => null));
-                    work.MapWhen(x => x.Request.Method == HttpMethods.Post, send => send.Run(context => null));
+                    workApp.Map("/receive", receive => receive.Run(async context =>
+                    {
+                        var body = await ReadBodyAsync(context.Request);
+                        var input = JsonConvert.DeserializeObject<RequestWrapper<WorkItem>>(body);
+                        var authenticated = true;
+                        if (!authenticated)
+                        {
+                            // unauthorized
+                            return;
+                        }
+                        var validated = true;
+                        if (!validated)
+                        {
+                            // all queues need to be validated
+                        }
+                        var factory = (IWorkProviderFactory)null;
+                        var provider = await factory.CreateAsync(string.Join(",", input.Queues), context.RequestAborted);
+                        var work = await provider.ReceiveAsync(input.Worker, context.RequestAborted);
+                        var json = JsonConvert.SerializeObject(work);
+                        await context.Response.WriteAsync(json, context.RequestAborted);
+                    }));
+                    workApp.Map("/renew", renew => renew.Run(context => { }));
+                    workApp.Map("/complete", complete => complete.Run(context => { }));
+                    workApp.Map("/fault", complete => complete.Run(context => { }));
+                    workApp.MapWhen(x => x.Request.Method == HttpMethods.Post, send => send.Run(context =>
+                    {
+
+                    }));
                 });
             });
 

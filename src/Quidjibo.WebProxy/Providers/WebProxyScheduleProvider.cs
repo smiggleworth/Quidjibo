@@ -74,7 +74,11 @@ namespace Quidjibo.WebProxy.Providers
             var request = new WebProxyRequest
             {
                 Path = "/schedule-items",
-                Data = new {name}
+                Data = new
+                {
+                    Name = name,
+                    Queues = _queues
+                }
             };
 
             var response = await _webProxyClient.GetAsync<ScheduleItem>(request, cancellationToken);
@@ -109,7 +113,11 @@ namespace Quidjibo.WebProxy.Providers
             var request = new WebProxyRequest
             {
                 Path = "/schedule-items/exists",
-                Data = new { name }
+                Data = new
+                {
+                    Name = name,
+                    Queues = _queues
+                }
             };
 
             var response = await _webProxyClient.GetAsync<bool>(request, cancellationToken);
