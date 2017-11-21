@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Quidjibo.Factories;
@@ -19,7 +20,12 @@ namespace Quidjibo.WebProxy.Factories
             _webProxyClient = webProxyClient;
         }
 
-        public async Task<IProgressProvider> CreateAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IProgressProvider> CreateAsync(string queues, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return CreateAsync(queues.Split(','), cancellationToken);
+        }
+
+        public async Task<IProgressProvider> CreateAsync(string[] queues, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_provider != null)
             {
@@ -28,7 +34,7 @@ namespace Quidjibo.WebProxy.Factories
             try
             {
                 await SyncLock.WaitAsync(cancellationToken);
-                _provider = new WebProxyProgressProvider(_webProxyClient);
+                _provider = new WebProxyProgressProvider(_webProxyClient, queues);
                 return _provider;
             }
             finally

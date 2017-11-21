@@ -47,7 +47,7 @@ namespace Quidjibo.EndToEnd
                     ConnectionString = "Server=localhost;Database=SampleDb;Trusted_Connection=True;",
 
                     // the queues the worker should be polling
-                    Queues = new List<string>
+                    Queues = new []
                     {
                         "default",
                         "other"

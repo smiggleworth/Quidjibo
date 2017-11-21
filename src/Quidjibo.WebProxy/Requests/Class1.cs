@@ -7,9 +7,9 @@ namespace Quidjibo.WebProxy.Requests
     public class RequestWrapper
     {
         public string Worker { get; set; }
-        public string[] Queues { get; set; }
+        public IEnumerable<string> Queues { get; set; }
 
-        public string GetQueues()
+        public string JoinQueues()
         {
             return string.Join(",", Queues);
         }

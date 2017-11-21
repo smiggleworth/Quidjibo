@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Quidjibo.SqlServer.Configurations;
+﻿using Quidjibo.SqlServer.Configurations;
 using Quidjibo.SqlServer.Factories;
 
 namespace Quidjibo.SqlServer.Extensions
@@ -30,19 +29,14 @@ namespace Quidjibo.SqlServer.Extensions
         /// <returns></returns>
         public static QuidjiboBuilder UseSqlServer(this QuidjiboBuilder builder, string connectionString, params string[] queues)
         {
-            var queueList = new List<string>();
             if (queues == null || queues.Length == 0)
             {
-                queueList.Add("default");
-            }
-            else
-            {
-                queueList.AddRange(queues);
+                queues = new[] { "default" };
             }
             var config = new SqlServerQuidjiboConfiguration
             {
                 ConnectionString = connectionString,
-                Queues = queueList
+                Queues = queues
             };
 
             return builder.Configure(config)

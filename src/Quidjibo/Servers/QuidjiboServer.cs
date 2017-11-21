@@ -36,7 +36,8 @@ namespace Quidjibo.Servers
             IWorkProviderFactory workProviderFactory,
             IScheduleProviderFactory scheduleProviderFactory,
             IProgressProviderFactory progressProviderFactory,
-            ICronProvider cronProvider, IQuidjiboPipeline quidjiboPipeline)
+            ICronProvider cronProvider,
+            IQuidjiboPipeline quidjiboPipeline)
         {
             _logger = loggerFactory.CreateLogger<QuidjiboServer>();
             _workProviderFactory = workProviderFactory;
@@ -146,10 +147,10 @@ namespace Quidjibo.Servers
             }
         }
 
-        private async Task ScheduleLoopAsync(List<string> queues)
+        private async Task ScheduleLoopAsync(string[] queues)
         {
             var pollingInterval = TimeSpan.FromSeconds(_scheduleProviderFactory.PollingInterval);
-            var scheduleProvider = await _scheduleProviderFactory.CreateAsync(queues, _cts.Token);
+            var scheduleProvider = await _scheduleProviderFactory.CreateAsync((string[])queues, _cts.Token);
             while (!_cts.IsCancellationRequested)
             {
                 try
@@ -194,7 +195,7 @@ namespace Quidjibo.Servers
                 var progress = new QuidjiboProgress();
                 progress.ProgressChanged += async (sender, tracker) =>
                 {
-                    var progressProvider = await _progressProviderFactory.CreateAsync(_cts.Token);
+                    var progressProvider = await _progressProviderFactory.CreateAsync(item.Queue, _cts.Token);
                     var progressItem = new ProgressItem
                     {
                         Id = Guid.NewGuid(),

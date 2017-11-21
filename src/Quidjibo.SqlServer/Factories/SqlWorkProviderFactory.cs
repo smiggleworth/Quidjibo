@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Quidjibo.Factories;
 using Quidjibo.Providers;
@@ -14,7 +15,7 @@ namespace Quidjibo.SqlServer.Factories
         private readonly int _batchSize;
         private readonly string _connectionString;
         private readonly int _visibilityTimeout;
-        
+
         public SqlWorkProviderFactory(string connectionString, int visibilityTimeout = 60, int batchSize = 5)
         {
             _connectionString = connectionString;
@@ -24,13 +25,16 @@ namespace Quidjibo.SqlServer.Factories
 
         public int PollingInterval => 10;
 
-        public async Task<IWorkProvider> CreateAsync(string queue, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IWorkProvider> CreateAsync(string queues, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return CreateAsync(queues.Split(','), cancellationToken);
+        }
+
+        public async Task<IWorkProvider> CreateAsync(string[] queues, CancellationToken cancellationToken = default(CancellationToken))
         {
             try
             {
                 await SyncLock.WaitAsync(cancellationToken);
-                var queues = queue.Split(',');
-
                 await SqlRunner.ExecuteAsync(async cmd =>
                 {
                     var schemaSetup = await SqlLoader.GetScript("Schema.Setup");

@@ -19,7 +19,12 @@ namespace Quidjibo.SqlServer.Factories
             _connectionString = connectionString;
         }
 
-        public async Task<IProgressProvider> CreateAsync(CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IProgressProvider> CreateAsync(string queues, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return CreateAsync(queues.Split(','), cancellationToken);
+        }
+
+        public async Task<IProgressProvider> CreateAsync(string[] queues, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (_provider != null)
             {

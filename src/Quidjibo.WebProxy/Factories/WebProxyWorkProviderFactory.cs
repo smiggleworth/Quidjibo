@@ -20,12 +20,16 @@ namespace Quidjibo.WebProxy.Factories
 
         public int PollingInterval => 10;
 
-        public async Task<IWorkProvider> CreateAsync(string queue, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<IWorkProvider> CreateAsync(string queues, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return CreateAsync(queues.Split(','), cancellationToken);
+        }
+
+        public async Task<IWorkProvider> CreateAsync(string[] queues, CancellationToken cancellationToken = default(CancellationToken))
         {
             try
             {
                 await SyncLock.WaitAsync(cancellationToken);
-                var queues = queue.Split(',');
                 return new WebProxyWorkProvider(_webProxyClient, queues);
             }
             finally

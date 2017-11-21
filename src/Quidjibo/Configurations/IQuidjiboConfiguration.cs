@@ -7,7 +7,7 @@ namespace Quidjibo.Configurations
         /// <summary>
         ///     The queues
         /// </summary>
-        List<string> Queues { get; }
+        string[] Queues { get; }
 
         /// <summary>
         ///     The number of listener

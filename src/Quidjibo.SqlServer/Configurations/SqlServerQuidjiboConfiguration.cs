@@ -20,7 +20,7 @@ namespace Quidjibo.SqlServer.Configurations
             SingleLoop = true;
         }
 
-        public List<string> Queues { get; set; }
+        public string[] Queues { get; set; }
         public bool SingleLoop { get; set; }
         public int PollingInterval { get; set; }
         public int MaxAttempts { get; set; }

@@ -40,7 +40,7 @@ namespace Quidjibo.WebProxy.Providers
             var request = new WebProxyRequest
             {
                 Path = "/work-items/receive",
-                Data = new ReceiveWorkRequest
+                Data = new 
                 {
                     Worker = worker,
                     Queues = _queues

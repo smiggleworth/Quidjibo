@@ -23,7 +23,7 @@ namespace Quidjibo.WebProxy.Configurations
             SingleLoop = true;
         }
 
-        public List<string> Queues { get; set; }
+        public string[] Queues { get; set; }
         public bool SingleLoop { get; set; }
         public int MaxAttempts { get; set; }
         public int LockInterval { get; set; }

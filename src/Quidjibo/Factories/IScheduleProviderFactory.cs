@@ -12,10 +12,7 @@ namespace Quidjibo.Factories
         /// </summary>
         int PollingInterval { get; }
 
-        Task<IScheduleProvider> CreateAsync(string queue,
-            CancellationToken cancellationToken = default(CancellationToken));
-
-        Task<IScheduleProvider> CreateAsync(List<string> queues,
-            CancellationToken cancellationToken = default(CancellationToken));
+        Task<IScheduleProvider> CreateAsync(string queues, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IScheduleProvider> CreateAsync(string[] queues, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

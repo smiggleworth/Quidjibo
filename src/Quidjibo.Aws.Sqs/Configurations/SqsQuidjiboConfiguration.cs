@@ -6,7 +6,7 @@ namespace Quidjibo.Aws.Sqs.Configurations
     public class SqsQuidjiboConfiguration : IQuidjiboConfiguration
     {
         public List<string> PublisherQueues { get; set; }
-        public List<string> Queues { get; set; }
+        public string[] Queues { get; set; }
 
         public bool SingleLoop => false;
 

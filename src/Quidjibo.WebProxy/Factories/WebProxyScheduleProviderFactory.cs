@@ -14,13 +14,20 @@ namespace Quidjibo.WebProxy.Factories
 
         private readonly IWebProxyClient _webProxyClient;
 
+
         public WebProxyScheduleProviderFactory(IWebProxyClient webProxyClient)
         {
             _webProxyClient = webProxyClient;
         }
 
-        public async Task<IScheduleProvider> CreateAsync(List<string> queues,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public int PollingInterval => 60;
+
+        public async Task<IScheduleProvider> CreateAsync(string queues, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return await CreateAsync(new[] { queues }, cancellationToken);
+        }
+
+        public async Task<IScheduleProvider> CreateAsync(string[] queues, CancellationToken cancellationToken = default(CancellationToken))
         {
             try
             {
@@ -31,16 +38,6 @@ namespace Quidjibo.WebProxy.Factories
             {
                 SyncLock.Release();
             }
-        }
-
-        public int PollingInterval => 60;
-
-        public async Task<IScheduleProvider> CreateAsync(string queue, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return await CreateAsync(new List<string>
-            {
-                queue
-            }, cancellationToken);
         }
     }
 }

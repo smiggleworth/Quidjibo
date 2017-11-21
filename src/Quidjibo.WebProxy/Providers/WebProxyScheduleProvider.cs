@@ -11,10 +11,10 @@ namespace Quidjibo.WebProxy.Providers
 {
     public class WebProxyScheduleProvider : IScheduleProvider
     {
-        private readonly List<string> _queues;
+        private readonly string[] _queues;
         private readonly IWebProxyClient _webProxyClient;
 
-        public WebProxyScheduleProvider(IWebProxyClient webProxyClient, List<string> queues)
+        public WebProxyScheduleProvider(IWebProxyClient webProxyClient, string[] queues)
         {
             _webProxyClient = webProxyClient;
             _queues = queues;
