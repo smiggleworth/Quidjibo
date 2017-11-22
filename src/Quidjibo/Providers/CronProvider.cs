@@ -130,7 +130,7 @@ namespace Quidjibo.Providers
         private static string NormalizeDayOfWeek(string dayOfWeek)
         {
             return dayOfWeek.ToUpper()
-                            .Replace("SUM", "0")
+                            .Replace("SUN", "0")
                             .Replace("MON", "1")
                             .Replace("TUE", "2")
                             .Replace("WED", "3")
