@@ -7,7 +7,7 @@ namespace Quidjibo.Attributes {
     public class WeeklyScheduleAttribute : ScheduleAttribute
     {
         public WeeklyScheduleAttribute(string name, DayOfWeek dayOfTheWeek, int hour, int minute)
-            : this(name, dayOfTheWeek, hour, minute, (string)"default") { }
+            : this(name, dayOfTheWeek, hour, minute, "default") { }
 
         public WeeklyScheduleAttribute(string name, DayOfWeek dayOfTheWeek, int hour, int minute, string queue)
             : this(name, dayOfTheWeek, hour, minute, queue, typeof(DefaultClientKey)) { }

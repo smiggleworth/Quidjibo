@@ -1,4 +1,6 @@
-﻿using System.Collections.Concurrent;
+﻿using System.Collections;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Quidjibo.Misc;
@@ -13,6 +15,7 @@ namespace Quidjibo.Factories
         /// </summary>
         int PollingInterval { get; }
 
-        Task<IWorkProvider> CreateAsync(string queue, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IWorkProvider> CreateAsync(string queues, CancellationToken cancellationToken = default(CancellationToken));
+        Task<IWorkProvider> CreateAsync(string[] queues, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

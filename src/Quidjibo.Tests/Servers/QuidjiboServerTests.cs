@@ -26,7 +26,6 @@ namespace Quidjibo.Tests.Servers
         private ICronProvider _cronProvider;
 
         private CancellationTokenSource _cts;
-        private IWorkDispatcher _dispatcher;
         private ILogger _logger;
         private ILoggerFactory _loggerFactory;
         private IProgressProvider _progressProvider;
@@ -34,7 +33,6 @@ namespace Quidjibo.Tests.Servers
         private IQuidjiboConfiguration _quidjiboConfiguration;
         private IScheduleProvider _scheduleProvider;
         private IScheduleProviderFactory _scheduleProviderFactory;
-        private IPayloadSerializer _serializer;
         private QuidjiboServer _sut;
         private IWorkProvider _workProvider;
         private IWorkProviderFactory _workProviderFactory;
@@ -43,7 +41,7 @@ namespace Quidjibo.Tests.Servers
         [TestInitialize]
         public void Init()
         {
-            _cts = new CancellationTokenSource(TimeSpan.FromSeconds(120));
+            _cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
             _loggerFactory = Substitute.For<ILoggerFactory>();
             _logger = Substitute.For<ILogger<QuidjiboServer>>();
             _loggerFactory.CreateLogger<QuidjiboServer>().Returns(_logger);
@@ -57,15 +55,15 @@ namespace Quidjibo.Tests.Servers
 
             _scheduleProviderFactory = Substitute.For<IScheduleProviderFactory>();
             _scheduleProvider = Substitute.For<IScheduleProvider>();
-            _scheduleProviderFactory.CreateAsync(Arg.Any<List<string>>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(_scheduleProvider));
+            _scheduleProviderFactory.CreateAsync(Arg.Any<string[]>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(_scheduleProvider));
             _scheduleProviderFactory.PollingInterval.Returns(1);
 
             _progressProviderFactory = Substitute.For<IProgressProviderFactory>();
             _progressProvider = Substitute.For<IProgressProvider>();
-            _progressProviderFactory.CreateAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(_progressProvider));
+            _progressProviderFactory.CreateAsync(Arg.Any<string[]>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(_progressProvider));
 
-            _dispatcher = Substitute.For<IWorkDispatcher>();
-            _serializer = Substitute.For<IPayloadSerializer>();
+            Substitute.For<IWorkDispatcher>();
+            Substitute.For<IPayloadSerializer>();
             _cronProvider = Substitute.For<ICronProvider>();
             _pipeline = Substitute.For<IQuidjiboPipeline>();
 
@@ -86,7 +84,7 @@ namespace Quidjibo.Tests.Servers
             _quidjiboConfiguration.Throttle.Returns(1);
             _quidjiboConfiguration.LockInterval.Returns(60);
             _quidjiboConfiguration.SingleLoop.Returns(true);
-            _quidjiboConfiguration.Queues.Returns(new List<string>(2) { "default", "primary", "secondary" });
+            _quidjiboConfiguration.Queues.Returns(new[] { "default", "primary", "secondary" });
             _sut.IsRunning.Should().BeFalse();
 
             // Act
@@ -103,7 +101,7 @@ namespace Quidjibo.Tests.Servers
             _quidjiboConfiguration.Throttle.Returns(1);
             _quidjiboConfiguration.LockInterval.Returns(60);
             _quidjiboConfiguration.SingleLoop.Returns(true);
-            _quidjiboConfiguration.Queues.Returns(new List<string>(2) { "default", "primary", "secondary" });
+            _quidjiboConfiguration.Queues.Returns(new[] { "default", "primary", "secondary" });
             _sut.IsRunning.Should().BeFalse();
             _sut.Start();
 
@@ -121,7 +119,7 @@ namespace Quidjibo.Tests.Servers
             _quidjiboConfiguration.Throttle.Returns(1);
             _quidjiboConfiguration.LockInterval.Returns(60);
             _quidjiboConfiguration.SingleLoop.Returns(true);
-            _quidjiboConfiguration.Queues.Returns(new List<string>(2) { "default", "primary", "secondary" });
+            _quidjiboConfiguration.Queues.Returns(new[] { "default", "primary", "secondary" });
             _sut.Start();
             _sut.IsRunning.Should().BeTrue();
 
@@ -167,10 +165,11 @@ namespace Quidjibo.Tests.Servers
                 testQueue.Enqueue(x);
             });
 
+            _quidjiboConfiguration.EnableWorker.Returns(true);
             _quidjiboConfiguration.Throttle.Returns(throttle);
             _quidjiboConfiguration.LockInterval.Returns(60);
             _quidjiboConfiguration.SingleLoop.Returns(singleLoop);
-            _quidjiboConfiguration.Queues.Returns(new List<string>(2) { "default", "primary", "secondary" });
+            _quidjiboConfiguration.Queues.Returns(new[] { "default", "primary", "secondary" });
             _workProvider.ReceiveAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
                          .Returns(x => testQueue.TryDequeue(out WorkItem item) ? Task.FromResult(new List<WorkItem> { item }) : Task.FromResult(new List<WorkItem>(0)));
 
@@ -187,9 +186,9 @@ namespace Quidjibo.Tests.Servers
             _sut.Start();
 
             // Assert
-            while (completedWork.Count != 75 && !_cts.IsCancellationRequested)
+            while(!testQueue.IsEmpty && !_cts.IsCancellationRequested)
             {
-                // waiting for server to process all items
+               
             }
             testQueue.Count.Should().Be(0);
             if (singleLoop)
@@ -220,11 +219,11 @@ namespace Quidjibo.Tests.Servers
                 testQueue.Enqueue(x);
             });
 
-
+            _quidjiboConfiguration.EnableWorker.Returns(true);
             _quidjiboConfiguration.Throttle.Returns(1);
             _quidjiboConfiguration.LockInterval.Returns(1);
             _quidjiboConfiguration.SingleLoop.Returns(true);
-            _quidjiboConfiguration.Queues.Returns(new List<string>(2) { "default" });
+            _quidjiboConfiguration.Queues.Returns(new[] { "default" });
 
 
             _workProvider.ReceiveAsync(Arg.Any<string>(), Arg.Any<CancellationToken>())
@@ -247,7 +246,7 @@ namespace Quidjibo.Tests.Servers
             _sut.Start();
 
             // Assert
-            while (completedWork.Count() != 5 && !_cts.IsCancellationRequested)
+            while (completedWork.Count != 5 && !_cts.IsCancellationRequested)
             {
                 // waiting for server to process all items
             }
@@ -264,10 +263,11 @@ namespace Quidjibo.Tests.Servers
             var workItems = new List<WorkItem>();
             var scheduledItems = GenFu.GenFu.ListOf<ScheduleItem>();
             var completedSchedules = new ConcurrentBag<ScheduleItem>();
+            _quidjiboConfiguration.EnableScheduler.Returns(true);
             _quidjiboConfiguration.Throttle.Returns(1);
             _quidjiboConfiguration.LockInterval.Returns(60);
             _quidjiboConfiguration.SingleLoop.Returns(true);
-            _quidjiboConfiguration.Queues.Returns(new List<string>(2) { "default", "other" });
+            _quidjiboConfiguration.Queues.Returns(new[] { "default", "other" });
 
             _workProvider.ReceiveAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(workItems));
             _scheduleProvider.ReceiveAsync(Arg.Any<CancellationToken>()).Returns(x => Task.FromResult(scheduledItems.Except(completedSchedules).Take(5).ToList()));

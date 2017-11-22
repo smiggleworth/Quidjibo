@@ -25,18 +25,23 @@ namespace Quidjibo.Azure.ServiceBus.Factories
 
         public int PollingInterval => 10;
 
-        public async Task<IWorkProvider> CreateAsync(string queue, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<IWorkProvider> CreateAsync(string queues, CancellationToken cancellationToken = new CancellationToken())
         {
-            var sender = new MessageSender(_connectionString, queue, RetryPolicy.Default);
-            var receiver = new MessageReceiver(_connectionString, queue, ReceiveMode.PeekLock, _retryPolicy, _prefectchCount);
+            var sender = new MessageSender(_connectionString, queues, RetryPolicy.Default);
+            var receiver = new MessageReceiver(_connectionString, queues, ReceiveMode.PeekLock, _retryPolicy, _prefectchCount);
 
 
             var provider = new ServiceBusWorkProvider(sender, receiver, _batchSize);
 
-            // todo : Create queue if not exists
+            // todo : Create queues if not exists
 
 
             return await Task.FromResult(provider);
+        }
+
+        public Task<IWorkProvider> CreateAsync(string[] queues, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            throw new System.NotImplementedException();
         }
     }
 }

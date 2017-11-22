@@ -45,24 +45,24 @@ namespace Quidjibo.Azure.Storage.Providers
             }).ToList();
         }
 
-        public async Task<DateTime> RenewAsync(WorkItem workItem, CancellationToken cancellationToken)
+        public async Task<DateTime> RenewAsync(WorkItem item, CancellationToken cancellationToken)
         {
-            var message = (CloudQueueMessage)workItem.RawMessage;
+            var message = (CloudQueueMessage)item.RawMessage;
             var visibilityTimeout = TimeSpan.FromSeconds(_visibilityTimeout);
             var visibleOn = DateTime.UtcNow.Add(visibilityTimeout);
             await _cloudQueue.UpdateMessageAsync(message, visibilityTimeout, MessageUpdateFields.Visibility);
             return visibleOn;
         }
 
-        public Task CompleteAsync(WorkItem workItem, CancellationToken cancellationToken)
+        public Task CompleteAsync(WorkItem item, CancellationToken cancellationToken)
         {
-            var message = (CloudQueueMessage)workItem.RawMessage;
+            var message = (CloudQueueMessage)item.RawMessage;
             return _cloudQueue.DeleteMessageAsync(message);
         }
 
-        public Task FaultAsync(WorkItem workItem, CancellationToken cancellationToken)
+        public Task FaultAsync(WorkItem item, CancellationToken cancellationToken)
         {
-            var message = (CloudQueueMessage)workItem.RawMessage;
+            var message = (CloudQueueMessage)item.RawMessage;
             return _cloudQueue.UpdateMessageAsync(message, TimeSpan.Zero, MessageUpdateFields.Visibility);
         }
 

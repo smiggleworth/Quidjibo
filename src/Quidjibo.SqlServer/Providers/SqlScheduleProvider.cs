@@ -14,13 +14,13 @@ namespace Quidjibo.SqlServer.Providers
     public class SqlScheduleProvider : IScheduleProvider
     {
         private readonly string _connectionString;
-        private readonly List<string> _queues;
+        private readonly string[] _queues;
         private string _completeSql;
         private string _createSql;
         private string _existsSql;
         private string _receiveSql;
 
-        public SqlScheduleProvider(string connectionString, List<string> queues)
+        public SqlScheduleProvider(string connectionString, string[] queues)
         {
             _connectionString = connectionString;
             _queues = queues;
@@ -32,7 +32,7 @@ namespace Quidjibo.SqlServer.Providers
             if (_receiveSql == null)
             {
                 _receiveSql = await SqlLoader.GetScript("Schedule.Receive");
-                if (_queues.Count > 1)
+                if (_queues.Length > 1)
                 {
                     _receiveSql = _receiveSql.Replace("@Queue1",
                         string.Join(",", _queues.Select((x, i) => $"@Queue{i}")));
