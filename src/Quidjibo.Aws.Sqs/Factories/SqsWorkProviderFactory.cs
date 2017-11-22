@@ -27,24 +27,24 @@ namespace Quidjibo.Aws.Sqs.Factories
 
         public int PollingInterval => 10;
 
-        public async Task<IWorkProvider> CreateAsync(string queue,
+        public async Task<IWorkProvider> CreateAsync(string queues,
             CancellationToken cancellationToken = default(CancellationToken))
         {
             var client = new AmazonSQSClient(_basicAwsCredentials, _amazonSqsConfig);
-            var response = await client.GetQueueUrlAsync(queue, cancellationToken);
+            var response = await client.GetQueueUrlAsync(queues, cancellationToken);
             if (response.HttpStatusCode != HttpStatusCode.OK)
             {
-                throw new InvalidOperationException("Could not load the queue url.");
+                throw new InvalidOperationException("Could not load the queues url.");
             }
 
             var provider = new SqsWorkProvider(client, response.QueueUrl, 30, 10);
             return provider;
         }
 
-        public Task<IWorkProvider> CreateAsync(List<string> queues,
+        public Task<IWorkProvider> CreateAsync(string[] queues,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotSupportedException("Each queue requires a seperate listener.");
+            throw new NotSupportedException("Each queues requires a seperate listener.");
         }
     }
 }

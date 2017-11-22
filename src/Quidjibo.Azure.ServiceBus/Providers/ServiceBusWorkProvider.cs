@@ -53,21 +53,21 @@ namespace Quidjibo.Azure.ServiceBus.Providers
             }).ToList();
         }
 
-        public async Task<DateTime> RenewAsync(WorkItem workItem, CancellationToken cancellationToken)
+        public async Task<DateTime> RenewAsync(WorkItem item, CancellationToken cancellationToken)
         {
-            var message = (Message)workItem.RawMessage;
+            var message = (Message)item.RawMessage;
             await _receiver.RenewLockAsync(message);
             return message.SystemProperties.LockedUntilUtc;
         }
 
-        public Task CompleteAsync(WorkItem workItem, CancellationToken cancellationToken)
+        public Task CompleteAsync(WorkItem item, CancellationToken cancellationToken)
         {
-            return _receiver.CompleteAsync(workItem.Token);
+            return _receiver.CompleteAsync(item.Token);
         }
 
-        public Task FaultAsync(WorkItem workItem, CancellationToken cancellationToken)
+        public Task FaultAsync(WorkItem item, CancellationToken cancellationToken)
         {
-            return _receiver.AbandonAsync(workItem.Token);
+            return _receiver.AbandonAsync(item.Token);
         }
 
         public void Dispose()

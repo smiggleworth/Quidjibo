@@ -1,12 +1,10 @@
-﻿using System;
-using Microsoft.AspNetCore.Builder;
+﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Quidjibo.Servers;
 
 namespace Quidjibo.AspNetCore.Extensions
 {
-    public static class QuidjiboApplicationBuilderExtensions
+    public static class ApplicationBuilderExtensions
     {
         public static IApplicationBuilder UseQuidjibo(this IApplicationBuilder app, QuidjiboBuilder builder)
         {

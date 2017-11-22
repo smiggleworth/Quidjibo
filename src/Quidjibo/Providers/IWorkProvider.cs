@@ -28,25 +28,25 @@ namespace Quidjibo.Providers
         /// <summary>
         ///     Renews the lock asynchronous.
         /// </summary>
-        /// <param name="workItem">The work item.</param>
+        /// <param name="item">The work item.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        Task<DateTime> RenewAsync(WorkItem workItem, CancellationToken cancellationToken);
+        Task<DateTime> RenewAsync(WorkItem item, CancellationToken cancellationToken);
 
         /// <summary>
         ///     Completes the asynchronous.
         /// </summary>
-        /// <param name="workItem">The work item.</param>
+        /// <param name="item">The work item.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        Task CompleteAsync(WorkItem workItem, CancellationToken cancellationToken);
+        Task CompleteAsync(WorkItem item, CancellationToken cancellationToken);
 
         /// <summary>
         ///     Faults the asynchronous.
         /// </summary>
-        /// <param name="workItem">The work item.</param>
+        /// <param name="item">The work item.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        Task FaultAsync(WorkItem workItem, CancellationToken cancellationToken);
+        Task FaultAsync(WorkItem item, CancellationToken cancellationToken);
     }
 }

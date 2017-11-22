@@ -47,7 +47,7 @@ namespace Quidjibo.EndToEnd
                     ConnectionString = "Server=localhost;Database=SampleDb;Trusted_Connection=True;",
 
                     // the queues the worker should be polling
-                    Queues = new List<string>
+                    Queues = new []
                     {
                         "default",
                         "other"
@@ -64,7 +64,7 @@ namespace Quidjibo.EndToEnd
             var client = quidjiboBuilder.BuildClient();
             using (var workServer = quidjiboBuilder.BuildServer())
             {
-                workServer.Start();
+                //workServer.Start();
 
                 var i = 1;
                 var random = new Random();

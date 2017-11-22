@@ -19,8 +19,14 @@ namespace Quidjibo.SqlServer.Factories
             _connectionString = connectionString;
         }
 
-        public async Task<IScheduleProvider> CreateAsync(List<string> queues,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public int PollingInterval => 60;
+
+        public async Task<IScheduleProvider> CreateAsync(string queues, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            return await CreateAsync(queues.Split(','), cancellationToken);
+        }
+
+        public async Task<IScheduleProvider> CreateAsync(string[] queues, CancellationToken cancellationToken = default(CancellationToken))
         {
             try
             {
@@ -33,24 +39,12 @@ namespace Quidjibo.SqlServer.Factories
                     await cmd.ExecuteNonQueryAsync(cancellationToken);
                 }, _connectionString, false, cancellationToken);
 
-
                 return await Task.FromResult<IScheduleProvider>(new SqlScheduleProvider(_connectionString, queues));
             }
             finally
             {
                 SyncLock.Release();
             }
-        }
-
-        public int PollingInterval => 60;
-
-        public async Task<IScheduleProvider> CreateAsync(string queue,
-            CancellationToken cancellationToken = default(CancellationToken))
-        {
-            return await CreateAsync(new List<string>
-            {
-                queue
-            }, cancellationToken);
         }
     }
 }
