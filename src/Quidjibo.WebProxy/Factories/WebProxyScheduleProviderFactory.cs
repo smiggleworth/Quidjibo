@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Quidjibo.Factories;
 using Quidjibo.Providers;
 using Quidjibo.WebProxy.Clients;
@@ -9,13 +10,12 @@ namespace Quidjibo.WebProxy.Factories
 {
     public class WebProxyScheduleProviderFactory : IScheduleProviderFactory
     {
-        private static readonly SemaphoreSlim SyncLock = new SemaphoreSlim(1, 1);
-
+        private readonly ILoggerFactory _loggerFactory;
         private readonly IWebProxyClient _webProxyClient;
 
-
-        public WebProxyScheduleProviderFactory(IWebProxyClient webProxyClient)
+        public WebProxyScheduleProviderFactory(ILoggerFactory loggerFactory, IWebProxyClient webProxyClient)
         {
+            _loggerFactory = loggerFactory;
             _webProxyClient = webProxyClient;
         }
 
@@ -31,15 +31,8 @@ namespace Quidjibo.WebProxy.Factories
 
         public async Task<IScheduleProvider> CreateAsync(string[] queues, CancellationToken cancellationToken = default(CancellationToken))
         {
-            try
-            {
-                await SyncLock.WaitAsync(cancellationToken);
-                return await Task.FromResult<IScheduleProvider>(new WebProxyScheduleProvider(_webProxyClient, queues));
-            }
-            finally
-            {
-                SyncLock.Release();
-            }
+            var provider = new WebProxyScheduleProvider(_loggerFactory.CreateLogger<WebProxyScheduleProvider>(), _webProxyClient, queues);
+            return await Task.FromResult(provider);
         }
     }
 }

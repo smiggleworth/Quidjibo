@@ -71,10 +71,10 @@ namespace Quidjibo.Aws.Sqs.Providers
             }).ToList();
         }
 
-        public async Task<DateTime> RenewAsync(WorkItem workItem, CancellationToken cancellationToken)
+        public async Task<DateTime> RenewAsync(WorkItem item, CancellationToken cancellationToken)
         {
-            var lockExpiration = (workItem.VisibleOn ?? DateTime.UtcNow).AddSeconds(_visibilityTimeout);
-            var response = await _client.ChangeMessageVisibilityAsync(_queueUrl, workItem.Token, _visibilityTimeout,
+            var lockExpiration = (item.VisibleOn ?? DateTime.UtcNow).AddSeconds(_visibilityTimeout);
+            var response = await _client.ChangeMessageVisibilityAsync(_queueUrl, item.Token, _visibilityTimeout,
                 cancellationToken);
 
             // todo handle errors
@@ -82,15 +82,15 @@ namespace Quidjibo.Aws.Sqs.Providers
             return lockExpiration;
         }
 
-        public async Task CompleteAsync(WorkItem workItem, CancellationToken cancellationToken)
+        public async Task CompleteAsync(WorkItem item, CancellationToken cancellationToken)
         {
-            var request = new DeleteMessageRequest(_queueUrl, workItem.Token);
+            var request = new DeleteMessageRequest(_queueUrl, item.Token);
             var response = await _client.DeleteMessageAsync(request, cancellationToken);
         }
 
-        public async Task FaultAsync(WorkItem workItem, CancellationToken cancellationToken)
+        public async Task FaultAsync(WorkItem item, CancellationToken cancellationToken)
         {
-            var response = await _client.ChangeMessageVisibilityAsync(_queueUrl, workItem.Token, 0, cancellationToken);
+            var response = await _client.ChangeMessageVisibilityAsync(_queueUrl, item.Token, 0, cancellationToken);
         }
 
         public void Dispose()

@@ -43,23 +43,23 @@ namespace Quidjibo.Clients
             _cronProvider = cronProvider;
         }
 
-        public Task<Guid> PublishAsync(IQuidjiboCommand command, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<PublishInfo> PublishAsync(IQuidjiboCommand command, CancellationToken cancellationToken = default(CancellationToken))
         {
             return PublishAsync(command, 0, cancellationToken);
         }
 
-        public Task<Guid> PublishAsync(IQuidjiboCommand command, int delay, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<PublishInfo> PublishAsync(IQuidjiboCommand command, int delay, CancellationToken cancellationToken = default(CancellationToken))
         {
             var queueName = command.GetQueueName();
             return PublishAsync(command, queueName, delay, cancellationToken);
         }
 
-        public Task<Guid> PublishAsync(IQuidjiboCommand command, string queueName, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<PublishInfo> PublishAsync(IQuidjiboCommand command, string queueName, CancellationToken cancellationToken = default(CancellationToken))
         {
             return PublishAsync(command, queueName, 0, cancellationToken);
         }
 
-        public async Task<Guid> PublishAsync(IQuidjiboCommand command, string queueName, int delay, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<PublishInfo> PublishAsync(IQuidjiboCommand command, string queueName, int delay, CancellationToken cancellationToken = default(CancellationToken))
         {
             var payload = await _payloadSerializer.SerializeAsync(command, cancellationToken);
             var protectedPayload = await _payloadProtector.ProtectAsync(payload, cancellationToken);
@@ -74,7 +74,7 @@ namespace Quidjibo.Clients
             };
             var provider = await GetOrCreateWorkProvider(queueName, cancellationToken);
             await provider.SendAsync(item, delay, cancellationToken);
-            return item.CorrelationId;
+            return new PublishInfo(item.Id, item.CorrelationId);
         }
 
         public async Task ScheduleAsync(Assembly[] assemblies, CancellationToken cancellationToken)

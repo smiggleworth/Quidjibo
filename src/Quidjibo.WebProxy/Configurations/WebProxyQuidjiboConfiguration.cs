@@ -5,11 +5,13 @@ namespace Quidjibo.WebProxy.Configurations
     public class WebProxyQuidjiboConfiguration : IQuidjiboConfiguration
     {
         /// <summary>
-        ///     The Url to the Web Server Hosting the Queues
+        ///     The Url to the Web Server Hosting a web proxy
         /// </summary>
         public string Url { get; set; }
 
-        public string ClientKey { get; set; }
+        public string ClientId { get; set; }
+
+        public string ClientSecret { get; set; }
 
         public int PollingInterval { get; set; }
 

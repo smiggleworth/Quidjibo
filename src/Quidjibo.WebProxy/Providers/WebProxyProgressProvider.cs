@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Quidjibo.Models;
 using Quidjibo.Providers;
 using Quidjibo.WebProxy.Clients;
@@ -13,10 +14,14 @@ namespace Quidjibo.WebProxy.Providers
     public class WebProxyProgressProvider : IProgressProvider
     {
         private readonly string[] _queues;
-        private readonly IWebProxyClient _webProxyClient;
 
-        public WebProxyProgressProvider(IWebProxyClient webProxyClient, string[] queues)
+        private readonly ILogger _logger;
+        private readonly IWebProxyClient _webProxyClient;
+        
+
+        public WebProxyProgressProvider(ILogger logger, IWebProxyClient webProxyClient, string[] queues)
         {
+            _logger = logger;
             _webProxyClient = webProxyClient;
             _queues = queues;
         }
@@ -36,7 +41,8 @@ namespace Quidjibo.WebProxy.Providers
             var response = await _webProxyClient.PostAsync(request, cancellationToken);
             if(!response.IsSuccessStatusCode)
             {
-                // log
+                _logger.LogWarning("Report progress failed.");
+                _logger.LogDebug(response.Content);
             }
         }
 
@@ -45,16 +51,18 @@ namespace Quidjibo.WebProxy.Providers
             var request = new WebProxyRequest
             {
                 Path = "/progress-items",
-                Data = new
+                Data =  new RequestData<Guid>
                 {
-                    correlationId
+                    Queues = _queues,
+                    Data = correlationId
                 }
             };
 
             var response = await _webProxyClient.GetAsync<List<ProgressItem>>(request, cancellationToken);
             if(!response.IsSuccessStatusCode)
             {
-                // log
+                _logger.LogWarning("Load progress failed.");
+                _logger.LogDebug(response.Content);
             }
             return response.Data;
         }

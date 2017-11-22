@@ -2,20 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Quidjibo.Models;
 using Quidjibo.Providers;
 using Quidjibo.WebProxy.Clients;
 using Quidjibo.WebProxy.Models;
+using Quidjibo.WebProxy.Requests;
 
 namespace Quidjibo.WebProxy.Providers
 {
     public class WebProxyWorkProvider : IWorkProvider
     {
         private readonly string[] _queues;
+        private readonly ILogger _logger;
         private readonly IWebProxyClient _webProxyClient;
 
-        public WebProxyWorkProvider(IWebProxyClient webProxyClient, string[] queues)
+        public WebProxyWorkProvider(ILogger logger, IWebProxyClient webProxyClient, string[] queues)
         {
+            _logger = logger;
             _webProxyClient = webProxyClient;
             _queues = queues;
         }
@@ -25,12 +29,17 @@ namespace Quidjibo.WebProxy.Providers
             var request = new WebProxyRequest
             {
                 Path = "/work-items",
-                Data = item
+                Data = new RequestData<WorkItem>
+                {
+                    Queues = _queues,
+                    Data = item
+                }
             };
             var response = await _webProxyClient.PostAsync(request, cancellationToken);
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                // log
+                _logger.LogWarning("Send work item failed.");
+                _logger.LogDebug(response.Content);
             }
         }
 
@@ -39,60 +48,76 @@ namespace Quidjibo.WebProxy.Providers
             var request = new WebProxyRequest
             {
                 Path = "/work-items/receive",
-                Data = new
+                Data = new RequestData<string>
                 {
-                    Worker = worker,
-                    Queues = _queues
+                    Queues = _queues,
+                    Data = worker
                 }
             };
             var response = await _webProxyClient.PostAsync<List<WorkItem>>(request, cancellationToken);
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                // log
+                _logger.LogWarning("Receive work item failed.");
+                _logger.LogDebug(response.Content);
             }
             return response.Data;
         }
 
-        public async Task<DateTime> RenewAsync(WorkItem workItem, CancellationToken cancellationToken)
+        public async Task<DateTime> RenewAsync(WorkItem item, CancellationToken cancellationToken)
         {
             var request = new WebProxyRequest
             {
                 Path = "/work-items/renew",
-                Data = workItem
+                Data = new RequestData<WorkItem>
+                {
+                    Queues = _queues,
+                    Data = item
+                }
             };
             var response = await _webProxyClient.PostAsync<DateTime>(request, cancellationToken);
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                // log
+                _logger.LogWarning("Renew work item failed.");
+                _logger.LogDebug(response.Content);
             }
             return response.Data;
         }
 
-        public async Task CompleteAsync(WorkItem workItem, CancellationToken cancellationToken)
+        public async Task CompleteAsync(WorkItem item, CancellationToken cancellationToken)
         {
             var request = new WebProxyRequest
             {
                 Path = "/work-items/complete",
-                Data = workItem
+                Data = new RequestData<WorkItem>
+                {
+                    Queues = _queues,
+                    Data = item
+                }
             };
             var response = await _webProxyClient.PostAsync(request, cancellationToken);
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                // log
+                _logger.LogWarning("Complete work item failed.");
+                _logger.LogDebug(response.Content);
             }
         }
 
-        public async Task FaultAsync(WorkItem workItem, CancellationToken cancellationToken)
+        public async Task FaultAsync(WorkItem item, CancellationToken cancellationToken)
         {
             var request = new WebProxyRequest
             {
                 Path = "/work-items/fault",
-                Data = workItem
+                Data = new RequestData<WorkItem>
+                {
+                    Queues = _queues,
+                    Data = item
+                }
             };
             var response = await _webProxyClient.PostAsync(request, cancellationToken);
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
-                // log
+                _logger.LogWarning("Fault work item failed.");
+                _logger.LogDebug(response.Content);
             }
         }
 
