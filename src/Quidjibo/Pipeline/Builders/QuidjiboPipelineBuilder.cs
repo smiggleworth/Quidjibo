@@ -11,7 +11,6 @@ namespace Quidjibo.Pipeline.Builders
 {
     public class QuidjiboPipelineBuilder: IQuidjiboPipelineBuilder
     {
-       
         private readonly IList<PipelineStep> _steps = new List<PipelineStep>();
 
         public IQuidjiboPipeline Build(IDependencyResolver resolver)
@@ -32,11 +31,6 @@ namespace Quidjibo.Pipeline.Builders
                 Instance = middleware
             });
             return this;
-        }
-
-        private IQuidjiboPipelineBuilder UseDefaults()
-        {
-            return this.UseHandlers();
         }
     }
 }
