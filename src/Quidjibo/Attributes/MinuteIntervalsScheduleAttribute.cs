@@ -7,7 +7,7 @@ namespace Quidjibo.Attributes {
     public class MinuteIntervalsScheduleAttribute : ScheduleAttribute
     {
         public MinuteIntervalsScheduleAttribute(string name, int minute)
-            : this(name, minute, (string)"default") { }
+            : this(name, minute, "default") { }
 
         public MinuteIntervalsScheduleAttribute(string name, int minute, string queue)
             : this(name, minute, queue, typeof(DefaultClientKey)) { }

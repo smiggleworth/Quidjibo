@@ -36,7 +36,8 @@ namespace Quidjibo.Servers
             IWorkProviderFactory workProviderFactory,
             IScheduleProviderFactory scheduleProviderFactory,
             IProgressProviderFactory progressProviderFactory,
-            ICronProvider cronProvider, IQuidjiboPipeline quidjiboPipeline)
+            ICronProvider cronProvider,
+            IQuidjiboPipeline quidjiboPipeline)
         {
             _logger = loggerFactory.CreateLogger<QuidjiboServer>();
             _workProviderFactory = workProviderFactory;
@@ -56,26 +57,31 @@ namespace Quidjibo.Servers
                 {
                     return;
                 }
-                _logger.LogInformation("Starting Worker {0}", Worker);
+                _logger.LogInformation("Starting Server {0}", Worker);
                 _cts = new CancellationTokenSource();
                 _loopTasks = new List<Task>();
 
                 _throttle = new SemaphoreSlim(0, _quidjiboConfiguration.Throttle);
-                if (_quidjiboConfiguration.SingleLoop)
+                if (_quidjiboConfiguration.EnableWorker)
                 {
-                    _logger.LogInformation("All queues can share the same loop");
-                    var queues = string.Join(",", _quidjiboConfiguration.Queues);
-                    _loopTasks.Add(WorkLoopAsync(queues));
-                }
-                else
-                {
-                    _logger.LogInformation("Each queue will need a designated loop");
-                    _loopTasks.AddRange(_quidjiboConfiguration.Queues.Select(WorkLoopAsync));
+                    if (_quidjiboConfiguration.SingleLoop)
+                    {
+                        _logger.LogInformation("All queues can share the same loop");
+                        var queues = string.Join(",", _quidjiboConfiguration.Queues);
+                        _loopTasks.Add(WorkLoopAsync(queues));
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Each queue will need a designated loop");
+                        _loopTasks.AddRange(_quidjiboConfiguration.Queues.Select(WorkLoopAsync));
+                    }
                 }
 
-                _logger.LogInformation("Enabling scheduler");
-                _loopTasks.Add(ScheduleLoopAsync(_quidjiboConfiguration.Queues));
-
+                if (_quidjiboConfiguration.EnableScheduler)
+                {
+                    _logger.LogInformation("Enabling scheduler");
+                    _loopTasks.Add(ScheduleLoopAsync(_quidjiboConfiguration.Queues));
+                }
                 _throttle.Release(_quidjiboConfiguration.Throttle);
                 IsRunning = true;
                 _logger.LogInformation("Started Worker {0}", Worker);
@@ -141,7 +147,7 @@ namespace Quidjibo.Servers
             }
         }
 
-        private async Task ScheduleLoopAsync(List<string> queues)
+        private async Task ScheduleLoopAsync(string[] queues)
         {
             var pollingInterval = TimeSpan.FromSeconds(_scheduleProviderFactory.PollingInterval);
             var scheduleProvider = await _scheduleProviderFactory.CreateAsync(queues, _cts.Token);
@@ -189,7 +195,7 @@ namespace Quidjibo.Servers
                 var progress = new QuidjiboProgress();
                 progress.ProgressChanged += async (sender, tracker) =>
                 {
-                    var progressProvider = await _progressProviderFactory.CreateAsync(_cts.Token);
+                    var progressProvider = await _progressProviderFactory.CreateAsync(item.Queue, _cts.Token);
                     var progressItem = new ProgressItem
                     {
                         Id = Guid.NewGuid(),
@@ -260,7 +266,4 @@ namespace Quidjibo.Servers
 
         #endregion
     }
-
-
-
 }

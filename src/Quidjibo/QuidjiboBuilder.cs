@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
 using System.Reflection;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Quidjibo.Clients;
 using Quidjibo.Configurations;
 using Quidjibo.Dispatchers;
 using Quidjibo.Exceptions;
 using Quidjibo.Factories;
-using Quidjibo.Misc;
 using Quidjibo.Pipeline.Builders;
 using Quidjibo.Pipeline.Middleware;
 using Quidjibo.Protectors;
@@ -30,16 +26,18 @@ namespace Quidjibo
         private bool _validated;
 
         private Assembly[] _assemblies;
-        private ILoggerFactory _loggerFactory;
+       
         private IQuidjiboConfiguration _configuration;
         private ICronProvider _cronProvider;
-        private IWorkProviderFactory _workProviderFactory;
-        private IProgressProviderFactory _progressProviderFactory;
-        private IScheduleProviderFactory _scheduleProviderFactory;
         private IDependencyResolver _resolver;
         private IWorkDispatcher _dispatcher;
         private IPayloadSerializer _serializer;
         private IPayloadProtector _protector;
+
+        public ILoggerFactory LoggerFactory { get; private set; }
+        public IWorkProviderFactory WorkProviderFactory { get; private set; }
+        public IProgressProviderFactory ProgressProviderFactory { get; private set; }
+        public IScheduleProviderFactory ScheduleProviderFactory { get; private set; }
 
         /// <summary>
         ///     Build an instance of a QuidjiboServer as configured.
@@ -49,7 +47,7 @@ namespace Quidjibo
         {
             BackFillDefaults();
             var pipeline = _pipelineBuilder.Build(_resolver);
-            return new QuidjiboServer(_loggerFactory, _configuration, _workProviderFactory, _scheduleProviderFactory, _progressProviderFactory, _cronProvider, pipeline);
+            return new QuidjiboServer(LoggerFactory, _configuration, WorkProviderFactory, ScheduleProviderFactory, ProgressProviderFactory, _cronProvider, pipeline);
         }
 
         /// <summary>
@@ -60,7 +58,7 @@ namespace Quidjibo
         {
             BackFillDefaults();
 
-            var client = new QuidjiboClient(_loggerFactory, _workProviderFactory, _scheduleProviderFactory, _serializer, _protector, _cronProvider);
+            var client = new QuidjiboClient(LoggerFactory, WorkProviderFactory, ScheduleProviderFactory, _serializer, _protector, _cronProvider);
 
             QuidjiboClient.Instance = client;
 
@@ -98,7 +96,7 @@ namespace Quidjibo
         /// <returns></returns>
         public QuidjiboBuilder ConfigureLogging(ILoggerFactory factory)
         {
-            _loggerFactory = factory;
+            LoggerFactory = factory;
             return this;
         }
 
@@ -155,7 +153,7 @@ namespace Quidjibo
         /// <returns></returns>
         public QuidjiboBuilder ConfigureProgressProviderFactory(IProgressProviderFactory factory)
         {
-            _progressProviderFactory = factory;
+            ProgressProviderFactory = factory;
             return this;
         }
 
@@ -167,7 +165,7 @@ namespace Quidjibo
         /// <returns></returns>
         public QuidjiboBuilder ConfigureScheduleProviderFactory(IScheduleProviderFactory factory)
         {
-            _scheduleProviderFactory = factory;
+            ScheduleProviderFactory = factory;
             return this;
         }
 
@@ -179,7 +177,7 @@ namespace Quidjibo
         /// <returns></returns>
         public QuidjiboBuilder ConfigureWorkProviderFactory(IWorkProviderFactory factory)
         {
-            _workProviderFactory = factory;
+            WorkProviderFactory = factory;
             return this;
         }
 
@@ -197,7 +195,7 @@ namespace Quidjibo
                 return;
             }
 
-            _loggerFactory = _loggerFactory ?? new LoggerFactory();
+            LoggerFactory = LoggerFactory ?? new LoggerFactory();
             _serializer = _serializer ?? new PayloadSerializer();
             _protector = _protector ?? new PayloadProtector();
             _cronProvider = _cronProvider ?? new CronProvider();
@@ -205,11 +203,11 @@ namespace Quidjibo
             _dispatcher = _dispatcher ?? new WorkDispatcher(_resolver);
 
 
-            _services.Add(typeof(ILoggerFactory), _loggerFactory);
+            _services.Add(typeof(ILoggerFactory), LoggerFactory);
             _services.Add(typeof(IPayloadProtector), _protector);
             _services.Add(typeof(IPayloadSerializer), _serializer);
             _services.Add(typeof(IWorkDispatcher), _dispatcher);
-            _services.Add(typeof(QuidjiboHandlerMiddleware), new QuidjiboHandlerMiddleware(_loggerFactory, _dispatcher, _serializer, _protector));
+            _services.Add(typeof(QuidjiboHandlerMiddleware), new QuidjiboHandlerMiddleware(LoggerFactory, _dispatcher, _serializer, _protector));
 
             Validate();
         }
@@ -222,15 +220,15 @@ namespace Quidjibo
             {
                 errors.Add("Configuration is null");
             }
-            if (_workProviderFactory == null)
+            if (WorkProviderFactory == null)
             {
                 errors.Add("Requires Work Provider Factory");
             }
-            if (_progressProviderFactory == null)
+            if (ProgressProviderFactory == null)
             {
                 errors.Add("Requires Progress Provider Factory");
             }
-            if (_scheduleProviderFactory == null)
+            if (ScheduleProviderFactory == null)
             {
                 errors.Add("Requires Schedule Provider Factory");
             }

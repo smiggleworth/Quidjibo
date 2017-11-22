@@ -125,23 +125,23 @@ namespace Quidjibo.SqlServer.Providers
             return workItems;
         }
 
-        public async Task<DateTime> RenewAsync(WorkItem workItem, CancellationToken cancellationToken)
+        public async Task<DateTime> RenewAsync(WorkItem item, CancellationToken cancellationToken)
         {
             if (_renewSql == null)
             {
                 _renewSql = await SqlLoader.GetScript("Work.Renew");
             }
-            var lockExpireOn = (workItem.VisibleOn ?? DateTime.UtcNow).AddSeconds(Math.Max(_visibilityTimeout, 30));
+            var lockExpireOn = (item.VisibleOn ?? DateTime.UtcNow).AddSeconds(Math.Max(_visibilityTimeout, 30));
             await ExecuteAsync(async cmd =>
             {
-                cmd.AddParameter("@Id", workItem.Id);
+                cmd.AddParameter("@Id", item.Id);
                 cmd.AddParameter("@VisibleOn", lockExpireOn);
                 await cmd.ExecuteNonQueryAsync(cancellationToken);
             }, cancellationToken);
             return lockExpireOn;
         }
 
-        public async Task CompleteAsync(WorkItem workItem, CancellationToken cancellationToken)
+        public async Task CompleteAsync(WorkItem item, CancellationToken cancellationToken)
         {
             if (_completeSql == null)
             {
@@ -150,13 +150,13 @@ namespace Quidjibo.SqlServer.Providers
             await ExecuteAsync(async cmd =>
             {
                 cmd.CommandText = _completeSql;
-                cmd.AddParameter("@Id", workItem.Id);
+                cmd.AddParameter("@Id", item.Id);
                 cmd.AddParameter("@Complete", StatusFlags.Complete);
                 await cmd.ExecuteNonQueryAsync(cancellationToken);
             }, cancellationToken);
         }
 
-        public async Task FaultAsync(WorkItem workItem, CancellationToken cancellationToken)
+        public async Task FaultAsync(WorkItem item, CancellationToken cancellationToken)
         {
             var faultedOn = DateTime.UtcNow;
             if (_faultSql == null)
@@ -166,7 +166,7 @@ namespace Quidjibo.SqlServer.Providers
             await ExecuteAsync(async cmd =>
             {
                 cmd.CommandText = _faultSql;
-                cmd.AddParameter("@Id", workItem.Id);
+                cmd.AddParameter("@Id", item.Id);
                 cmd.AddParameter("@VisibleOn", faultedOn.AddSeconds(Math.Max(_visibilityTimeout, 30)));
                 cmd.AddParameter("@Faulted", StatusFlags.Faulted);
                 await cmd.ExecuteNonQueryAsync(cancellationToken);
