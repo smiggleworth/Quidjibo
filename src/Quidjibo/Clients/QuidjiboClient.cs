@@ -160,6 +160,28 @@ namespace Quidjibo.Clients
             }
         }
 
+        public async Task DeleteScheduleAsync(string name, string queue, CancellationToken cancellationToken = default(CancellationToken))
+        {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                _logger.LogWarning("The name argument is required");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(queue))
+            {
+                _logger.LogWarning("The queue argument is required");
+                return;
+            }
+            var provider = await GetOrCreateScheduleProvider(queue, cancellationToken);
+            var existingItem = await provider.LoadByNameAsync(name, cancellationToken);
+            if (existingItem != null)
+            {
+                _logger.LogDebug("Delete existing schedule for {0}", name);
+                await provider.DeleteAsync(existingItem.Id, cancellationToken);
+            }
+        }
+
         public void Clear()
         {
             Instance = null;

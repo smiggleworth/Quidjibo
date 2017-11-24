@@ -45,12 +45,39 @@ namespace Quidjibo.Clients
         /// <returns></returns>
         Task<PublishInfo> PublishAsync(IQuidjiboCommand command, string queueName, int delay, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task ScheduleAsync(string name, IQuidjiboCommand command, Cron cron
-            , CancellationToken cancellationToken = default(CancellationToken));
+        /// <summary>
+        /// Schedule a recurring job with a specified schedule
+        /// </summary>
+        /// <param name="name">The name of the job</param>
+        /// <param name="command">The recurring command</param>
+        /// <param name="cron">The cron schedule</param>
+        /// <param name="cancellationToken">The cancellation token</param>
+        /// <returns></returns>
+        Task ScheduleAsync(string name, IQuidjiboCommand command, Cron cron, CancellationToken cancellationToken = default(CancellationToken));
 
-        Task ScheduleAsync(string name, string queue, IQuidjiboCommand command, Cron cron,
-            CancellationToken cancellationToken = default(CancellationToken));
+        /// <summary>
+        /// Schedule a recurring job with a specified schedule
+        /// </summary>
+        /// <param name="name">The name of the job</param>
+        /// <param name="queue">The queue that should be used</param>
+        /// <param name="command">The recurring command</param>
+        /// <param name="cron">The cron schedule</param>
+        /// <param name="cancellationToken">The cancellation token</param>
+        /// <returns></returns>
+        Task ScheduleAsync(string name, string queue, IQuidjiboCommand command, Cron cron, CancellationToken cancellationToken = default(CancellationToken));
 
+        /// <summary>
+        /// Delete a previously scheduled recurring job
+        /// </summary>
+        /// <param name="name">The name of the job to delete</param>
+        /// <param name="queue">The queue the job belongs to</param>
+        /// <param name="cancellationToken">The cancellation token</param>
+        /// <returns></returns>
+        Task DeleteScheduleAsync(string name, string queue, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        /// Clear internally static client instance
+        /// </summary>
         void Clear();
     }
 }
