@@ -211,15 +211,15 @@ namespace Quidjibo.Servers
                 };
 
                 var renewTask = RenewAsync(provider, item, linkedTokenSource.Token);
+                var context = new QuidjiboContext
+                {
+                    Item = item,
+                    Provider = provider,
+                    Progress = progress,
+                    State = new PipelineState()
+                };
                 try
                 {
-                    var context = new QuidjiboContext
-                    {
-                        Item = item,
-                        Provider = provider,
-                        Progress = progress,
-                        State = new PipelineState()
-                    };
                     await _quidjiboPipeline.StartAsync(context, linkedTokenSource.Token);
 
                     if (context.State.Success)
@@ -243,6 +243,7 @@ namespace Quidjibo.Servers
                     _logger.LogDebug("Release : {0}", item.Id);
                     linkedTokenSource.Cancel();
                     await renewTask;
+                    await _quidjiboPipeline.EndAsync(context);
                 }
             }
         }

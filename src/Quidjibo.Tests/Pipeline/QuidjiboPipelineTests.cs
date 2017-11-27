@@ -27,7 +27,7 @@ namespace Quidjibo.Tests.Pipeline
             {
                 new PipelineStep
                 {
-                    Instance = new PipelineMiddleware(async (ctx, next) =>
+                    Instance = new QuidjiboMiddleware(async (ctx, next) =>
                     {
                         middlewareInvoked = true;
                         await next();
@@ -55,7 +55,7 @@ namespace Quidjibo.Tests.Pipeline
             {
                 new PipelineStep
                 {
-                    Instance = new PipelineMiddleware(async (ctx, next) =>
+                    Instance = new QuidjiboMiddleware(async (ctx, next) =>
                     {
                         middlewareInvoked += 1;
                         await next();
@@ -63,7 +63,7 @@ namespace Quidjibo.Tests.Pipeline
                 },
                 new PipelineStep
                 {
-                    Instance = new PipelineMiddleware(async (ctx, next) =>
+                    Instance = new QuidjiboMiddleware(async (ctx, next) =>
                     {
                         middlewareInvoked += 1;
                         await next();
@@ -91,7 +91,7 @@ namespace Quidjibo.Tests.Pipeline
             {
                 new PipelineStep
                 {
-                    Instance = new PipelineMiddleware(async (ctx, next) =>
+                    Instance = new QuidjiboMiddleware(async (ctx, next) =>
                     {
                         middlewareInvoked += 1;
                         await Task.CompletedTask;
@@ -99,7 +99,7 @@ namespace Quidjibo.Tests.Pipeline
                 },
                 new PipelineStep
                 {
-                    Instance = new PipelineMiddleware(async (ctx, next) =>
+                    Instance = new QuidjiboMiddleware(async (ctx, next) =>
                     {
                         middlewareInvoked += 1;
                         await next();
@@ -123,8 +123,8 @@ namespace Quidjibo.Tests.Pipeline
             var middlewareInvoked = false;
             var resolver = Substitute.For<IDependencyResolver>();
             resolver.Begin().Returns(Substitute.For<IDisposable>());
-            resolver.Resolve(typeof(PipelineMiddleware))
-                    .Returns(new PipelineMiddleware(async (ctx, next) =>
+            resolver.Resolve(typeof(QuidjiboMiddleware))
+                    .Returns(new QuidjiboMiddleware(async (ctx, next) =>
                     {
                         middlewareInvoked = true;
                         await next();
@@ -134,7 +134,7 @@ namespace Quidjibo.Tests.Pipeline
                 new PipelineStep
                 {
                     Instance = null,
-                    Type = typeof(PipelineMiddleware)
+                    Type = typeof(QuidjiboMiddleware)
                 }
             };
             var pipeline = new QuidjiboPipeline(steps, resolver);
@@ -160,7 +160,7 @@ namespace Quidjibo.Tests.Pipeline
             {
                 new PipelineStep
                 {
-                    Instance = new PipelineMiddleware(async (ctx, next) =>
+                    Instance = new QuidjiboMiddleware(async (ctx, next) =>
                     {
                         middlewareInvoked += 1;
                         cts.Cancel();
@@ -169,7 +169,7 @@ namespace Quidjibo.Tests.Pipeline
                 },
                 new PipelineStep
                 {
-                    Instance = new PipelineMiddleware(async (ctx, next) =>
+                    Instance = new QuidjiboMiddleware(async (ctx, next) =>
                     {
                         middlewareInvoked += 1;
                         await next();

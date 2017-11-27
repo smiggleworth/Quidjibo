@@ -25,9 +25,12 @@ namespace Quidjibo.Pipeline.Builders
         /// <summary>
         ///     Use a implemented middleware
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="middleware"></param>
+        /// <typeparam name="T">The type of middleware</typeparam>
+        /// <param name="middleware">
+        ///     The instance of the middleware. If this is null a new instance will be resolved each time the
+        ///     pipeline is invoked.
+        /// </param>
         /// <returns></returns>
-        IQuidjiboPipelineBuilder Use<T>(T middleware = null) where T : class, IPipelineMiddleware;
+        IQuidjiboPipelineBuilder Use<T>(T middleware = null) where T : class, IQuidjiboMiddleware;
     }
 }

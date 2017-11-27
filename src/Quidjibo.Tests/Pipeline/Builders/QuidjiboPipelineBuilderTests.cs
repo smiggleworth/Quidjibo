@@ -76,7 +76,7 @@ namespace Quidjibo.Tests.Pipeline.Builders
         }
 
 
-        private class SampleMiddleware : IPipelineMiddleware
+        private class SampleMiddleware : IQuidjiboMiddleware
         {
             public static bool Invoked { get; set; }
 
