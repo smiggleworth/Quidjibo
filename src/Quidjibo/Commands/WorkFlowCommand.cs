@@ -33,6 +33,8 @@ namespace Quidjibo.Commands
             Step += 1;
         }
 
+        public Dictionary<string, string> Metadata { get; set; }
+
         /// <summary>
         ///     Then, adds another step with a single command to the workflow.
         /// </summary>

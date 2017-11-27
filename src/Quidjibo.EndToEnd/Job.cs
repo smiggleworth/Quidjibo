@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Quidjibo.Commands;
@@ -17,6 +18,8 @@ namespace Quidjibo.EndToEnd
             {
                 Id = id;
             }
+
+            public Dictionary<string, string> Metadata { get; set; }
         }
 
         public class Handler : IQuidjiboHandler<Command>

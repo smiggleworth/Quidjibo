@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,7 +15,6 @@ using Quidjibo.Models;
 using Quidjibo.Protectors;
 using Quidjibo.Providers;
 using Quidjibo.Serializers;
-using Quidjibo.Tests.Misc;
 using Quidjibo.Tests.Samples;
 
 namespace Quidjibo.Tests.Clients
@@ -321,6 +321,7 @@ namespace Quidjibo.Tests.Clients
         [Schedule(nameof(ScheduleDefaultCommand), "* * * * *")]
         public class ScheduleDefaultCommand : IQuidjiboCommand
         {
+            public Dictionary<string, string> Metadata { get; set; }
         }
 
         [MinuteIntervalsSchedule("MinuteIntervalsScheduleDefaultCommand", 7, "queue-1")]
@@ -329,11 +330,13 @@ namespace Quidjibo.Tests.Clients
         [Schedule(nameof(SchedulCustomQueueCommand), "1 * * * *", "queue-1")]
         public class SchedulCustomQueueCommand : IQuidjiboCommand
         {
+            public Dictionary<string, string> Metadata { get; set; }
         }
 
         [Schedule(nameof(ScheduleCustomeQueueAndKeyedCommand), "1 1 * * *", "queue-2", typeof(CustomClientKey1))]
         public class ScheduleCustomeQueueAndKeyedCommand : IQuidjiboCommand
         {
+            public Dictionary<string, string> Metadata { get; set; }
         }
     }
 }

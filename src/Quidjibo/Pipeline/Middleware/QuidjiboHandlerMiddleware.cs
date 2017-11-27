@@ -36,9 +36,7 @@ namespace Quidjibo.Pipeline.Middleware
 
         public async Task InvokeAsync(IQuidjiboContext context, Func<Task> next, CancellationToken cancellationToken)
         {
-            var payload = await _protector.UnprotectAsync(context.Item.Payload, cancellationToken);
-            var workCommand = await _serializer.DeserializeAsync(payload, cancellationToken);
-            if(workCommand is WorkflowCommand workflow)
+            if(context.Command is WorkflowCommand workflow)
             {
                 var tasks = workflow.Entries.Where(e => e.Key == workflow.CurrentStep)
                                     .SelectMany(e => e.Value, (e, c) => _dispatcher.DispatchAsync(c, context.Progress, cancellationToken))
@@ -63,7 +61,7 @@ namespace Quidjibo.Pipeline.Middleware
             }
             else
             {
-                await _dispatcher.DispatchAsync(workCommand, context.Progress, cancellationToken);
+                await _dispatcher.DispatchAsync(context.Command, context.Progress, cancellationToken);
             }
             await next();
         }
