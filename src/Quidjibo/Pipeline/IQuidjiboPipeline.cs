@@ -7,7 +7,6 @@ namespace Quidjibo.Pipeline
     public interface IQuidjiboPipeline
     {
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="context"></param>
         /// <param name="cancellationToken"></param>
@@ -15,7 +14,6 @@ namespace Quidjibo.Pipeline
         Task StartAsync(IQuidjiboContext context, CancellationToken cancellationToken);
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="context"></param>
         /// <param name="cancellationToken"></param>
@@ -23,7 +21,6 @@ namespace Quidjibo.Pipeline
         Task InvokeAsync(IQuidjiboContext context, CancellationToken cancellationToken);
 
         /// <summary>
-        /// 
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>

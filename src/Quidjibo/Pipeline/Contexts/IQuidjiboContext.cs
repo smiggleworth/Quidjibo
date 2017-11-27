@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Quidjibo.Misc;
 using Quidjibo.Models;
 using Quidjibo.Pipeline.Misc;

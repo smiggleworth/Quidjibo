@@ -23,16 +23,16 @@ namespace Quidjibo
         private readonly IQuidjiboPipelineBuilder _pipelineBuilder = new QuidjiboPipelineBuilder();
         private readonly IDictionary<Type, object> _services = new Dictionary<Type, object>();
 
-        private bool _validated;
-
         private Assembly[] _assemblies;
-       
+
         private IQuidjiboConfiguration _configuration;
         private ICronProvider _cronProvider;
-        private IDependencyResolver _resolver;
         private IWorkDispatcher _dispatcher;
-        private IPayloadSerializer _serializer;
         private IPayloadProtector _protector;
+        private IDependencyResolver _resolver;
+        private IPayloadSerializer _serializer;
+
+        private bool _validated;
 
         public ILoggerFactory LoggerFactory { get; private set; }
         public IWorkProviderFactory WorkProviderFactory { get; private set; }
@@ -190,7 +190,7 @@ namespace Quidjibo
 
         private void BackFillDefaults()
         {
-            if (_validated)
+            if(_validated)
             {
                 return;
             }
@@ -216,24 +216,24 @@ namespace Quidjibo
         {
             var errors = new List<string>(4);
 
-            if (_configuration == null)
+            if(_configuration == null)
             {
                 errors.Add("Configuration is null");
             }
-            if (WorkProviderFactory == null)
+            if(WorkProviderFactory == null)
             {
                 errors.Add("Requires Work Provider Factory");
             }
-            if (ProgressProviderFactory == null)
+            if(ProgressProviderFactory == null)
             {
                 errors.Add("Requires Progress Provider Factory");
             }
-            if (ScheduleProviderFactory == null)
+            if(ScheduleProviderFactory == null)
             {
                 errors.Add("Requires Schedule Provider Factory");
             }
 
-            if (errors.Any())
+            if(errors.Any())
             {
                 throw new QuidjiboBuilderException(errors, "Failed to validate. See list of errors for more detail.");
             }

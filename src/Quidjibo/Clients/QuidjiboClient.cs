@@ -17,15 +17,15 @@ namespace Quidjibo.Clients
 {
     public class QuidjiboClient : IQuidjiboClient
     {
-        public static IQuidjiboClient Instance { get; set; }
-
-        private bool _disposed;
-        private readonly ILogger _logger;
         private readonly ICronProvider _cronProvider;
-        private readonly IPayloadSerializer _payloadSerializer;
+        private readonly ILogger _logger;
         private readonly IPayloadProtector _payloadProtector;
+        private readonly IPayloadSerializer _payloadSerializer;
         private readonly IScheduleProviderFactory _scheduleProviderFactory;
         private readonly IWorkProviderFactory _workProviderFactory;
+
+        private bool _disposed;
+        public static IQuidjiboClient Instance { get; set; }
 
         public QuidjiboClient(
             ILoggerFactory loggerFactory,
@@ -77,25 +77,6 @@ namespace Quidjibo.Clients
             return new PublishInfo(item.Id, item.CorrelationId);
         }
 
-        public async Task ScheduleAsync(Assembly[] assemblies, CancellationToken cancellationToken)
-        {
-            if (assemblies == null)
-            {
-                return;
-            }
-            var schedules = from a in assemblies
-                            from t in a.GetExportedTypes()
-                            where typeof(IQuidjiboCommand).IsAssignableFrom(t)
-                            from attr in t.GetTypeInfo().GetCustomAttributes<ScheduleAttribute>()
-                            let name = attr.Name
-                            let queue = !string.IsNullOrWhiteSpace(attr.Queue) ? attr.Queue : "default"
-                            let command = (IQuidjiboCommand)Activator.CreateInstance(t)
-                            let cron = attr.Cron
-                            select ScheduleAsync(name, queue, command, cron, cancellationToken);
-
-            await Task.WhenAll(schedules);
-        }
-
         public async Task ScheduleAsync(string name, IQuidjiboCommand command, Cron cron, CancellationToken cancellationToken = default(CancellationToken))
         {
             var queueName = command.GetQueueName();
@@ -104,25 +85,25 @@ namespace Quidjibo.Clients
 
         public async Task ScheduleAsync(string name, string queue, IQuidjiboCommand command, Cron cron, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (string.IsNullOrWhiteSpace(name))
+            if(string.IsNullOrWhiteSpace(name))
             {
                 _logger.LogWarning("The name argument is required");
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(queue))
+            if(string.IsNullOrWhiteSpace(queue))
             {
                 _logger.LogWarning("The queue argument is required");
                 return;
             }
 
-            if (command == null)
+            if(command == null)
             {
                 _logger.LogWarning("The command argument is required");
                 return;
             }
 
-            if (cron == null)
+            if(cron == null)
             {
                 _logger.LogWarning("The cron argument is required");
                 return;
@@ -144,9 +125,9 @@ namespace Quidjibo.Clients
             };
             var provider = await GetOrCreateScheduleProvider(queue, cancellationToken);
             var existingItem = await provider.LoadByNameAsync(name, cancellationToken);
-            if (existingItem != null)
+            if(existingItem != null)
             {
-                if (!item.EquivalentTo(existingItem))
+                if(!item.EquivalentTo(existingItem))
                 {
                     _logger.LogDebug("Replace existing schedule for {0}", name);
                     await provider.DeleteAsync(existingItem.Id, cancellationToken);
@@ -162,20 +143,20 @@ namespace Quidjibo.Clients
 
         public async Task DeleteScheduleAsync(string name, string queue, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (string.IsNullOrWhiteSpace(name))
+            if(string.IsNullOrWhiteSpace(name))
             {
                 _logger.LogWarning("The name argument is required");
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(queue))
+            if(string.IsNullOrWhiteSpace(queue))
             {
                 _logger.LogWarning("The queue argument is required");
                 return;
             }
             var provider = await GetOrCreateScheduleProvider(queue, cancellationToken);
             var existingItem = await provider.LoadByNameAsync(name, cancellationToken);
-            if (existingItem != null)
+            if(existingItem != null)
             {
                 _logger.LogDebug("Delete existing schedule for {0}", name);
                 await provider.DeleteAsync(existingItem.Id, cancellationToken);
@@ -187,9 +168,28 @@ namespace Quidjibo.Clients
             Instance = null;
         }
 
+        public async Task ScheduleAsync(Assembly[] assemblies, CancellationToken cancellationToken)
+        {
+            if(assemblies == null)
+            {
+                return;
+            }
+            var schedules = from a in assemblies
+                            from t in a.GetExportedTypes()
+                            where typeof(IQuidjiboCommand).IsAssignableFrom(t)
+                            from attr in t.GetTypeInfo().GetCustomAttributes<ScheduleAttribute>()
+                            let name = attr.Name
+                            let queue = !string.IsNullOrWhiteSpace(attr.Queue) ? attr.Queue : "default"
+                            let command = (IQuidjiboCommand)Activator.CreateInstance(t)
+                            let cron = attr.Cron
+                            select ScheduleAsync(name, queue, command, cron, cancellationToken);
+
+            await Task.WhenAll(schedules);
+        }
+
         public void Dispose()
         {
-            if (_disposed)
+            if(_disposed)
             {
                 return;
             }
