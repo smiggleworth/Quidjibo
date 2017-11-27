@@ -9,14 +9,6 @@ namespace Quidjibo.Pipeline.Contexts
     public interface IQuidjiboContext
     {
         /// <summary>
-        ///     Gets or sets the steps.
-        /// </summary>
-        /// <value>
-        ///     The steps.
-        /// </value>
-        Queue<PipelineStep> Steps { get; set; }
-
-        /// <summary>
         ///     Gets or sets the progress.
         /// </summary>
         /// <value>
