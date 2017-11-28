@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Quidjibo.Commands
 {
-    public sealed class WorkflowCommand : IQuidjiboCommand
+    public sealed class WorkflowCommand : QuidjiboCommand
     {
         public int Step { get; set; }
 
@@ -32,8 +32,6 @@ namespace Quidjibo.Commands
             AddEntries(commands);
             Step += 1;
         }
-
-        public Dictionary<string, string> Metadata { get; set; }
 
         /// <summary>
         ///     Then, adds another step with a single command to the workflow.
