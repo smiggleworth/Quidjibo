@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Quidjibo.Commands;
 
 namespace Quidjibo.Tests.Samples
@@ -14,5 +15,7 @@ namespace Quidjibo.Tests.Samples
             Id = id;
             Data = data;
         }
+
+        public Dictionary<string, string> Metadata { get; set; }
     }
 }

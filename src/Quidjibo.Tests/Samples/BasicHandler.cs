@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Quidjibo.Handlers;
 using Quidjibo.Misc;
-using Quidjibo.Models;
 
 namespace Quidjibo.Tests.Samples
 {

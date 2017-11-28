@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Quidjibo.Commands;
@@ -12,6 +13,7 @@ namespace Quidjibo.SimpleInjector.Tests.Samples
     {
         public class Command : IQuidjiboCommand
         {
+            public Dictionary<string, string> Metadata { get; set; }
         }
 
         public class Handler : IQuidjiboHandler<Command>

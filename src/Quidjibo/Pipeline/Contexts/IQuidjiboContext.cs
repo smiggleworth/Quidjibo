@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using Quidjibo.Commands;
 using Quidjibo.Misc;
 using Quidjibo.Models;
 using Quidjibo.Pipeline.Misc;
@@ -31,6 +31,11 @@ namespace Quidjibo.Pipeline.Contexts
         ///     The item.
         /// </value>
         WorkItem Item { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the command.
+        /// </summary>
+        IQuidjiboCommand Command { get; set; }
 
         /// <summary>
         ///     Gets the state.

@@ -12,7 +12,7 @@ namespace Quidjibo.Models
         }
 
         /// <summary>
-        /// Cron to run every x number of minutes
+        ///     Cron to run every x number of minutes
         /// </summary>
         /// <param name="minute"></param>
         /// <returns></returns>
@@ -22,7 +22,7 @@ namespace Quidjibo.Models
         }
 
         /// <summary>
-        /// Cron to run daily at a given hour and minute
+        ///     Cron to run daily at a given hour and minute
         /// </summary>
         /// <param name="hour">The hour of the day</param>
         /// <param name="minute">The minutes past the hour</param>
@@ -33,7 +33,7 @@ namespace Quidjibo.Models
         }
 
         /// <summary>
-        /// Cron to run monthly on given day of the week at a given hour and minute
+        ///     Cron to run monthly on given day of the week at a given hour and minute
         /// </summary>
         /// <param name="dayOfTheWeek"></param>
         /// <param name="hour"></param>

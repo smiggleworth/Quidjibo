@@ -8,7 +8,6 @@ using Newtonsoft.Json.Linq;
 using Quidjibo.Commands;
 using Quidjibo.Extensions;
 using Quidjibo.Models;
-using Quidjibo.Protectors;
 
 namespace Quidjibo.Serializers
 {
@@ -38,7 +37,7 @@ namespace Quidjibo.Serializers
         /// <param name="payload">The payload.</param>
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        public  Task<IQuidjiboCommand> DeserializeAsync(byte[] payload, CancellationToken cancellationToken)
+        public Task<IQuidjiboCommand> DeserializeAsync(byte[] payload, CancellationToken cancellationToken)
         {
             var json = Encoding.UTF8.GetString(payload);
             var jToken = JToken.Parse(json);
@@ -48,7 +47,7 @@ namespace Quidjibo.Serializers
 
         private static object GetContent(IQuidjiboCommand command)
         {
-            if (command is WorkflowCommand workflow)
+            if(command is WorkflowCommand workflow)
             {
                 return new WorkflowPayload
                 {
@@ -72,7 +71,7 @@ namespace Quidjibo.Serializers
             var typeName = jToken.SelectToken(nameof(WorkPayload.Type)).ToObject<string>();
             var commandType = Type.GetType(typeName, true);
             var worflowCommandType = typeof(WorkflowCommand);
-            if (commandType == worflowCommandType)
+            if(commandType == worflowCommandType)
             {
                 var obj = jToken.SelectToken(nameof(WorkPayload.Content));
 

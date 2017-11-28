@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Quidjibo.Pipeline.Contexts;
@@ -14,8 +13,8 @@ namespace Quidjibo.Pipeline
     public class QuidjiboPipeline : IQuidjiboPipeline
     {
         private readonly IDependencyResolver _resolver;
-        private readonly IList<PipelineStep> _steps;
         private readonly IDictionary<IQuidjiboContext, Queue<PipelineStep>> _running;
+        private readonly IList<PipelineStep> _steps;
 
         public QuidjiboPipeline(IList<PipelineStep> steps, IDependencyResolver resolver)
         {
@@ -45,7 +44,7 @@ namespace Quidjibo.Pipeline
                 return Task.CompletedTask;
             }
             _running.TryGetValue(context, out var steps);
-            if (steps == null || steps.Count == 0)
+            if(steps == null || steps.Count == 0)
             {
                 return Task.CompletedTask;
             }

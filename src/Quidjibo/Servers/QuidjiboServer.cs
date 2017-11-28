@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Quidjibo.Commands;
 using Quidjibo.Configurations;
 using Quidjibo.Factories;
 using Quidjibo.Misc;
@@ -18,15 +17,13 @@ namespace Quidjibo.Servers
 {
     public class QuidjiboServer : IQuidjiboServer
     {
-        private readonly IQuidjiboPipeline _quidjiboPipeline;
         private readonly ICronProvider _cronProvider;
         private readonly ILogger _logger;
         private readonly IProgressProviderFactory _progressProviderFactory;
         private readonly IQuidjiboConfiguration _quidjiboConfiguration;
+        private readonly IQuidjiboPipeline _quidjiboPipeline;
         private readonly IScheduleProviderFactory _scheduleProviderFactory;
         private readonly IWorkProviderFactory _workProviderFactory;
-
-        public string Worker { get; }
 
         public bool IsRunning { get; private set; }
 
@@ -49,11 +46,13 @@ namespace Quidjibo.Servers
             Worker = $"{Environment.GetEnvironmentVariable("COMPUTERNAME")}-{Guid.NewGuid()}";
         }
 
+        public string Worker { get; }
+
         public void Start()
         {
-            lock (_syncRoot)
+            lock(_syncRoot)
             {
-                if (IsRunning)
+                if(IsRunning)
                 {
                     return;
                 }
@@ -62,9 +61,9 @@ namespace Quidjibo.Servers
                 _loopTasks = new List<Task>();
 
                 _throttle = new SemaphoreSlim(0, _quidjiboConfiguration.Throttle);
-                if (_quidjiboConfiguration.EnableWorker)
+                if(_quidjiboConfiguration.EnableWorker)
                 {
-                    if (_quidjiboConfiguration.SingleLoop)
+                    if(_quidjiboConfiguration.SingleLoop)
                     {
                         _logger.LogInformation("All queues can share the same loop");
                         var queues = string.Join(",", _quidjiboConfiguration.Queues);
@@ -77,7 +76,7 @@ namespace Quidjibo.Servers
                     }
                 }
 
-                if (_quidjiboConfiguration.EnableScheduler)
+                if(_quidjiboConfiguration.EnableScheduler)
                 {
                     _logger.LogInformation("Enabling scheduler");
                     _loopTasks.Add(ScheduleLoopAsync(_quidjiboConfiguration.Queues));
@@ -90,9 +89,9 @@ namespace Quidjibo.Servers
 
         public void Stop()
         {
-            lock (_syncRoot)
+            lock(_syncRoot)
             {
-                if (!IsRunning)
+                if(!IsRunning)
                 {
                     return;
                 }
@@ -121,7 +120,7 @@ namespace Quidjibo.Servers
         {
             var pollingInterval = TimeSpan.FromSeconds(_workProviderFactory.PollingInterval);
             var workProvider = await _workProviderFactory.CreateAsync(queue, _cts.Token);
-            while (!_cts.IsCancellationRequested)
+            while(!_cts.IsCancellationRequested)
             {
                 try
                 {
@@ -130,7 +129,7 @@ namespace Quidjibo.Servers
                     // throttle is important when there is more than one listener
                     await _throttle.WaitAsync(_cts.Token);
                     var items = await workProvider.ReceiveAsync(Worker, _cts.Token);
-                    if (items.Any())
+                    if(items.Any())
                     {
                         var tasks = items.Select(item => InvokePipelineAsync(workProvider, item));
                         await Task.WhenAll(tasks);
@@ -140,7 +139,7 @@ namespace Quidjibo.Servers
                     _throttle.Release();
                     await Task.Delay(pollingInterval, _cts.Token);
                 }
-                catch (Exception exception)
+                catch(Exception exception)
                 {
                     _logger.LogWarning(0, exception, exception.Message);
                 }
@@ -151,12 +150,12 @@ namespace Quidjibo.Servers
         {
             var pollingInterval = TimeSpan.FromSeconds(_scheduleProviderFactory.PollingInterval);
             var scheduleProvider = await _scheduleProviderFactory.CreateAsync(queues, _cts.Token);
-            while (!_cts.IsCancellationRequested)
+            while(!_cts.IsCancellationRequested)
             {
                 try
                 {
                     var items = await scheduleProvider.ReceiveAsync(_cts.Token);
-                    foreach (var item in items)
+                    foreach(var item in items)
                     {
                         var work = new WorkItem
                         {
@@ -177,7 +176,7 @@ namespace Quidjibo.Servers
                         await scheduleProvider.CompleteAsync(item, _cts.Token);
                     }
                 }
-                catch (Exception exception)
+                catch(Exception exception)
                 {
                     _logger.LogWarning(0, exception, exception.Message);
                 }
@@ -190,7 +189,7 @@ namespace Quidjibo.Servers
 
         private async Task InvokePipelineAsync(IWorkProvider provider, WorkItem item)
         {
-            using (var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token))
+            using(var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(_cts.Token))
             {
                 var progress = new QuidjiboProgress();
                 progress.ProgressChanged += async (sender, tracker) =>
@@ -222,7 +221,7 @@ namespace Quidjibo.Servers
                 {
                     await _quidjiboPipeline.StartAsync(context, linkedTokenSource.Token);
 
-                    if (context.State.Success)
+                    if(context.State.Success)
                     {
                         await provider.CompleteAsync(item, linkedTokenSource.Token);
                         _logger.LogDebug("Completed : {0}", item.Id);
@@ -233,7 +232,7 @@ namespace Quidjibo.Servers
                         _logger.LogError(null, "Faulted : {0}", item.Id);
                     }
                 }
-                catch (Exception exception)
+                catch(Exception exception)
                 {
                     await provider.FaultAsync(item, linkedTokenSource.Token);
                     _logger.LogError(null, exception, "Faulted : {0}", item.Id);
@@ -250,7 +249,7 @@ namespace Quidjibo.Servers
 
         private async Task RenewAsync(IWorkProvider provider, WorkItem item, CancellationToken cancellationToken)
         {
-            while (!cancellationToken.IsCancellationRequested)
+            while(!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
@@ -258,7 +257,7 @@ namespace Quidjibo.Servers
                     await provider.RenewAsync(item, cancellationToken);
                     _logger.LogDebug("Renewed : {0}", item.Id);
                 }
-                catch (OperationCanceledException)
+                catch(OperationCanceledException)
                 {
                     // ignore OperationCanceledExceptions
                 }
