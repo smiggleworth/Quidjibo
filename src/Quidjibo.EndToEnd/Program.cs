@@ -37,34 +37,44 @@ namespace Quidjibo.EndToEnd
             var logger = loggerFactory.CreateLogger<Program>();
             logger.LogDebug("Hello Quidjibo!");
 
+            //            var quidjiboBuilder = new QuidjiboBuilder()
+            //                .ConfigureLogging(loggerFactory)
+            //                .ConfigureAssemblies(typeof(Program).GetTypeInfo().Assembly)
+            //                .UseAes(fakeAesKey)
+            //                .UseSqlServer(new SqlServerQuidjiboConfiguration
+            //                {
+            //                    // load your connection string
+            //                    ConnectionString = "Server=localhost;Database=SampleDb;Trusted_Connection=True;",
+            //
+            //                    // the queues the worker should be polling
+            //                    Queues = new []
+            //                    {
+            //                        "default",
+            //                        "other"
+            //                    },
+            //
+            //                    // the delay between batches
+            //                    PollingInterval = 10,
+            //
+            //                    // maximum concurrent requests
+            //                    Throttle = 2,
+            //                    SingleLoop = true
+            //                }).ConfigurePipeline(pipeline =>pipeline.UseDefault());
+
+
+
             var quidjiboBuilder = new QuidjiboBuilder()
                 .ConfigureLogging(loggerFactory)
                 .ConfigureAssemblies(typeof(Program).GetTypeInfo().Assembly)
                 .UseAes(fakeAesKey)
-                .UseSqlServer(new SqlServerQuidjiboConfiguration
-                {
-                    // load your connection string
-                    ConnectionString = "Server=localhost;Database=SampleDb;Trusted_Connection=True;",
+                .UseSqlServer("Server=localhost;Database=SampleDb;Trusted_Connection=True;")
+                .ConfigurePipeline(pipeline => pipeline.UseDefault());
 
-                    // the queues the worker should be polling
-                    Queues = new []
-                    {
-                        "default",
-                        "other"
-                    },
-
-                    // the delay between batches
-                    PollingInterval = 10,
-
-                    // maximum concurrent requests
-                    Throttle = 2,
-                    SingleLoop = true
-                }).ConfigurePipeline(pipeline =>pipeline.UseDefault());
 
             var client = quidjiboBuilder.BuildClient();
             using (var workServer = quidjiboBuilder.BuildServer())
             {
-                //workServer.Start();
+                workServer.Start();
 
                 var i = 1;
                 var random = new Random();
