@@ -76,7 +76,7 @@ namespace Quidjibo.SqlServer.Providers
             if (_receiveSql == null)
             {
                 _receiveSql = await SqlLoader.GetScript("Work.Receive");
-                if (_queues.Length > 1)
+                if (_queues.Length > 0)
                 {
                     _receiveSql = _receiveSql.Replace("@Queue1",
                         string.Join(",", _queues.Select((x, i) => $"@Queue{i}")));
@@ -95,13 +95,7 @@ namespace Quidjibo.SqlServer.Providers
                 cmd.AddParameter("@DeleteOn", receiveOn.AddMonths(-1));
 
                 // dynamic parameters
-                _queues.Select((q, i) => new
-                       {
-                           q,
-                           i
-                       })
-                       .ToList()
-                       .ForEach(x => cmd.Parameters.AddWithValue($"@Queue{x.i}", x.q));
+                _queues.Select((q, i) => cmd.Parameters.AddWithValue($"@Queue{i}", q)).ToList();
                 using (var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
                 {
                     while (await rdr.ReadAsync(cancellationToken))

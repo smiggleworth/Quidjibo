@@ -61,7 +61,8 @@ namespace Quidjibo.Servers
                 _loopTasks = new List<Task>();
 
                 _throttle = new SemaphoreSlim(0, _quidjiboConfiguration.Throttle);
-                if(_quidjiboConfiguration.EnableWorker)
+                _logger.LogInformation("EnableWorker = {0}", _quidjiboConfiguration.EnableWorker);
+                if (_quidjiboConfiguration.EnableWorker)
                 {
                     if(_quidjiboConfiguration.SingleLoop)
                     {
@@ -76,7 +77,8 @@ namespace Quidjibo.Servers
                     }
                 }
 
-                if(_quidjiboConfiguration.EnableScheduler)
+                _logger.LogInformation("EnableScheduler = {0}", _quidjiboConfiguration.EnableScheduler);
+                if (_quidjiboConfiguration.EnableScheduler)
                 {
                     _logger.LogInformation("Enabling scheduler");
                     _loopTasks.Add(ScheduleLoopAsync(_quidjiboConfiguration.Queues));

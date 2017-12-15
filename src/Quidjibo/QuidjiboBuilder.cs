@@ -208,6 +208,7 @@ namespace Quidjibo
             _services.Add(typeof(IPayloadSerializer), _serializer);
             _services.Add(typeof(IWorkDispatcher), _dispatcher);
             _services.Add(typeof(QuidjiboHandlerMiddleware), new QuidjiboHandlerMiddleware(LoggerFactory, _dispatcher, _serializer, _protector));
+            _services.Add(typeof(QuidjiboUnwrapMiddleware), new QuidjiboUnwrapMiddleware(LoggerFactory, _serializer, _protector));
 
             Validate();
         }
