@@ -142,7 +142,6 @@ namespace Quidjibo.Tests.Servers
             // Arrange 
             var testQueue = new ConcurrentQueue<WorkItem>();
             var completedWork = new ConcurrentBag<WorkItem>();
-            var scheduledItems = new List<ScheduleItem>();
 
             var defaultItems = GenFu.GenFu.ListOf<WorkItem>();
             defaultItems.ForEach(x =>
@@ -180,7 +179,6 @@ namespace Quidjibo.Tests.Servers
                              completedWork.Add(x.Arg<WorkItem>());
                              return Task.CompletedTask;
                          });
-            _scheduleProvider.ReceiveAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(scheduledItems));
 
             // Act
             _sut.Start();

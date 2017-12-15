@@ -14,6 +14,6 @@ namespace Quidjibo.Providers
         Task<ScheduleItem> LoadByNameAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
         Task UpdateAsync(ScheduleItem item, CancellationToken cancellationToken = default(CancellationToken));
         Task DeleteAsync(Guid id, CancellationToken cancellationToken = default(CancellationToken));
-        Task<bool> ExistsAsync(string name,  CancellationToken cancellationToken = default(CancellationToken));
+        Task<bool> ExistsAsync(string name, CancellationToken cancellationToken = default(CancellationToken));
     }
 }

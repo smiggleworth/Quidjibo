@@ -29,10 +29,11 @@ namespace Quidjibo.SqlServer.Providers
         public async Task<List<ScheduleItem>> ReceiveAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
             var receiveOn = DateTime.UtcNow;
+
             if (_receiveSql == null)
             {
                 _receiveSql = await SqlLoader.GetScript("Schedule.Receive");
-                if (_queues.Length > 1)
+                if (_queues.Length > 0)
                 {
                     _receiveSql = _receiveSql.Replace("@Queue1",
                         string.Join(",", _queues.Select((x, i) => $"@Queue{i}")));
@@ -47,13 +48,7 @@ namespace Quidjibo.SqlServer.Providers
                 cmd.AddParameter("@VisibleOn", receiveOn.AddSeconds(60));
 
                 // dynamic parameters
-                _queues.Select((q, i) => new
-                {
-                    q,
-                    i
-                })
-                       .ToList()
-                       .ForEach(x => cmd.Parameters.AddWithValue($"@Queue{x.i}", x.q));
+                _queues.Select((q, i) => cmd.Parameters.AddWithValue($"@Queue{i}", q)).ToList();
                 using (var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
                 {
                     while (await rdr.ReadAsync(cancellationToken))

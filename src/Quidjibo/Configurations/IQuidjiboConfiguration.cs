@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Quidjibo.Configurations
 {
     public interface IQuidjiboConfiguration

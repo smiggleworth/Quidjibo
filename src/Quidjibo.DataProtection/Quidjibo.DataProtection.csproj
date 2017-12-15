@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.3</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Copyright>Copyright © 2017</Copyright>
     <Description>Quidjibo delivers flexible async background jobs for .NET applications</Description>
@@ -9,9 +9,10 @@
     <PackageProjectUrl>https://quidjibo.com/</PackageProjectUrl>
     <PackageIconUrl>https://quidjibo.com/images/quidjibo-q.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/smiggleworth/Quidjibo</RepositoryUrl>
-    <PackageTags>async, tasks, workers, cron</PackageTags>
+    <PackageTags>async tasks workers cron</PackageTags>
     <Authors>Smiggleworth</Authors>
     <Company>Smiggleworth</Company>
+    <Version>0.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

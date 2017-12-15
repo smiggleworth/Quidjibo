@@ -1,11 +1,9 @@
-using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Quidjibo.Commands;
 using Quidjibo.Handlers;
 using Quidjibo.Misc;
-using Quidjibo.Models;
 using Quidjibo.Resolvers;
 
 namespace Quidjibo.Dispatchers
@@ -26,9 +24,9 @@ namespace Quidjibo.Dispatchers
             var method = type.GetMethod("ProcessAsync");
             await (Task)method.Invoke(resolved, new object[]
             {
-                    command,
-                    progress,
-                    cancellationToken
+                command,
+                progress,
+                cancellationToken
             });
         }
     }

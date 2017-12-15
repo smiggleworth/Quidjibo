@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Quidjibo.Commands
 {
-    public sealed class WorkflowCommand : IQuidjiboCommand
+    public sealed class WorkflowCommand : QuidjiboCommand
     {
         public int Step { get; set; }
 
@@ -13,7 +13,7 @@ namespace Quidjibo.Commands
         public Dictionary<int, List<IQuidjiboCommand>> Entries { get; set; }
 
         /// <summary>
-        /// Construct a new Workflow that does not contain any steps.
+        ///     Construct a new Workflow that does not contain any steps.
         /// </summary>
         public WorkflowCommand()
         {
@@ -23,7 +23,7 @@ namespace Quidjibo.Commands
         }
 
         /// <summary>
-        /// Construct a new Workflow with commands that will be run when the first step executes.
+        ///     Construct a new Workflow with commands that will be run when the first step executes.
         /// </summary>
         /// <param name="commands"></param>
         public WorkflowCommand(params IQuidjiboCommand[] commands) : this()
@@ -34,7 +34,7 @@ namespace Quidjibo.Commands
         }
 
         /// <summary>
-        /// Then, adds another step with a single command to the workflow.
+        ///     Then, adds another step with a single command to the workflow.
         /// </summary>
         /// <typeparam name="T">The type of IQuidjiboCommand</typeparam>
         /// <param name="commands">The </param>
@@ -53,7 +53,7 @@ namespace Quidjibo.Commands
         }
 
         /// <summary>
-        /// Then, adds another step with muliple commands to the workflow.
+        ///     Then, adds another step with muliple commands to the workflow.
         /// </summary>
         /// <typeparam name="T">The type of IQuidjiboCommand</typeparam>
         /// <param name="commands">The commands that should be run in parallel when this step executes.</param>
@@ -69,7 +69,7 @@ namespace Quidjibo.Commands
         }
 
         /// <summary>
-        /// Increment the Current Step by One
+        ///     Increment the Current Step by One
         /// </summary>
         public void NextStep()
         {
@@ -85,7 +85,7 @@ namespace Quidjibo.Commands
         private void Validate<T>(IEnumerable<T> commands)
             where T : IQuidjiboCommand
         {
-            if (commands.Any(command => command is WorkflowCommand))
+            if(commands.Any(command => command is WorkflowCommand))
             {
                 throw new InvalidOperationException("Workflow commands cannot be nested.");
             }

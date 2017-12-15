@@ -2,5 +2,7 @@
 
 namespace Quidjibo.Tests.Samples
 {
-    public class CustomClientKey1 : IQuidjiboClientKey { }
+    public class CustomClientKey1 : IQuidjiboClientKey
+    {
+    }
 }

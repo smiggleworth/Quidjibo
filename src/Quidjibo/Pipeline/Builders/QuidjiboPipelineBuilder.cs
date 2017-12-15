@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Quidjibo.Extensions;
 using Quidjibo.Pipeline.Contexts;
 using Quidjibo.Pipeline.Middleware;
 using Quidjibo.Pipeline.Misc;
@@ -9,9 +8,8 @@ using Quidjibo.Resolvers;
 
 namespace Quidjibo.Pipeline.Builders
 {
-    public class QuidjiboPipelineBuilder: IQuidjiboPipelineBuilder
+    public class QuidjiboPipelineBuilder : IQuidjiboPipelineBuilder
     {
-       
         private readonly IList<PipelineStep> _steps = new List<PipelineStep>();
 
         public IQuidjiboPipeline Build(IDependencyResolver resolver)
@@ -21,10 +19,10 @@ namespace Quidjibo.Pipeline.Builders
 
         public IQuidjiboPipelineBuilder Use(Func<IQuidjiboContext, Func<Task>, Task> middleware)
         {
-            return Use(new PipelineMiddleware(middleware));
+            return Use(new QuidjiboMiddleware(middleware));
         }
 
-        public IQuidjiboPipelineBuilder Use<T>(T middleware = null) where T : class, IPipelineMiddleware
+        public IQuidjiboPipelineBuilder Use<T>(T middleware = null) where T : class, IQuidjiboMiddleware
         {
             _steps.Add(new PipelineStep
             {
@@ -32,11 +30,6 @@ namespace Quidjibo.Pipeline.Builders
                 Instance = middleware
             });
             return this;
-        }
-
-        private IQuidjiboPipelineBuilder UseDefaults()
-        {
-            return this.UseHandlers();
         }
     }
 }

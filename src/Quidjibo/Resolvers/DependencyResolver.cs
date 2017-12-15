@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,9 +7,8 @@ namespace Quidjibo.Resolvers
 {
     public class DependencyResolver : IDependencyResolver, IDisposable
     {
-        private readonly IDictionary<Type, object> _services;
-
         private readonly Assembly[] _assemblies;
+        private readonly IDictionary<Type, object> _services;
 
         public DependencyResolver(IDictionary<Type, object> services, params Assembly[] assemblies)
         {
@@ -20,7 +18,7 @@ namespace Quidjibo.Resolvers
 
         public object Resolve(Type type)
         {
-            if (_services != null && _services.TryGetValue(type, out var service))
+            if(_services != null && _services.TryGetValue(type, out var service))
             {
                 return service;
             }
@@ -33,7 +31,7 @@ namespace Quidjibo.Resolvers
                            where info.IsAssignableFrom(t.GetTypeInfo())
                            select t).SingleOrDefault();
 
-            if (handler == null)
+            if(handler == null)
             {
                 throw new NullReferenceException("Could not find a handler that matches your command.");
             }
@@ -45,6 +43,8 @@ namespace Quidjibo.Resolvers
             return this;
         }
 
-        public void Dispose() { }
+        public void Dispose()
+        {
+        }
     }
 }

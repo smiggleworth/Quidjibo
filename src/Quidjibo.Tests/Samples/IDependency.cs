@@ -1,4 +1,6 @@
 namespace Quidjibo.Tests.Samples
 {
-    public interface IDependency { }
+    public interface IDependency
+    {
+    }
 }

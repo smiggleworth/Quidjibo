@@ -29,13 +29,19 @@ namespace Quidjibo.Attributes
 
 
         public ScheduleAttribute(string name, string expression)
-            : this(name, expression, "default") { }
+            : this(name, expression, "default")
+        {
+        }
 
         public ScheduleAttribute(string name, string expression, string queue)
-            : this(name, expression, queue, typeof(DefaultClientKey)) { }
+            : this(name, expression, queue, typeof(DefaultClientKey))
+        {
+        }
 
         public ScheduleAttribute(string name, string expression, string queue, Type clientKey)
-            : this(name, new Cron(expression), queue, clientKey) { }
+            : this(name, new Cron(expression), queue, clientKey)
+        {
+        }
 
         protected ScheduleAttribute(string name, Cron cron, string queue, Type clientKey)
         {
