@@ -12,7 +12,7 @@ namespace Quidjibo.Extensions
         /// <returns></returns>
         public static IQuidjiboPipelineBuilder UseHandlers(this IQuidjiboPipelineBuilder builder)
         {
-            return builder.Use<QuidjiboHandlerMiddleware>();
+            return builder.Use(new QuidjiboHandlerMiddleware());
         }
 
         /// <summary>
@@ -22,7 +22,7 @@ namespace Quidjibo.Extensions
         /// <returns></returns>
         public static IQuidjiboPipelineBuilder UseUnwrap(this IQuidjiboPipelineBuilder builder)
         {
-            return builder.Use<QuidjiboUnwrapMiddleware>();
+            return builder.Use(new QuidjiboUnwrapMiddleware());
         }
 
         /// <summary>

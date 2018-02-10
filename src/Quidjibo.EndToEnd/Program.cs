@@ -4,10 +4,14 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
 using Microsoft.Extensions.Logging;
+using Quidjibo.Autofac.Extensions;
+using Quidjibo.Autofac.Modules;
 using Quidjibo.DataProtection.Extensions;
 using Quidjibo.Extensions;
 using Quidjibo.Misc;
+using Quidjibo.Pipeline.Middleware;
 using Quidjibo.SqlServer.Configurations;
 using Quidjibo.SqlServer.Extensions;
 
@@ -63,9 +67,27 @@ namespace Quidjibo.EndToEnd
 
 
 
+            var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterModule(new QuidjiboModule(typeof(Program).Assembly));
+
+
+
+//            _services.Add(typeof(ILoggerFactory), LoggerFactory);
+//            _services.Add(typeof(IPayloadProtector), _protector);
+//            _services.Add(typeof(IPayloadSerializer), _serializer);
+//            _services.Add(typeof(IWorkDispatcher), _dispatcher);
+//            _services.Add(typeof(QuidjiboHandlerMiddleware), new QuidjiboHandlerMiddleware(LoggerFactory, _dispatcher, _serializer, _protector));
+//            _services.Add(typeof(QuidjiboUnwrapMiddleware), new QuidjiboUnwrapMiddleware(LoggerFactory, _serializer, _protector));
+
+
+            var container = containerBuilder.Build();
+
+       
+
             var quidjiboBuilder = new QuidjiboBuilder()
                 .ConfigureLogging(loggerFactory)
-                .ConfigureAssemblies(typeof(Program).GetTypeInfo().Assembly)
+                                  //.ConfigureAssemblies(typeof(Program).GetTypeInfo().Assembly)
+                                  .UseAutofac(container)
                 .UseAes(fakeAesKey)
                 .UseSqlServer("Server=localhost;Database=SampleDb;Trusted_Connection=True;")
                 .ConfigurePipeline(pipeline => pipeline.UseDefault());

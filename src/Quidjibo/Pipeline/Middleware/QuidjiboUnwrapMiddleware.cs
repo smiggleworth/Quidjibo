@@ -9,29 +9,16 @@ using Quidjibo.Serializers;
 namespace Quidjibo.Pipeline.Middleware
 {
     /// <summary>
-    ///     The handler middleware dispatches the work to the correct handler.
+    ///     The unwrap middleware sets the command on the context
     /// </summary>
     public class QuidjiboUnwrapMiddleware : IQuidjiboMiddleware
     {
-        private readonly ILogger _logger;
-        private readonly IPayloadProtector _protector;
-        private readonly IPayloadSerializer _serializer;
-
-        public QuidjiboUnwrapMiddleware(
-            ILoggerFactory loggerFactory,
-            IPayloadSerializer serializer,
-            IPayloadProtector protector)
-        {
-            _serializer = serializer;
-            _protector = protector;
-            _logger = loggerFactory.CreateLogger<QuidjiboHandlerMiddleware>();
-        }
-
         public async Task InvokeAsync(IQuidjiboContext context, Func<Task> next, CancellationToken cancellationToken)
         {
-            var payload = await _protector.UnprotectAsync(context.Item.Payload, cancellationToken);
-            context.Command = await _serializer.DeserializeAsync(payload, cancellationToken);
-            _logger.LogDebug("Set the command on the context.");
+            var logger = context.LoggerFactory.CreateLogger<QuidjiboUnwrapMiddleware>();
+            var payload = await context.Protector.UnprotectAsync(context.Item.Payload, cancellationToken);
+            context.Command = await context.Serializer.DeserializeAsync(payload, cancellationToken);
+            logger.LogDebug("Set the command on the context.");
             await next();
         }
     }

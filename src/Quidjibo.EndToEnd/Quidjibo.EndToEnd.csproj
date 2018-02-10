@@ -8,6 +8,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Quidjibo.Autofac\Quidjibo.Autofac.csproj" />
     <ProjectReference Include="..\Quidjibo.DataProtection\Quidjibo.DataProtection.csproj" />
     <ProjectReference Include="..\Quidjibo.SqlServer\Quidjibo.SqlServer.csproj" />
     <ProjectReference Include="..\Quidjibo\Quidjibo.csproj" />

@@ -4,6 +4,7 @@ using Autofac;
 using Quidjibo.Clients;
 using Quidjibo.Handlers;
 using Quidjibo.Misc;
+using Quidjibo.Pipeline.Middleware;
 using Module = Autofac.Module;
 
 namespace Quidjibo.Autofac.Modules
