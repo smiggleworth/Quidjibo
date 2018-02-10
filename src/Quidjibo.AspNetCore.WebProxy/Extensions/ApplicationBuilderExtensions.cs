@@ -44,7 +44,7 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
                     }));
                 });
 
-                
+
                 quidjibo.Map("/schedule-items", schedule =>
                 {
                     schedule.Map("/receive", receive => receive.Run(async context =>
@@ -107,7 +107,6 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
                             await WriteAsync(context);
                         });
                     }));
-
                 });
 
 
@@ -178,7 +177,7 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
         {
             // get the Authorization header
             var credential = GetClientSecret(context);
-            if (credential == null)
+            if(credential == null)
             {
                 // unauthorized
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -190,12 +189,13 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
             var provider = context.RequestServices.GetRequiredService<IQuidjiboAuthProvider>();
 
             var authenticated = await provider.AuthenticateAsync(credential.ClientId, credential.ClientSecret, wrapper.Queues);
-            if (!authenticated)
+            if(!authenticated)
             {
                 // unauthorized
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 return;
             }
+
             await func(wrapper);
         }
 
@@ -203,7 +203,7 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
         {
             context.Response.StatusCode = (int)statusCode;
             context.Response.ContentType = "application/json";
-            if (data != null)
+            if(data != null)
             {
                 await context.Response.WriteAsync(JsonConvert.SerializeObject(data));
             }
@@ -211,7 +211,7 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
 
         private static async Task<string> ReadBodyAsync(HttpRequest request)
         {
-            using (var reader = new StreamReader(request.Body, Encoding.UTF8))
+            using(var reader = new StreamReader(request.Body, Encoding.UTF8))
             {
                 return await reader.ReadToEndAsync();
             }
@@ -219,13 +219,13 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
 
         private static QuidjiboCredential GetClientSecret(HttpContext context)
         {
-            if (context.Request.Headers.TryGetValue("Authorization", out var authorization))
+            if(context.Request.Headers.TryGetValue("Authorization", out var authorization))
             {
                 var parts = authorization[0].Split(' ');
-                if (parts.Length == 2 && parts[0] == "Quidjibo")
+                if(parts.Length == 2 && parts[0] == "Quidjibo")
                 {
                     var creds = Encoding.UTF8.GetString(Convert.FromBase64String(parts[1]))?.Split(':');
-                    if (creds != null && creds.Length == 2)
+                    if(creds != null && creds.Length == 2)
                     {
                         return new QuidjiboCredential
                         {
@@ -235,6 +235,7 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
                     }
                 }
             }
+
             return null;
         }
     }

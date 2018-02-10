@@ -18,14 +18,14 @@ namespace Quidjibo.Pipeline.Middleware
         {
             var logger = context.LoggerFactory.CreateLogger<QuidjiboHandlerMiddleware>();
 
-            if (context.Command is WorkflowCommand workflow)
+            if(context.Command is WorkflowCommand workflow)
             {
                 var tasks = workflow.Entries.Where(e => e.Key == workflow.CurrentStep)
                                     .SelectMany(e => e.Value, (e, c) => context.Dispatcher.DispatchAsync(c, context.Progress, cancellationToken))
                                     .ToList();
                 await Task.WhenAll(tasks);
                 workflow.NextStep();
-                if (workflow.CurrentStep < workflow.Step)
+                if(workflow.CurrentStep < workflow.Step)
                 {
                     var nextPayload = await context.Serializer.SerializeAsync(workflow, cancellationToken);
                     var protectedPayload = await context.Protector.ProtectAsync(nextPayload, cancellationToken);

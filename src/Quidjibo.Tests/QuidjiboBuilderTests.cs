@@ -51,10 +51,10 @@ namespace Quidjibo.Tests
         public void When_Builder_IsNotConfigured_ShouldUseDefaults()
         {
             var quidjibo = new QuidjiboBuilder()
-                .Configure(Substitute.For<IQuidjiboConfiguration>())
-                .ConfigureWorkProviderFactory(Substitute.For<IWorkProviderFactory>())
-                .ConfigureScheduleProviderFactory(Substitute.For<IScheduleProviderFactory>())
-                .ConfigureProgressProviderFactory(Substitute.For<IProgressProviderFactory>());
+                           .Configure(Substitute.For<IQuidjiboConfiguration>())
+                           .ConfigureWorkProviderFactory(Substitute.For<IWorkProviderFactory>())
+                           .ConfigureScheduleProviderFactory(Substitute.For<IScheduleProviderFactory>())
+                           .ConfigureProgressProviderFactory(Substitute.For<IProgressProviderFactory>());
 
 
             var server = quidjibo.BuildServer();

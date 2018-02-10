@@ -10,8 +10,8 @@ namespace Quidjibo.SqlServer.Utils
         {
             var assembly = typeof(SqlLoader).GetTypeInfo().Assembly;
             var fullName = $"Quidjibo.SqlServer.Scripts.{scriptName}.sql";
-            using (var stream = assembly.GetManifestResourceStream(fullName) ?? new MemoryStream())
-            using (var reader = new StreamReader(stream))
+            using(var stream = assembly.GetManifestResourceStream(fullName) ?? new MemoryStream())
+            using(var reader = new StreamReader(stream))
             {
                 return await reader.ReadToEndAsync();
             }

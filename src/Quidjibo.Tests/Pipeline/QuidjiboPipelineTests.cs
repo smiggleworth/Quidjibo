@@ -38,7 +38,7 @@ namespace Quidjibo.Tests.Pipeline
                     })
                 }
             };
-            var pipeline = new QuidjiboPipeline(steps, Substitute.For<ILoggerFactory>(), resolver,Substitute.For<IPayloadProtector>(),Substitute.For<IPayloadSerializer>(),Substitute.For<IWorkDispatcher>());
+            var pipeline = new QuidjiboPipeline(steps, Substitute.For<ILoggerFactory>(), resolver, Substitute.For<IPayloadProtector>(), Substitute.For<IPayloadSerializer>(), Substitute.For<IWorkDispatcher>());
             var context = Substitute.For<IQuidjiboContext>();
 
             // Act

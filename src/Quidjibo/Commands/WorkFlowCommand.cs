@@ -85,7 +85,7 @@ namespace Quidjibo.Commands
         private void Validate<T>(IEnumerable<T> commands)
             where T : IQuidjiboCommand
         {
-            if (commands.Any(command => command is WorkflowCommand))
+            if(commands.Any(command => command is WorkflowCommand))
             {
                 throw new InvalidOperationException("Workflow commands cannot be nested.");
             }

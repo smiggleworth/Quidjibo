@@ -48,7 +48,7 @@ namespace Quidjibo.Aws.Sqs.Providers
 
             var response = await _client.SendMessageAsync(request, cancellationToken);
 
-            if (response.HttpStatusCode == HttpStatusCode.OK)
+            if(response.HttpStatusCode == HttpStatusCode.OK)
             {
             }
         }

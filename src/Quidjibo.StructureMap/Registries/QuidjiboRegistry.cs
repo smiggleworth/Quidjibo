@@ -1,8 +1,5 @@
-﻿using System.Linq;
-using System.Reflection;
-using Quidjibo.Clients;
+﻿using Quidjibo.Clients;
 using Quidjibo.Handlers;
-using Quidjibo.Misc;
 using StructureMap;
 
 namespace Quidjibo.StructureMap.Registries

@@ -9,7 +9,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Quidjibo.DataProtection.Protectors;
 using Quidjibo.DataProtection.Providers;
-using Quidjibo.Providers;
 
 namespace Quidjibo.DataProtection.Tests.Protectors
 {
@@ -23,7 +22,7 @@ namespace Quidjibo.DataProtection.Tests.Protectors
         public void TestInitialize()
         {
             _model = GenFu.GenFu.New<PayloadModel>();
-            using (var aes = Aes.Create())
+            using(var aes = Aes.Create())
             {
                 _sut = new AesPayloadProtector(new KeyProvider(aes.Key));
             }

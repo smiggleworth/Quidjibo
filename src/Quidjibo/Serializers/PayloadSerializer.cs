@@ -47,7 +47,7 @@ namespace Quidjibo.Serializers
 
         private static object GetContent(IQuidjiboCommand command)
         {
-            if (command is WorkflowCommand workflow)
+            if(command is WorkflowCommand workflow)
             {
                 return new WorkflowPayload
                 {
@@ -71,7 +71,7 @@ namespace Quidjibo.Serializers
             var typeName = jToken.SelectToken(nameof(WorkPayload.Type)).ToObject<string>();
             var commandType = Type.GetType(typeName, true);
             var worflowCommandType = typeof(WorkflowCommand);
-            if (commandType == worflowCommandType)
+            if(commandType == worflowCommandType)
             {
                 var obj = jToken.SelectToken(nameof(WorkPayload.Content));
 

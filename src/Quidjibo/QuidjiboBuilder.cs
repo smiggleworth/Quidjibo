@@ -188,7 +188,7 @@ namespace Quidjibo
 
         private void BackFillDefaults()
         {
-            if (_validated)
+            if(_validated)
             {
                 return;
             }
@@ -213,27 +213,27 @@ namespace Quidjibo
         {
             var errors = new List<string>(4);
 
-            if (_configuration == null)
+            if(_configuration == null)
             {
                 errors.Add("Configuration is null");
             }
 
-            if (WorkProviderFactory == null)
+            if(WorkProviderFactory == null)
             {
                 errors.Add("Requires Work WorkProvider Factory");
             }
 
-            if (ProgressProviderFactory == null)
+            if(ProgressProviderFactory == null)
             {
                 errors.Add("Requires Progress WorkProvider Factory");
             }
 
-            if (ScheduleProviderFactory == null)
+            if(ScheduleProviderFactory == null)
             {
                 errors.Add("Requires Schedule WorkProvider Factory");
             }
 
-            if (errors.Any())
+            if(errors.Any())
             {
                 throw new QuidjiboBuilderException(errors, "Failed to validate. See list of errors for more detail.");
             }

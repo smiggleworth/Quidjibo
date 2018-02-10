@@ -31,7 +31,7 @@ namespace Quidjibo.SimpleInjector.Tests.Extensions
         [TestMethod]
         public void When_Handler_IsRegistered_Should_Resolve()
         {
-            using (AsyncScopedLifestyle.BeginScope(_container))
+            using(AsyncScopedLifestyle.BeginScope(_container))
             {
                 var handler = _container.GetInstance<IQuidjiboHandler<BasicCommand>>();
                 handler.Should().NotBeNull("there should be a matching handler");
@@ -42,7 +42,7 @@ namespace Quidjibo.SimpleInjector.Tests.Extensions
         [TestMethod]
         public void When_Handler_IsRegistered_InNestedClass_Should_Resolve()
         {
-            using (AsyncScopedLifestyle.BeginScope(_container))
+            using(AsyncScopedLifestyle.BeginScope(_container))
             {
                 var handler = _container.GetInstance<IQuidjiboHandler<SimpleJob.Command>>();
                 handler.Should().NotBeNull("there should be a matching handler");
@@ -53,7 +53,7 @@ namespace Quidjibo.SimpleInjector.Tests.Extensions
         [TestMethod]
         public void When_Handler_IsNotRegistered_Should_Throw()
         {
-            using (AsyncScopedLifestyle.BeginScope(_container))
+            using(AsyncScopedLifestyle.BeginScope(_container))
             {
                 Action resolve = () => _container.GetInstance<IQuidjiboHandler<UnhandledCommand>>();
                 resolve.Should().Throw<ActivationException>("Handler was not registerd");
@@ -71,7 +71,7 @@ namespace Quidjibo.SimpleInjector.Tests.Extensions
                 Substitute.For<IPayloadProtector>(),
                 Substitute.For<ICronProvider>());
 
-            using (AsyncScopedLifestyle.BeginScope(_container))
+            using(AsyncScopedLifestyle.BeginScope(_container))
             {
                 var client = _container.GetInstance<IQuidjiboClient>();
                 client.Should().NotBeNull();

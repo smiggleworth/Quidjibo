@@ -39,9 +39,9 @@ namespace Quidjibo.Tests.Providers
 
             // Assert
             var utc = DateTime.UtcNow;
-            foreach (var result in results.Take(50))
+            foreach(var result in results.Take(50))
             {
-                utc= utc.AddHours(1);
+                utc = utc.AddHours(1);
                 result.Date.Should().Be(utc.Date);
                 result.Hour.Should().Be(utc.Hour);
                 result.Minute.Should().Be(0);
