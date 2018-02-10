@@ -3,13 +3,17 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
+using Quidjibo.Dispatchers;
 using Quidjibo.Pipeline;
 using Quidjibo.Pipeline.Contexts;
 using Quidjibo.Pipeline.Middleware;
 using Quidjibo.Pipeline.Misc;
+using Quidjibo.Protectors;
 using Quidjibo.Resolvers;
+using Quidjibo.Serializers;
 
 namespace Quidjibo.Tests.Pipeline
 {
@@ -34,7 +38,7 @@ namespace Quidjibo.Tests.Pipeline
                     })
                 }
             };
-            var pipeline = new QuidjiboPipeline(steps, resolver);
+            var pipeline = new QuidjiboPipeline(steps, Substitute.For<ILoggerFactory>(), resolver, Substitute.For<IPayloadProtector>(), Substitute.For<IPayloadSerializer>(), Substitute.For<IWorkDispatcher>());
             var context = Substitute.For<IQuidjiboContext>();
 
             // Act
@@ -70,7 +74,7 @@ namespace Quidjibo.Tests.Pipeline
                     })
                 }
             };
-            var pipeline = new QuidjiboPipeline(steps, resolver);
+            var pipeline = new QuidjiboPipeline(steps, Substitute.For<ILoggerFactory>(), resolver, Substitute.For<IPayloadProtector>(), Substitute.For<IPayloadSerializer>(), Substitute.For<IWorkDispatcher>());
             var context = Substitute.For<IQuidjiboContext>();
 
             // Act
@@ -106,7 +110,7 @@ namespace Quidjibo.Tests.Pipeline
                     })
                 }
             };
-            var pipeline = new QuidjiboPipeline(steps, resolver);
+            var pipeline = new QuidjiboPipeline(steps, Substitute.For<ILoggerFactory>(), resolver, Substitute.For<IPayloadProtector>(), Substitute.For<IPayloadSerializer>(), Substitute.For<IWorkDispatcher>());
             var context = Substitute.For<IQuidjiboContext>();
 
             // Act
@@ -137,7 +141,7 @@ namespace Quidjibo.Tests.Pipeline
                     Type = typeof(QuidjiboMiddleware)
                 }
             };
-            var pipeline = new QuidjiboPipeline(steps, resolver);
+            var pipeline = new QuidjiboPipeline(steps, Substitute.For<ILoggerFactory>(), resolver, Substitute.For<IPayloadProtector>(), Substitute.For<IPayloadSerializer>(), Substitute.For<IWorkDispatcher>());
             var context = Substitute.For<IQuidjiboContext>();
 
             // Act
@@ -176,7 +180,7 @@ namespace Quidjibo.Tests.Pipeline
                     })
                 }
             };
-            var pipeline = new QuidjiboPipeline(steps, resolver);
+            var pipeline = new QuidjiboPipeline(steps, Substitute.For<ILoggerFactory>(), resolver, Substitute.For<IPayloadProtector>(), Substitute.For<IPayloadSerializer>(), Substitute.For<IWorkDispatcher>());
             var context = Substitute.For<IQuidjiboContext>();
 
             // Act

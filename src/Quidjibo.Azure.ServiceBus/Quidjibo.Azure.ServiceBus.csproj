@@ -12,11 +12,11 @@
     <PackageTags>async tasks workers cron</PackageTags>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageIconUrl>https://quidjibo.com/images/quidjibo-q.png</PackageIconUrl>
-    <Version>0.1.0</Version>
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="1.0.0" />
+    <PackageReference Include="Microsoft.Azure.ServiceBus" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>

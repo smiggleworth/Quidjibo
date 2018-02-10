@@ -6,12 +6,12 @@ namespace Quidjibo.Aws.Sqs.Configurations
     public class SqsQuidjiboConfiguration : IQuidjiboConfiguration
     {
         public List<string> PublisherQueues { get; set; }
-        public string[] Queues { get; set; }
-
-        public bool SingleLoop => false;
 
 
         public int PollingInterval => 0;
+        public string[] Queues { get; set; }
+
+        public bool SingleLoop => false;
         public int MaxAttempts { get; set; }
         public int LockInterval => 30;
         public int Throttle { get; set; }

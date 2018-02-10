@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using Autofac;
 using Microsoft.Extensions.Logging;
+using Quidjibo.Autofac.Extensions;
+using Quidjibo.Autofac.Modules;
 using Quidjibo.DataProtection.Extensions;
 using Quidjibo.Extensions;
 using Quidjibo.Misc;
-using Quidjibo.SqlServer.Configurations;
 using Quidjibo.SqlServer.Extensions;
 
 namespace Quidjibo.EndToEnd
@@ -18,7 +18,7 @@ namespace Quidjibo.EndToEnd
         /// <summary>
         ///     This is not how you should store your key.
         /// </summary>
-        private static readonly byte[] fakeAesKey = { 140, 52, 131, 108, 237, 60, 103, 138, 79, 217, 220, 226, 228, 192, 105, 56, 239, 39, 69, 247, 82, 55, 152, 94, 130, 99, 171, 120, 96, 247, 158, 216 };
+        private static readonly byte[] fakeAesKey = {140, 52, 131, 108, 237, 60, 103, 138, 79, 217, 220, 226, 228, 192, 105, 56, 239, 39, 69, 247, 82, 55, 152, 94, 130, 99, 171, 120, 96, 247, 158, 216};
 
 
         private static void Main(string[] args)
@@ -62,26 +62,42 @@ namespace Quidjibo.EndToEnd
             //                }).ConfigurePipeline(pipeline =>pipeline.UseDefault());
 
 
+            var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterModule(new QuidjiboModule(typeof(Program).Assembly));
+
+
+//            _services.Add(typeof(ILoggerFactory), LoggerFactory);
+//            _services.Add(typeof(IPayloadProtector), _protector);
+//            _services.Add(typeof(IPayloadSerializer), _serializer);
+//            _services.Add(typeof(IWorkDispatcher), _dispatcher);
+//            _services.Add(typeof(QuidjiboHandlerMiddleware), new QuidjiboHandlerMiddleware(LoggerFactory, _dispatcher, _serializer, _protector));
+//            _services.Add(typeof(QuidjiboUnwrapMiddleware), new QuidjiboUnwrapMiddleware(LoggerFactory, _serializer, _protector));
+
+
+            var container = containerBuilder.Build();
+
 
             var quidjiboBuilder = new QuidjiboBuilder()
-                .ConfigureLogging(loggerFactory)
-                .ConfigureAssemblies(typeof(Program).GetTypeInfo().Assembly)
-                .UseAes(fakeAesKey)
-                .UseSqlServer("Server=localhost;Database=SampleDb;Trusted_Connection=True;")
-                .ConfigurePipeline(pipeline => pipeline.UseDefault());
+                                  .ConfigureLogging(loggerFactory)
+
+                                  //.ConfigureAssemblies(typeof(Program).GetTypeInfo().Assembly)
+                                  .UseAutofac(container)
+                                  .UseAes(fakeAesKey)
+                                  .UseSqlServer("Server=localhost;Database=SampleDb;Trusted_Connection=True;")
+                                  .ConfigurePipeline(pipeline => pipeline.UseDefault());
 
 
             var client = quidjiboBuilder.BuildClient();
-            using (var workServer = quidjiboBuilder.BuildServer())
+            using(var workServer = quidjiboBuilder.BuildServer())
             {
                 workServer.Start();
 
                 var i = 1;
                 var random = new Random();
-                while (!cancellationToken.IsCancellationRequested)
+                while(!cancellationToken.IsCancellationRequested)
                 {
                     var count = random.Next(1, 50);
-                    for (var j = 0; j < count; j++)
+                    for(var j = 0; j < count; j++)
                     {
                         await client.PublishAsync(new Job.Command(i), 10, cancellationToken);
                         i++;
@@ -91,6 +107,7 @@ namespace Quidjibo.EndToEnd
                     await Task.Delay(TimeSpan.FromSeconds(delay), cancellationToken);
                 }
             }
+
             await Task.CompletedTask;
         }
 

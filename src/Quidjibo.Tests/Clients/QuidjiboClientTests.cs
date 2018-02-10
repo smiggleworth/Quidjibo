@@ -23,11 +23,11 @@ namespace Quidjibo.Tests.Clients
     public class QuidjiboClientTests
     {
         private ICronProvider _cronProvider;
-        private IPayloadSerializer _payloadSerializer;
-        private IPayloadProtector _payloadProtector;
-        private IScheduleProvider _scheduleProvider;
 
         private ILoggerFactory _loggerFactory;
+        private IPayloadProtector _payloadProtector;
+        private IPayloadSerializer _payloadSerializer;
+        private IScheduleProvider _scheduleProvider;
         private IScheduleProviderFactory _scheduleProviderFactory;
         private QuidjiboClient _sut;
         private IWorkProvider _workProvider;
@@ -44,7 +44,7 @@ namespace Quidjibo.Tests.Clients
             _payloadSerializer = Substitute.For<IPayloadSerializer>();
             _payloadProtector = Substitute.For<IPayloadProtector>();
             _cronProvider = Substitute.For<ICronProvider>();
-            
+
             _sut = new QuidjiboClient(
                 _loggerFactory,
                 _workProviderFactory,
@@ -269,7 +269,7 @@ namespace Quidjibo.Tests.Clients
         {
             // Arrange 
             var cancellationToken = CancellationToken.None;
-            var assemblies = new[] { GetType().Assembly };
+            var assemblies = new[] {GetType().Assembly};
             _scheduleProviderFactory.CreateAsync(Arg.Any<string>(), cancellationToken).Returns(Task.FromResult(_scheduleProvider));
 
             // Act 
@@ -315,9 +315,9 @@ namespace Quidjibo.Tests.Clients
             await _scheduleProvider.DidNotReceiveWithAnyArgs().CreateAsync(Arg.Any<ScheduleItem>(), cancellationToken);
         }
 
-        [MinuteIntervalsSchedule("MinuteIntervalsScheduleDefaultCommand",7)]
-        [DailySchedule("DailyScheduleDefaultCommand",1,0)]
-        [WeeklySchedule("WeeklyScheduleDefaultCommand",DayOfWeek.Friday, 1,0)]
+        [MinuteIntervalsSchedule("MinuteIntervalsScheduleDefaultCommand", 7)]
+        [DailySchedule("DailyScheduleDefaultCommand", 1, 0)]
+        [WeeklySchedule("WeeklyScheduleDefaultCommand", DayOfWeek.Friday, 1, 0)]
         [Schedule(nameof(ScheduleDefaultCommand), "* * * * *")]
         public class ScheduleDefaultCommand : IQuidjiboCommand
         {

@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,7 +31,7 @@ namespace Quidjibo.Aws.Sqs.Factories
         {
             var client = new AmazonSQSClient(_basicAwsCredentials, _amazonSqsConfig);
             var response = await client.GetQueueUrlAsync(queues, cancellationToken);
-            if (response.HttpStatusCode != HttpStatusCode.OK)
+            if(response.HttpStatusCode != HttpStatusCode.OK)
             {
                 throw new InvalidOperationException("Could not load the queues url.");
             }

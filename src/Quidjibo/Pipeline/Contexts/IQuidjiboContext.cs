@@ -1,13 +1,23 @@
+using Microsoft.Extensions.Logging;
 using Quidjibo.Commands;
+using Quidjibo.Dispatchers;
 using Quidjibo.Misc;
 using Quidjibo.Models;
 using Quidjibo.Pipeline.Misc;
+using Quidjibo.Protectors;
 using Quidjibo.Providers;
+using Quidjibo.Resolvers;
+using Quidjibo.Serializers;
 
 namespace Quidjibo.Pipeline.Contexts
 {
     public interface IQuidjiboContext
     {
+        /// <summary>
+        ///     Gets or sets the logger factory.
+        /// </summary>
+        ILoggerFactory LoggerFactory { get; set; }
+
         /// <summary>
         ///     Gets or sets the progress.
         /// </summary>
@@ -22,7 +32,7 @@ namespace Quidjibo.Pipeline.Contexts
         /// <value>
         ///     The provider.
         /// </value>
-        IWorkProvider Provider { get; set; }
+        IWorkProvider WorkProvider { get; set; }
 
         /// <summary>
         ///     Gets or sets the item.
@@ -44,5 +54,25 @@ namespace Quidjibo.Pipeline.Contexts
         ///     The state.
         /// </value>
         PipelineState State { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the resolver.
+        /// </summary>
+        IDependencyResolver Resolver { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the protector.
+        /// </summary>
+        IPayloadProtector Protector { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the serializer.
+        /// </summary>
+        IPayloadSerializer Serializer { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the dispatcher.
+        /// </summary>
+        IWorkDispatcher Dispatcher { get; set; }
     }
 }

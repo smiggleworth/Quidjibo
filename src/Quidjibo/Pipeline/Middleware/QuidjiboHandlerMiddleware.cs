@@ -4,11 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Quidjibo.Commands;
-using Quidjibo.Dispatchers;
 using Quidjibo.Models;
 using Quidjibo.Pipeline.Contexts;
-using Quidjibo.Protectors;
-using Quidjibo.Serializers;
 
 namespace Quidjibo.Pipeline.Middleware
 {
@@ -17,36 +14,21 @@ namespace Quidjibo.Pipeline.Middleware
     /// </summary>
     public class QuidjiboHandlerMiddleware : IQuidjiboMiddleware
     {
-        private readonly IWorkDispatcher _dispatcher;
-        private readonly ILogger _logger;
-        private readonly IPayloadProtector _protector;
-        private readonly IPayloadSerializer _serializer;
-
-        public QuidjiboHandlerMiddleware(
-            ILoggerFactory loggerFactory,
-            IWorkDispatcher dispatcher,
-            IPayloadSerializer serializer,
-            IPayloadProtector protector)
-        {
-            _dispatcher = dispatcher;
-            _serializer = serializer;
-            _protector = protector;
-            _logger = loggerFactory.CreateLogger<QuidjiboHandlerMiddleware>();
-        }
-
         public async Task InvokeAsync(IQuidjiboContext context, Func<Task> next, CancellationToken cancellationToken)
         {
+            var logger = context.LoggerFactory.CreateLogger<QuidjiboHandlerMiddleware>();
+
             if(context.Command is WorkflowCommand workflow)
             {
                 var tasks = workflow.Entries.Where(e => e.Key == workflow.CurrentStep)
-                                    .SelectMany(e => e.Value, (e, c) => _dispatcher.DispatchAsync(c, context.Progress, cancellationToken))
+                                    .SelectMany(e => e.Value, (e, c) => context.Dispatcher.DispatchAsync(c, context.Progress, cancellationToken))
                                     .ToList();
                 await Task.WhenAll(tasks);
                 workflow.NextStep();
                 if(workflow.CurrentStep < workflow.Step)
                 {
-                    var nextPayload = await _serializer.SerializeAsync(workflow, cancellationToken);
-                    var protectedPayload = await _protector.ProtectAsync(nextPayload, cancellationToken);
+                    var nextPayload = await context.Serializer.SerializeAsync(workflow, cancellationToken);
+                    var protectedPayload = await context.Protector.ProtectAsync(nextPayload, cancellationToken);
                     var nextItem = new WorkItem
                     {
                         Id = Guid.NewGuid(),
@@ -55,14 +37,15 @@ namespace Quidjibo.Pipeline.Middleware
                         Payload = protectedPayload,
                         Queue = context.Item.Queue
                     };
-                    _logger.LogDebug("Enqueue the next workflow step : {0}", nextItem.Id);
-                    await context.Provider.SendAsync(nextItem, 0, cancellationToken);
+                    logger.LogDebug("Enqueue the next workflow step : {0}", nextItem.Id);
+                    await context.WorkProvider.SendAsync(nextItem, 0, cancellationToken);
                 }
             }
             else
             {
-                await _dispatcher.DispatchAsync(context.Command, context.Progress, cancellationToken);
+                await context.Dispatcher.DispatchAsync(context.Command, context.Progress, cancellationToken);
             }
+
             await next();
         }
     }

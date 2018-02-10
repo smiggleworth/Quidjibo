@@ -30,15 +30,16 @@ namespace Quidjibo.SqlServer.Providers
         {
             var receiveOn = DateTime.UtcNow;
 
-            if (_receiveSql == null)
+            if(_receiveSql == null)
             {
                 _receiveSql = await SqlLoader.GetScript("Schedule.Receive");
-                if (_queues.Length > 0)
+                if(_queues.Length > 0)
                 {
                     _receiveSql = _receiveSql.Replace("@Queue1",
                         string.Join(",", _queues.Select((x, i) => $"@Queue{i}")));
                 }
             }
+
             var items = new List<ScheduleItem>(100);
             await ExecuteAsync(async cmd =>
             {
@@ -49,9 +50,9 @@ namespace Quidjibo.SqlServer.Providers
 
                 // dynamic parameters
                 _queues.Select((q, i) => cmd.Parameters.AddWithValue($"@Queue{i}", q)).ToList();
-                using (var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
+                using(var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
                 {
-                    while (await rdr.ReadAsync(cancellationToken))
+                    while(await rdr.ReadAsync(cancellationToken))
                     {
                         var item = MapScheduleItem(rdr);
                         items.Add(item);
@@ -63,10 +64,11 @@ namespace Quidjibo.SqlServer.Providers
 
         public async Task CompleteAsync(ScheduleItem item, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (_completeSql == null)
+            if(_completeSql == null)
             {
                 _completeSql = await SqlLoader.GetScript("Schedule.Complete");
             }
+
             await ExecuteAsync(async cmd =>
             {
                 cmd.CommandText = _completeSql;
@@ -79,10 +81,11 @@ namespace Quidjibo.SqlServer.Providers
 
         public async Task CreateAsync(ScheduleItem item, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (_createSql == null)
+            if(_createSql == null)
             {
                 _createSql = await SqlLoader.GetScript("Schedule.Create");
             }
+
             await ExecuteAsync(async cmd =>
             {
                 cmd.CommandText = _createSql;
@@ -106,9 +109,9 @@ namespace Quidjibo.SqlServer.Providers
             {
                 cmd.CommandText = await SqlLoader.GetScript("Schedule.LoadByName");
                 cmd.AddParameter("@Name", name);
-                using (var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
+                using(var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
                 {
-                    if (await rdr.ReadAsync(cancellationToken))
+                    if(await rdr.ReadAsync(cancellationToken))
                     {
                         item = MapScheduleItem(rdr);
                     }
@@ -134,10 +137,11 @@ namespace Quidjibo.SqlServer.Providers
 
         public async Task<bool> ExistsAsync(string name, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (_existsSql == null)
+            if(_existsSql == null)
             {
                 _existsSql = await SqlLoader.GetScript("Schedule.Exists");
             }
+
             var count = 0;
             await ExecuteAsync(async cmd =>
             {

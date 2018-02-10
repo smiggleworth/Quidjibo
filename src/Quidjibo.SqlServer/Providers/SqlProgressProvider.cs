@@ -46,11 +46,11 @@ namespace Quidjibo.SqlServer.Providers
             {
                 cmd.CommandText = reportSql;
                 cmd.AddParameter("@CorrelationId", correlationId);
-                using (var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
+                using(var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
                 {
-                    while (await rdr.ReadAsync(cancellationToken))
+                    while(await rdr.ReadAsync(cancellationToken))
                     {
-                        var workItem = new ProgressItem()
+                        var workItem = new ProgressItem
                         {
                             CorrelationId = rdr.Map<Guid>(nameof(ProgressItem.CorrelationId)),
                             Id = rdr.Map<Guid>(nameof(ProgressItem.Id)),

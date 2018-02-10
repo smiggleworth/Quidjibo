@@ -1,8 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 
-namespace Quidjibo.DataProtection.Providers {
-    public class KeyProvider: IKeyProvider
+namespace Quidjibo.DataProtection.Providers
+{
+    public class KeyProvider : IKeyProvider
     {
         private readonly byte[] _key;
 

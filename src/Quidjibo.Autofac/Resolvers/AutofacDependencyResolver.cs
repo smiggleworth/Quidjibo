@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Autofac;
 using Quidjibo.Resolvers;
 
@@ -7,7 +8,8 @@ namespace Quidjibo.Autofac.Resolvers
     public class AutofacDependencyResolver : IDependencyResolver
     {
         private readonly ILifetimeScope _lifetimeScope;
-        private ILifetimeScope _nestedLifetimeScope;
+
+        private readonly AsyncLocal<ILifetimeScope> _nestedLifetimeScope = new AsyncLocal<ILifetimeScope>();
 
         public AutofacDependencyResolver(ILifetimeScope lifetimeScope)
         {
@@ -16,13 +18,12 @@ namespace Quidjibo.Autofac.Resolvers
 
         public IDisposable Begin()
         {
-            _nestedLifetimeScope = _lifetimeScope.BeginLifetimeScope("Quidjibo");
-            return _nestedLifetimeScope;
+            return _nestedLifetimeScope.Value = _lifetimeScope.BeginLifetimeScope("Quidjibo");
         }
 
         public object Resolve(Type type)
         {
-            return _nestedLifetimeScope.Resolve(type);
+            return _nestedLifetimeScope.Value.Resolve(type);
         }
     }
 }

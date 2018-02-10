@@ -154,6 +154,7 @@ namespace Quidjibo.Clients
                 _logger.LogWarning("The queue argument is required");
                 return;
             }
+
             var provider = await GetOrCreateScheduleProvider(queue, cancellationToken);
             var existingItem = await provider.LoadByNameAsync(name, cancellationToken);
             if(existingItem != null)
@@ -174,6 +175,7 @@ namespace Quidjibo.Clients
             {
                 return;
             }
+
             var schedules = from a in assemblies
                             from t in a.GetExportedTypes()
                             where typeof(IQuidjiboCommand).IsAssignableFrom(t)
@@ -193,6 +195,7 @@ namespace Quidjibo.Clients
             {
                 return;
             }
+
             Clear();
             _disposed = true;
         }

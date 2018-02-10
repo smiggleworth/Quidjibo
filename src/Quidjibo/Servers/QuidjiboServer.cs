@@ -56,13 +56,14 @@ namespace Quidjibo.Servers
                 {
                     return;
                 }
+
                 _logger.LogInformation("Starting Server {0}", Worker);
                 _cts = new CancellationTokenSource();
                 _loopTasks = new List<Task>();
 
                 _throttle = new SemaphoreSlim(0, _quidjiboConfiguration.Throttle);
                 _logger.LogInformation("EnableWorker = {0}", _quidjiboConfiguration.EnableWorker);
-                if (_quidjiboConfiguration.EnableWorker)
+                if(_quidjiboConfiguration.EnableWorker)
                 {
                     if(_quidjiboConfiguration.SingleLoop)
                     {
@@ -78,11 +79,12 @@ namespace Quidjibo.Servers
                 }
 
                 _logger.LogInformation("EnableScheduler = {0}", _quidjiboConfiguration.EnableScheduler);
-                if (_quidjiboConfiguration.EnableScheduler)
+                if(_quidjiboConfiguration.EnableScheduler)
                 {
                     _logger.LogInformation("Enabling scheduler");
                     _loopTasks.Add(ScheduleLoopAsync(_quidjiboConfiguration.Queues));
                 }
+
                 _throttle.Release(_quidjiboConfiguration.Throttle);
                 IsRunning = true;
                 _logger.LogInformation("Started Worker {0}", Worker);
@@ -97,6 +99,7 @@ namespace Quidjibo.Servers
                 {
                     return;
                 }
+
                 _cts?.Cancel();
                 _cts?.Dispose();
                 _loopTasks = null;
@@ -138,6 +141,7 @@ namespace Quidjibo.Servers
                         _throttle.Release();
                         continue;
                     }
+
                     _throttle.Release();
                     await Task.Delay(pollingInterval, _cts.Token);
                 }
@@ -215,7 +219,7 @@ namespace Quidjibo.Servers
                 var context = new QuidjiboContext
                 {
                     Item = item,
-                    Provider = provider,
+                    WorkProvider = provider,
                     Progress = progress,
                     State = new PipelineState()
                 };
@@ -231,13 +235,13 @@ namespace Quidjibo.Servers
                     else
                     {
                         await provider.FaultAsync(item, linkedTokenSource.Token);
-                        _logger.LogError(null, "Faulted : {0}", item.Id);
+                        _logger.LogError("Faulted : {0}", item.Id);
                     }
                 }
                 catch(Exception exception)
                 {
+                    _logger.LogError("Faulted : {0}, {1}", item.Id, exception);
                     await provider.FaultAsync(item, linkedTokenSource.Token);
-                    _logger.LogError(null, exception, "Faulted : {0}", item.Id);
                 }
                 finally
                 {

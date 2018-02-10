@@ -35,6 +35,7 @@ namespace Quidjibo.Resolvers
             {
                 throw new NullReferenceException("Could not find a handler that matches your command.");
             }
+
             return Activator.CreateInstance(handler);
         }
 

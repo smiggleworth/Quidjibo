@@ -2,12 +2,16 @@
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NSubstitute;
+using Quidjibo.Dispatchers;
 using Quidjibo.Pipeline.Builders;
 using Quidjibo.Pipeline.Contexts;
 using Quidjibo.Pipeline.Middleware;
+using Quidjibo.Protectors;
 using Quidjibo.Resolvers;
+using Quidjibo.Serializers;
 
 namespace Quidjibo.Tests.Pipeline.Builders
 {
@@ -29,7 +33,7 @@ namespace Quidjibo.Tests.Pipeline.Builders
                 delegateInvoked = true;
                 return next();
             });
-            var pipeline = builder.Build(resolver);
+            var pipeline = builder.Build(Substitute.For<ILoggerFactory>(), resolver, Substitute.For<IPayloadProtector>(), Substitute.For<IPayloadSerializer>(), Substitute.For<IWorkDispatcher>());
             pipeline.StartAsync(context, CancellationToken.None);
 
             // Assert
@@ -50,7 +54,7 @@ namespace Quidjibo.Tests.Pipeline.Builders
 
             // Act
             builder.Use<SampleMiddleware>();
-            var pipeline = builder.Build(resolver);
+            var pipeline = builder.Build(Substitute.For<ILoggerFactory>(), resolver, Substitute.For<IPayloadProtector>(), Substitute.For<IPayloadSerializer>(), Substitute.For<IWorkDispatcher>());
             pipeline.StartAsync(context, CancellationToken.None);
 
             // Assert
@@ -68,7 +72,7 @@ namespace Quidjibo.Tests.Pipeline.Builders
 
             // Act
             builder.Use(new SampleMiddleware());
-            var pipeline = builder.Build(resolver);
+            var pipeline = builder.Build(Substitute.For<ILoggerFactory>(), resolver, Substitute.For<IPayloadProtector>(), Substitute.For<IPayloadSerializer>(), Substitute.For<IWorkDispatcher>());
             pipeline.StartAsync(context, CancellationToken.None);
 
             // Assert

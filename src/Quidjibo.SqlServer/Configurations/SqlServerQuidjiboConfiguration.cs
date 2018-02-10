@@ -11,6 +11,7 @@ namespace Quidjibo.SqlServer.Configurations
         public string ConnectionString { get; set; }
 
         public List<string> PublisherQueues { get; set; }
+        public int PollingInterval { get; set; }
 
         public SqlServerQuidjiboConfiguration()
         {
@@ -22,7 +23,6 @@ namespace Quidjibo.SqlServer.Configurations
 
         public string[] Queues { get; set; }
         public bool SingleLoop { get; set; }
-        public int PollingInterval { get; set; }
         public int MaxAttempts { get; set; }
         public int LockInterval { get; set; }
         public int Throttle { get; set; }

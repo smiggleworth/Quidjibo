@@ -18,9 +18,9 @@ namespace Quidjibo.Tests
 
             Action build = () => quidjibo.BuildServer();
 
-            build.ShouldThrow<QuidjiboBuilderException>()
+            build.Should().Throw<QuidjiboBuilderException>()
                  .WithMessage("Failed to validate. See list of errors for more detail.")
-                 .And.Errors.Should().Contain("Requires Work Provider Factory");
+                 .And.Errors.Should().Contain("Requires Work WorkProvider Factory");
         }
 
         [TestMethod]
@@ -30,9 +30,9 @@ namespace Quidjibo.Tests
 
             Action build = () => quidjibo.BuildServer();
 
-            build.ShouldThrow<QuidjiboBuilderException>()
+            build.Should().Throw<QuidjiboBuilderException>()
                  .WithMessage("Failed to validate. See list of errors for more detail.")
-                 .And.Errors.Should().Contain("Requires Schedule Provider Factory");
+                 .And.Errors.Should().Contain("Requires Schedule WorkProvider Factory");
         }
 
         [TestMethod]
@@ -42,19 +42,19 @@ namespace Quidjibo.Tests
 
             Action build = () => quidjibo.BuildServer();
 
-            build.ShouldThrow<QuidjiboBuilderException>()
+            build.Should().Throw<QuidjiboBuilderException>()
                  .WithMessage("Failed to validate. See list of errors for more detail.")
-                 .And.Errors.Should().Contain("Requires Progress Provider Factory");
+                 .And.Errors.Should().Contain("Requires Progress WorkProvider Factory");
         }
 
         [TestMethod]
         public void When_Builder_IsNotConfigured_ShouldUseDefaults()
         {
             var quidjibo = new QuidjiboBuilder()
-                .Configure(Substitute.For<IQuidjiboConfiguration>())
-                .ConfigureWorkProviderFactory(Substitute.For<IWorkProviderFactory>())
-                .ConfigureScheduleProviderFactory(Substitute.For<IScheduleProviderFactory>())
-                .ConfigureProgressProviderFactory(Substitute.For<IProgressProviderFactory>());
+                           .Configure(Substitute.For<IQuidjiboConfiguration>())
+                           .ConfigureWorkProviderFactory(Substitute.For<IWorkProviderFactory>())
+                           .ConfigureScheduleProviderFactory(Substitute.For<IScheduleProviderFactory>())
+                           .ConfigureProgressProviderFactory(Substitute.For<IProgressProviderFactory>());
 
 
             var server = quidjibo.BuildServer();
