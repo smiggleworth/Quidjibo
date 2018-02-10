@@ -18,7 +18,7 @@ namespace Quidjibo.Resolvers
 
         public object Resolve(Type type)
         {
-            if(_services != null && _services.TryGetValue(type, out var service))
+            if (_services != null && _services.TryGetValue(type, out var service))
             {
                 return service;
             }
@@ -31,10 +31,11 @@ namespace Quidjibo.Resolvers
                            where info.IsAssignableFrom(t.GetTypeInfo())
                            select t).SingleOrDefault();
 
-            if(handler == null)
+            if (handler == null)
             {
                 throw new NullReferenceException("Could not find a handler that matches your command.");
             }
+
             return Activator.CreateInstance(handler);
         }
 

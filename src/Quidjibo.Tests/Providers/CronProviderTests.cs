@@ -60,7 +60,7 @@ namespace Quidjibo.Tests.Providers
             Action action = () => _sut.GetSchedule(expression, DateTime.UtcNow);
 
             // Assert
-            action.ShouldThrow<InvalidOperationException>().WithMessage("Expression must contain 5 parts");
+            action.Should().Throw<InvalidOperationException>().WithMessage("Expression must contain 5 parts");
         }
 
         [DataTestMethod]

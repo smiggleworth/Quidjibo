@@ -54,7 +54,7 @@ namespace Quidjibo.DataProtection.Tests.Protectors
 
             Func<Task> sut = async () => await _sut.UnprotectAsync(protectedPayload, CancellationToken.None);
 
-            sut.ShouldThrow<Exception>().WithMessage("MAC mismatch");
+            sut.Should().Throw<Exception>().WithMessage("MAC mismatch");
         }
 
 

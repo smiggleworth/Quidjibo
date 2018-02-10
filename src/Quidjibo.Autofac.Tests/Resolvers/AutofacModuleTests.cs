@@ -53,7 +53,7 @@ namespace Quidjibo.Autofac.Tests.Resolvers
             using (_resolver.Begin())
             {
                 Action resolve = () => _resolver.Resolve(typeof(IQuidjiboHandler<UnhandledCommand>));
-                resolve.ShouldThrow<ComponentNotRegisteredException>("Handler was not registerd");
+                resolve.Should().Throw<ComponentNotRegisteredException>("Handler was not registerd");
             }
         }
     }

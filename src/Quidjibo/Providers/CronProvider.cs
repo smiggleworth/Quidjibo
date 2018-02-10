@@ -39,7 +39,7 @@ namespace Quidjibo.Providers
             {
                 ' '
             }, StringSplitOptions.RemoveEmptyEntries);
-            if(parts.Length != 5)
+            if (parts.Length != 5)
             {
                 throw new InvalidOperationException("Expression must contain 5 parts");
             }
@@ -62,7 +62,7 @@ namespace Quidjibo.Providers
 
         private static IEnumerable<int> ParsePart(string part, string wild)
         {
-            if(part.Contains("*"))
+            if (part.Contains("*"))
             {
                 part = part.Replace("*", wild);
             }
@@ -80,7 +80,7 @@ namespace Quidjibo.Providers
 
         private static int MaxDayOfMonth(int year, int month)
         {
-            if(month == 2)
+            if (month == 2)
             {
                 return DateTime.IsLeapYear(year) ? 29 : 28;
             }
@@ -90,7 +90,7 @@ namespace Quidjibo.Providers
 
         private static IEnumerable<int> GetSteps(int min, int max, int step)
         {
-            if(min == max)
+            if (min == max)
             {
                 yield return min;
 
@@ -98,10 +98,10 @@ namespace Quidjibo.Providers
             }
 
             var prev = 0;
-            for(var i = min; i <= max; i++)
+            for (var i = min; i <= max; i++)
             {
                 var diff = i - prev;
-                if(diff % step == 0)
+                if (diff % step == 0)
                 {
                     yield return i;
 

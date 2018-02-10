@@ -2,14 +2,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Quidjibo.Configurations;
 using Quidjibo.Dispatchers;
-using Quidjibo.Factories;
 using Quidjibo.Pipeline.Contexts;
 using Quidjibo.Pipeline.Middleware;
 using Quidjibo.Pipeline.Misc;
 using Quidjibo.Protectors;
-using Quidjibo.Providers;
 using Quidjibo.Resolvers;
 using Quidjibo.Serializers;
 

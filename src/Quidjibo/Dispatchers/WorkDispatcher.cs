@@ -1,5 +1,3 @@
-using System;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Quidjibo.Commands;
@@ -20,22 +18,15 @@ namespace Quidjibo.Dispatchers
 
         public async Task DispatchAsync(IQuidjiboCommand command, IQuidjiboProgress progress, CancellationToken cancellationToken)
         {
-            try
+            var type = typeof(IQuidjiboHandler<>).MakeGenericType(command.GetType());
+            var resolved = _resolver.Resolve(type);
+            var method = type.GetMethod("ProcessAsync");
+            await (Task)method.Invoke(resolved, new object[]
             {
-                var type = typeof(IQuidjiboHandler<>).MakeGenericType(command.GetType());
-                var resolved = _resolver.Resolve(type);
-                var method = type.GetMethod("ProcessAsync");
-                await (Task)method.Invoke(resolved, new object[]
-                {
-                    command,
-                    progress,
-                    cancellationToken
-                });
-            }
-            catch (Exception e)
-            {
-                throw;
-            }
+                command,
+                progress,
+                cancellationToken
+            });
         }
     }
 }

@@ -56,7 +56,7 @@ namespace Quidjibo.SimpleInjector.Tests.Extensions
             using (AsyncScopedLifestyle.BeginScope(_container))
             {
                 Action resolve = () => _container.GetInstance<IQuidjiboHandler<UnhandledCommand>>();
-                resolve.ShouldThrow<ActivationException>("Handler was not registerd");
+                resolve.Should().Throw<ActivationException>("Handler was not registerd");
             }
         }
 

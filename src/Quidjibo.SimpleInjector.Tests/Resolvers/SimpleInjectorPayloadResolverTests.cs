@@ -51,7 +51,7 @@ namespace Quidjibo.SimpleInjector.Tests.Resolvers
             using (_resolver.Begin())
             {
                 Action resolve = () => _resolver.Resolve(typeof(IQuidjiboHandler<UnhandledCommand>));
-                resolve.ShouldThrow<ActivationException>("Handler was not registerd");
+                resolve.Should().Throw<ActivationException>("Handler was not registerd");
             }
         }
     }

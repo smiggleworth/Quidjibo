@@ -217,14 +217,17 @@ namespace Quidjibo
             {
                 errors.Add("Configuration is null");
             }
+
             if (WorkProviderFactory == null)
             {
                 errors.Add("Requires Work WorkProvider Factory");
             }
+
             if (ProgressProviderFactory == null)
             {
                 errors.Add("Requires Progress WorkProvider Factory");
             }
+
             if (ScheduleProviderFactory == null)
             {
                 errors.Add("Requires Schedule WorkProvider Factory");

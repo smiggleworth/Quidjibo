@@ -56,6 +56,7 @@ namespace Quidjibo.Servers
                 {
                     return;
                 }
+
                 _logger.LogInformation("Starting Server {0}", Worker);
                 _cts = new CancellationTokenSource();
                 _loopTasks = new List<Task>();
@@ -83,6 +84,7 @@ namespace Quidjibo.Servers
                     _logger.LogInformation("Enabling scheduler");
                     _loopTasks.Add(ScheduleLoopAsync(_quidjiboConfiguration.Queues));
                 }
+
                 _throttle.Release(_quidjiboConfiguration.Throttle);
                 IsRunning = true;
                 _logger.LogInformation("Started Worker {0}", Worker);
@@ -97,6 +99,7 @@ namespace Quidjibo.Servers
                 {
                     return;
                 }
+
                 _cts?.Cancel();
                 _cts?.Dispose();
                 _loopTasks = null;
@@ -138,6 +141,7 @@ namespace Quidjibo.Servers
                         _throttle.Release();
                         continue;
                     }
+
                     _throttle.Release();
                     await Task.Delay(pollingInterval, _cts.Token);
                 }

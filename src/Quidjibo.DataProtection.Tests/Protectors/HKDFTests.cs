@@ -40,10 +40,10 @@ namespace Quidjibo.DataProtection.Tests.Protectors
             using (var hkdf = new Hkdf<HMACSHA256>())
             {
                 var prk = hkdf.Extract(StringToByteArray(salt), StringToByteArray(ikm));
-                ByteArrayToString(prk).ShouldBeEquivalentTo(expectedPrk);
+                ByteArrayToString(prk).Should().BeEquivalentTo(expectedPrk);
 
                 var okm = hkdf.Expand(prk, StringToByteArray(info), length);
-                ByteArrayToString(okm).ShouldBeEquivalentTo(expectedOkm);
+                ByteArrayToString(okm).Should().BeEquivalentTo(expectedOkm);
             }
         }
 
@@ -85,10 +85,10 @@ namespace Quidjibo.DataProtection.Tests.Protectors
             using (var hkdf = new Hkdf<HMACSHA1>())
             {
                 var prk = hkdf.Extract(StringToByteArray(salt), StringToByteArray(ikm));
-                ByteArrayToString(prk).ShouldBeEquivalentTo(expectedPrk);
+                ByteArrayToString(prk).Should().BeEquivalentTo(expectedPrk);
 
                 var okm = hkdf.Expand(prk, StringToByteArray(info), length);
-                ByteArrayToString(okm).ShouldBeEquivalentTo(expectedOkm);
+                ByteArrayToString(okm).Should().BeEquivalentTo(expectedOkm);
             }
         }
 

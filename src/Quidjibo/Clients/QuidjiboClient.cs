@@ -85,25 +85,25 @@ namespace Quidjibo.Clients
 
         public async Task ScheduleAsync(string name, string queue, IQuidjiboCommand command, Cron cron, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if(string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(name))
             {
                 _logger.LogWarning("The name argument is required");
                 return;
             }
 
-            if(string.IsNullOrWhiteSpace(queue))
+            if (string.IsNullOrWhiteSpace(queue))
             {
                 _logger.LogWarning("The queue argument is required");
                 return;
             }
 
-            if(command == null)
+            if (command == null)
             {
                 _logger.LogWarning("The command argument is required");
                 return;
             }
 
-            if(cron == null)
+            if (cron == null)
             {
                 _logger.LogWarning("The cron argument is required");
                 return;
@@ -125,9 +125,9 @@ namespace Quidjibo.Clients
             };
             var provider = await GetOrCreateScheduleProvider(queue, cancellationToken);
             var existingItem = await provider.LoadByNameAsync(name, cancellationToken);
-            if(existingItem != null)
+            if (existingItem != null)
             {
-                if(!item.EquivalentTo(existingItem))
+                if (!item.EquivalentTo(existingItem))
                 {
                     _logger.LogDebug("Replace existing schedule for {0}", name);
                     await provider.DeleteAsync(existingItem.Id, cancellationToken);
@@ -143,20 +143,21 @@ namespace Quidjibo.Clients
 
         public async Task DeleteScheduleAsync(string name, string queue, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if(string.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(name))
             {
                 _logger.LogWarning("The name argument is required");
                 return;
             }
 
-            if(string.IsNullOrWhiteSpace(queue))
+            if (string.IsNullOrWhiteSpace(queue))
             {
                 _logger.LogWarning("The queue argument is required");
                 return;
             }
+
             var provider = await GetOrCreateScheduleProvider(queue, cancellationToken);
             var existingItem = await provider.LoadByNameAsync(name, cancellationToken);
-            if(existingItem != null)
+            if (existingItem != null)
             {
                 _logger.LogDebug("Delete existing schedule for {0}", name);
                 await provider.DeleteAsync(existingItem.Id, cancellationToken);
@@ -170,10 +171,11 @@ namespace Quidjibo.Clients
 
         public async Task ScheduleAsync(Assembly[] assemblies, CancellationToken cancellationToken)
         {
-            if(assemblies == null)
+            if (assemblies == null)
             {
                 return;
             }
+
             var schedules = from a in assemblies
                             from t in a.GetExportedTypes()
                             where typeof(IQuidjiboCommand).IsAssignableFrom(t)
@@ -189,10 +191,11 @@ namespace Quidjibo.Clients
 
         public void Dispose()
         {
-            if(_disposed)
+            if (_disposed)
             {
                 return;
             }
+
             Clear();
             _disposed = true;
         }

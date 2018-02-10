@@ -46,7 +46,7 @@ namespace Quidjibo.Tests.Resolvers
             using (_resolver.Begin())
             {
                 Action resolve = () => _resolver.Resolve(typeof(IQuidjiboHandler<UnhandledCommand>));
-                resolve.ShouldThrow<NullReferenceException>("Could not find a handler that matches your command.");
+                resolve.Should().Throw<NullReferenceException>("Could not find a handler that matches your command.");
             }
         }
 
@@ -56,7 +56,7 @@ namespace Quidjibo.Tests.Resolvers
             using (_resolver.Begin())
             {
                 Action resolve = () => _resolver.Resolve(typeof(IQuidjiboHandler<DependentCommand>));
-                resolve.ShouldThrow<MissingMethodException>("No parameterless constructor defined for this object.");
+                resolve.Should().Throw<MissingMethodException>("No parameterless constructor defined for this object.");
             }
         }
     }

@@ -57,7 +57,7 @@ namespace Quidjibo.Autofac.Tests.Modules
             using (var scope = _container.BeginLifetimeScope())
             {
                 Action resolve = () => scope.Resolve<IQuidjiboHandler<UnhandledCommand>>();
-                resolve.ShouldThrow<ComponentNotRegisteredException>("Handler was not registerd");
+                resolve.Should().Throw<ComponentNotRegisteredException>("Handler was not registerd");
             }
         }
 

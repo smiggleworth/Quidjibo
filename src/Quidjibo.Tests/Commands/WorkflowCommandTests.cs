@@ -72,7 +72,7 @@ namespace Quidjibo.Tests.Commands
             Action then = () => workflow1.Then(i => workflow2);
 
             // Assert
-            then.ShouldThrow<InvalidOperationException>("Workflow commands cannot be nested.");
+            then.Should().Throw<InvalidOperationException>("Workflow commands cannot be nested.");
         }
 
         [TestMethod]

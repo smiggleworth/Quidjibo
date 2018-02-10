@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Quidjibo.Configurations;
 using Quidjibo.Dispatchers;
-using Quidjibo.Factories;
 using Quidjibo.Pipeline.Contexts;
 using Quidjibo.Pipeline.Middleware;
 using Quidjibo.Protectors;
-using Quidjibo.Providers;
 using Quidjibo.Resolvers;
 using Quidjibo.Serializers;
 
@@ -34,7 +31,7 @@ namespace Quidjibo.Pipeline.Builders
         IQuidjiboPipelineBuilder Use<T>(T middleware = null) where T : class, IQuidjiboMiddleware;
 
         /// <summary>
-        /// Build a pipeline to be used by the server.
+        ///     Build a pipeline to be used by the server.
         /// </summary>
         /// <param name="loggerFactory"></param>
         /// <param name="resolver"></param>

@@ -1,8 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Quidjibo.Commands;
-using Quidjibo.Configurations;
 using Quidjibo.Dispatchers;
-using Quidjibo.Factories;
 using Quidjibo.Misc;
 using Quidjibo.Models;
 using Quidjibo.Pipeline.Misc;

@@ -2,9 +2,8 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Quidjibo.Extensions;
 using Quidjibo.Pipeline.Contexts;
-using Quidjibo.Protectors;
-using Quidjibo.Serializers;
 
 namespace Quidjibo.Pipeline.Middleware
 {
@@ -18,7 +17,7 @@ namespace Quidjibo.Pipeline.Middleware
             var logger = context.LoggerFactory.CreateLogger<QuidjiboUnwrapMiddleware>();
             var payload = await context.Protector.UnprotectAsync(context.Item.Payload, cancellationToken);
             context.Command = await context.Serializer.DeserializeAsync(payload, cancellationToken);
-            logger.LogDebug("Set the command on the context.");
+            logger.LogDebug("{0} was set on the context.", context.Command.GetQualifiedName());
             await next();
         }
     }

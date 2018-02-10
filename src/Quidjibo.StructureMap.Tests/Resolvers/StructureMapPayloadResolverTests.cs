@@ -51,7 +51,7 @@ namespace Quidjibo.StructureMap.Tests.Resolvers
             using (_resolver.Begin())
             {
                 Action resolve = () => _resolver.Resolve(typeof(IQuidjiboHandler<UnhandledCommand>));
-                resolve.ShouldThrow<StructureMapConfigurationException>("Handler was not registerd");
+                resolve.Should().Throw<StructureMapConfigurationException>("Handler was not registerd");
             }
         }
     }

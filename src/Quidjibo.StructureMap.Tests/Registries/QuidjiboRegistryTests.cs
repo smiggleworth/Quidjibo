@@ -56,7 +56,7 @@ namespace Quidjibo.StructureMap.Tests.Registries
             using (var nestedContainer = _container.GetNestedContainer())
             {
                 Action resolve = () => nestedContainer.GetInstance<IQuidjiboHandler<UnhandledCommand>>();
-                resolve.ShouldThrow<StructureMapConfigurationException>("Handler was not registerd");
+                resolve.Should().Throw<StructureMapConfigurationException>("Handler was not registerd");
             }
         }
 

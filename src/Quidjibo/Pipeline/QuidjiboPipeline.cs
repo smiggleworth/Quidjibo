@@ -4,14 +4,11 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Quidjibo.Configurations;
 using Quidjibo.Dispatchers;
-using Quidjibo.Factories;
 using Quidjibo.Pipeline.Contexts;
 using Quidjibo.Pipeline.Middleware;
 using Quidjibo.Pipeline.Misc;
 using Quidjibo.Protectors;
-using Quidjibo.Providers;
 using Quidjibo.Resolvers;
 using Quidjibo.Serializers;
 
@@ -19,21 +16,20 @@ namespace Quidjibo.Pipeline
 {
     public class QuidjiboPipeline : IQuidjiboPipeline
     {
-        private readonly IList<PipelineStep> _steps;
-
-        private readonly ILoggerFactory _loggerFactory;
+        private readonly IWorkDispatcher _dispatcher;
 
         private readonly ILogger _logger;
 
-        private readonly IDependencyResolver _resolver;
+        private readonly ILoggerFactory _loggerFactory;
 
         private readonly IPayloadProtector _protector;
 
-        private readonly IPayloadSerializer _serializer;
-
-        private readonly IWorkDispatcher _dispatcher;
+        private readonly IDependencyResolver _resolver;
 
         private readonly IDictionary<IQuidjiboContext, Queue<PipelineStep>> _running;
+
+        private readonly IPayloadSerializer _serializer;
+        private readonly IList<PipelineStep> _steps;
 
         public QuidjiboPipeline(
             IList<PipelineStep> steps,
@@ -80,18 +76,21 @@ namespace Quidjibo.Pipeline
                 _logger.LogDebug("The pipeline was canceled.");
                 return Task.CompletedTask;
             }
+
             _running.TryGetValue(context, out var steps);
             if (steps == null || steps.Count == 0)
             {
                 _logger.LogDebug("The pipeline is complete.");
                 return Task.CompletedTask;
             }
+
             var step = steps.Dequeue();
             if (step.Instance == null)
             {
                 _logger.LogDebug("resolving {0}", step.Type);
                 step.Instance = (IQuidjiboMiddleware)context.Resolver.Resolve(step.Type);
             }
+
             return step.Instance.InvokeAsync(context, () => InvokeAsync(context, cancellationToken), cancellationToken);
         }
 
