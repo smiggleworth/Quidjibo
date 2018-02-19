@@ -6,6 +6,15 @@ namespace Quidjibo.Pipeline
 {
     public interface IQuidjiboPipeline
     {
+//        ICronProvider CronProvider { get; }
+//        IDependencyResolver Resolver { get; }
+//        ILoggerFactory LoggerFactory { get; }
+//        IPayloadProtector Protector { get; }
+//        IPayloadSerializer Serializer { get; }
+//        IQuidjiboConfiguration QuidjiboConfiguration { get; }
+//        IWorkDispatcher Dispatcher { get; }
+
+
         /// <summary>
         /// </summary>
         /// <param name="context"></param>

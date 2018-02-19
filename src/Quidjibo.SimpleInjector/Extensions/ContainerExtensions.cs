@@ -1,8 +1,6 @@
-﻿using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using Quidjibo.Clients;
 using Quidjibo.Handlers;
-using Quidjibo.Misc;
 using SimpleInjector;
 
 namespace Quidjibo.SimpleInjector.Extensions

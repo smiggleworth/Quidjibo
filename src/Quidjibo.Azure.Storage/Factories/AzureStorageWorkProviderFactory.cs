@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage;
 using Quidjibo.Azure.Storage.Providers;
@@ -34,7 +35,7 @@ namespace Quidjibo.Azure.Storage.Factories
 
         public Task<IWorkProvider> CreateAsync(string[] queues, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
     }
 }

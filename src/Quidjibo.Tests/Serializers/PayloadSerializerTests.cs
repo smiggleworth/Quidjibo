@@ -4,9 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NSubstitute;
 using Quidjibo.Commands;
-using Quidjibo.Protectors;
 using Quidjibo.Serializers;
 using Quidjibo.Tests.Samples;
 

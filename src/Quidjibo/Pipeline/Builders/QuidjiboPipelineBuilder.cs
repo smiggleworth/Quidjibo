@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using Quidjibo.Dispatchers;
 using Quidjibo.Pipeline.Contexts;
 using Quidjibo.Pipeline.Middleware;
 using Quidjibo.Pipeline.Misc;
+using Quidjibo.Protectors;
 using Quidjibo.Resolvers;
+using Quidjibo.Serializers;
 
 namespace Quidjibo.Pipeline.Builders
 {
@@ -12,9 +16,20 @@ namespace Quidjibo.Pipeline.Builders
     {
         private readonly IList<PipelineStep> _steps = new List<PipelineStep>();
 
-        public IQuidjiboPipeline Build(IDependencyResolver resolver)
+        public IQuidjiboPipeline Build(
+            ILoggerFactory loggerFactory,
+            IDependencyResolver resolver,
+            IPayloadProtector protector,
+            IPayloadSerializer serializer,
+            IWorkDispatcher dispatcher)
         {
-            return new QuidjiboPipeline(_steps, resolver);
+            return new QuidjiboPipeline(
+                _steps,
+                loggerFactory,
+                resolver,
+                protector,
+                serializer,
+                dispatcher);
         }
 
         public IQuidjiboPipelineBuilder Use(Func<IQuidjiboContext, Func<Task>, Task> middleware)

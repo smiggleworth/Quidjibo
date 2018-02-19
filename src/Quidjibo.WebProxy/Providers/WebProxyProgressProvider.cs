@@ -13,11 +13,10 @@ namespace Quidjibo.WebProxy.Providers
 {
     public class WebProxyProgressProvider : IProgressProvider
     {
-        private readonly string[] _queues;
-
         private readonly ILogger _logger;
+        private readonly string[] _queues;
         private readonly IWebProxyClient _webProxyClient;
-        
+
 
         public WebProxyProgressProvider(ILogger logger, IWebProxyClient webProxyClient, string[] queues)
         {
@@ -51,7 +50,7 @@ namespace Quidjibo.WebProxy.Providers
             var request = new WebProxyRequest
             {
                 Path = "/progress-items",
-                Data =  new RequestData<Guid>
+                Data = new RequestData<Guid>
                 {
                     Queues = _queues,
                     Data = correlationId
@@ -64,6 +63,7 @@ namespace Quidjibo.WebProxy.Providers
                 _logger.LogWarning("Load progress failed.");
                 _logger.LogDebug(response.Content);
             }
+
             return response.Data;
         }
     }

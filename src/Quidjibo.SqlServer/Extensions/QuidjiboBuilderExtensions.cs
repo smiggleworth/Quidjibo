@@ -29,10 +29,11 @@ namespace Quidjibo.SqlServer.Extensions
         /// <returns></returns>
         public static QuidjiboBuilder UseSqlServer(this QuidjiboBuilder builder, string connectionString, params string[] queues)
         {
-            if (queues == null || queues.Length == 0)
+            if(queues == null || queues.Length == 0)
             {
-                queues = new[] { "default" };
+                queues = new[] {"default"};
             }
+
             var config = new SqlServerQuidjiboConfiguration
             {
                 ConnectionString = connectionString,

@@ -32,7 +32,7 @@ namespace Quidjibo.Autofac.Tests.Modules
         [TestMethod]
         public void When_Handler_IsRegistered_Should_Resolve()
         {
-            using (var scope = _container.BeginLifetimeScope())
+            using(var scope = _container.BeginLifetimeScope())
             {
                 var handler = scope.Resolve<IQuidjiboHandler<BasicCommand>>();
                 handler.Should().NotBeNull("there should be a matching handler");
@@ -43,7 +43,7 @@ namespace Quidjibo.Autofac.Tests.Modules
         [TestMethod]
         public void When_Handler_IsRegistered_InNestedClass_Should_Resolve()
         {
-            using (var scope = _container.BeginLifetimeScope())
+            using(var scope = _container.BeginLifetimeScope())
             {
                 var handler = scope.Resolve<IQuidjiboHandler<SimpleJob.Command>>();
                 handler.Should().NotBeNull("there should be a matching handler");
@@ -54,10 +54,10 @@ namespace Quidjibo.Autofac.Tests.Modules
         [TestMethod]
         public void When_Handler_IsNotRegistered_Should_Throw()
         {
-            using (var scope = _container.BeginLifetimeScope())
+            using(var scope = _container.BeginLifetimeScope())
             {
                 Action resolve = () => scope.Resolve<IQuidjiboHandler<UnhandledCommand>>();
-                resolve.ShouldThrow<ComponentNotRegisteredException>("Handler was not registerd");
+                resolve.Should().Throw<ComponentNotRegisteredException>("Handler was not registerd");
             }
         }
 
@@ -73,7 +73,7 @@ namespace Quidjibo.Autofac.Tests.Modules
                 Substitute.For<ICronProvider>());
 
 
-            using (var scope = _container.BeginLifetimeScope())
+            using(var scope = _container.BeginLifetimeScope())
             {
                 var client = scope.Resolve<IQuidjiboClient>();
                 client.Should().NotBeNull();

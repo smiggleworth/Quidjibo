@@ -21,7 +21,7 @@ namespace Quidjibo.Tests.Resolvers
         [TestMethod]
         public void When_Handler_IsRegistered_Should_Resolve()
         {
-            using (_resolver.Begin())
+            using(_resolver.Begin())
             {
                 var handler = _resolver.Resolve(typeof(IQuidjiboHandler<BasicCommand>));
                 handler.Should().NotBeNull("there should be a matching handler");
@@ -32,7 +32,7 @@ namespace Quidjibo.Tests.Resolvers
         [TestMethod]
         public void When_Handler_IsRegistered_InNestedClass_Should_Resolve()
         {
-            using (_resolver.Begin())
+            using(_resolver.Begin())
             {
                 var handler = _resolver.Resolve(typeof(IQuidjiboHandler<SimpleJob.Command>));
                 handler.Should().NotBeNull("there should be a matching handler");
@@ -43,20 +43,20 @@ namespace Quidjibo.Tests.Resolvers
         [TestMethod]
         public void When_Handler_IsNotRegistered_Should_Throw()
         {
-            using (_resolver.Begin())
+            using(_resolver.Begin())
             {
                 Action resolve = () => _resolver.Resolve(typeof(IQuidjiboHandler<UnhandledCommand>));
-                resolve.ShouldThrow<NullReferenceException>("Could not find a handler that matches your command.");
+                resolve.Should().Throw<NullReferenceException>("Could not find a handler that matches your command.");
             }
         }
 
         [TestMethod]
         public void When_Handler_DoesNotHaveDefaultConstructor_Should_Throw()
         {
-            using (_resolver.Begin())
+            using(_resolver.Begin())
             {
                 Action resolve = () => _resolver.Resolve(typeof(IQuidjiboHandler<DependentCommand>));
-                resolve.ShouldThrow<MissingMethodException>("No parameterless constructor defined for this object.");
+                resolve.Should().Throw<MissingMethodException>("No parameterless constructor defined for this object.");
             }
         }
     }

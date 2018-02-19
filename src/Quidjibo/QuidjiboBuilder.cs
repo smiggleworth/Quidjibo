@@ -9,7 +9,6 @@ using Quidjibo.Dispatchers;
 using Quidjibo.Exceptions;
 using Quidjibo.Factories;
 using Quidjibo.Pipeline.Builders;
-using Quidjibo.Pipeline.Middleware;
 using Quidjibo.Protectors;
 using Quidjibo.Providers;
 using Quidjibo.Resolvers;
@@ -46,7 +45,7 @@ namespace Quidjibo
         public IQuidjiboServer BuildServer()
         {
             BackFillDefaults();
-            var pipeline = _pipelineBuilder.Build(_resolver);
+            var pipeline = _pipelineBuilder.Build(LoggerFactory, _resolver, _protector, _serializer, _dispatcher);
             return new QuidjiboServer(LoggerFactory, _configuration, WorkProviderFactory, ScheduleProviderFactory, ProgressProviderFactory, _cronProvider, pipeline);
         }
 
@@ -146,7 +145,7 @@ namespace Quidjibo
         }
 
         /// <summary>
-        ///     Configure a custome Progress Provider Factory. Typically this is done in an extension method provided by the
+        ///     Configure a custome Progress WorkProvider Factory. Typically this is done in an extension method provided by the
         ///     integration implmentation
         /// </summary>
         /// <param name="factory"></param>
@@ -158,7 +157,7 @@ namespace Quidjibo
         }
 
         /// <summary>
-        ///     Configure a custome Schedule Provider Factory. Typically this is done in an extension method provided by the
+        ///     Configure a custome Schedule WorkProvider Factory. Typically this is done in an extension method provided by the
         ///     integration implmentation
         /// </summary>
         /// <param name="factory"></param>
@@ -170,7 +169,7 @@ namespace Quidjibo
         }
 
         /// <summary>
-        ///     Configure a custome Work Provider Factory. Typically this is done in an extension method provided by the
+        ///     Configure a custome Work WorkProvider Factory. Typically this is done in an extension method provided by the
         ///     integration implmentation
         /// </summary>
         /// <param name="factory"></param>
@@ -186,7 +185,6 @@ namespace Quidjibo
             pipeline.Invoke(_pipelineBuilder);
             return this;
         }
-
 
         private void BackFillDefaults()
         {
@@ -207,8 +205,6 @@ namespace Quidjibo
             _services.Add(typeof(IPayloadProtector), _protector);
             _services.Add(typeof(IPayloadSerializer), _serializer);
             _services.Add(typeof(IWorkDispatcher), _dispatcher);
-            _services.Add(typeof(QuidjiboHandlerMiddleware), new QuidjiboHandlerMiddleware(LoggerFactory, _dispatcher, _serializer, _protector));
-            _services.Add(typeof(QuidjiboUnwrapMiddleware), new QuidjiboUnwrapMiddleware(LoggerFactory, _serializer, _protector));
 
             Validate();
         }
@@ -221,17 +217,20 @@ namespace Quidjibo
             {
                 errors.Add("Configuration is null");
             }
+
             if(WorkProviderFactory == null)
             {
-                errors.Add("Requires Work Provider Factory");
+                errors.Add("Requires Work WorkProvider Factory");
             }
+
             if(ProgressProviderFactory == null)
             {
-                errors.Add("Requires Progress Provider Factory");
+                errors.Add("Requires Progress WorkProvider Factory");
             }
+
             if(ScheduleProviderFactory == null)
             {
-                errors.Add("Requires Schedule Provider Factory");
+                errors.Add("Requires Schedule WorkProvider Factory");
             }
 
             if(errors.Any())

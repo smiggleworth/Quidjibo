@@ -1,9 +1,7 @@
-﻿using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using Autofac;
 using Quidjibo.Clients;
 using Quidjibo.Handlers;
-using Quidjibo.Misc;
 using Module = Autofac.Module;
 
 namespace Quidjibo.Autofac.Modules

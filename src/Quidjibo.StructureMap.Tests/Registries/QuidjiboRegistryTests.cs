@@ -31,7 +31,7 @@ namespace Quidjibo.StructureMap.Tests.Registries
         [TestMethod]
         public void When_Handler_IsRegistered_Should_GetInstance()
         {
-            using (var nestedContainer = _container.GetNestedContainer())
+            using(var nestedContainer = _container.GetNestedContainer())
             {
                 var handler = nestedContainer.GetInstance<IQuidjiboHandler<BasicCommand>>();
                 handler.Should().NotBeNull("there should be a matching handler");
@@ -42,7 +42,7 @@ namespace Quidjibo.StructureMap.Tests.Registries
         [TestMethod]
         public void When_Handler_IsRegistered_InNestedClass_Should_GetInstance()
         {
-            using (var nestedContainer = _container.GetNestedContainer())
+            using(var nestedContainer = _container.GetNestedContainer())
             {
                 var handler = nestedContainer.GetInstance<IQuidjiboHandler<SimpleJob.Command>>();
                 handler.Should().NotBeNull("there should be a matching handler");
@@ -53,10 +53,10 @@ namespace Quidjibo.StructureMap.Tests.Registries
         [TestMethod]
         public void When_Handler_IsNotRegistered_Should_Throw()
         {
-            using (var nestedContainer = _container.GetNestedContainer())
+            using(var nestedContainer = _container.GetNestedContainer())
             {
                 Action resolve = () => nestedContainer.GetInstance<IQuidjiboHandler<UnhandledCommand>>();
-                resolve.ShouldThrow<StructureMapConfigurationException>("Handler was not registerd");
+                resolve.Should().Throw<StructureMapConfigurationException>("Handler was not registerd");
             }
         }
 
@@ -71,7 +71,7 @@ namespace Quidjibo.StructureMap.Tests.Registries
                 Substitute.For<IPayloadProtector>(),
                 Substitute.For<ICronProvider>());
 
-            using (var nestedContainer = _container.GetNestedContainer())
+            using(var nestedContainer = _container.GetNestedContainer())
             {
                 var client = nestedContainer.GetInstance<IQuidjiboClient>();
                 client.Should().NotBeNull();

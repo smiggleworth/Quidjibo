@@ -2,7 +2,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Quidjibo.Attributes;
 using Quidjibo.Misc;
-using Quidjibo.Models;
 
 namespace Quidjibo.Tests.Attributes
 {
@@ -64,6 +63,8 @@ namespace Quidjibo.Tests.Attributes
         }
 
 
-        private class CustomClientKey : IQuidjiboClientKey { }
+        private class CustomClientKey : IQuidjiboClientKey
+        {
+        }
     }
 }

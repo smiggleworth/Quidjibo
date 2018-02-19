@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Quidjibo.AspNetCore.WebProxy.Models
+﻿namespace Quidjibo.AspNetCore.WebProxy.Models
 {
     public class QuidjiboCredential
     {

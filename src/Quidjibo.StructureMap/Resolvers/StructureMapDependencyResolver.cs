@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Quidjibo.Resolvers;
 using StructureMap;
 
@@ -7,7 +8,7 @@ namespace Quidjibo.StructureMap.Resolvers
     public class StructureMapDependencyResolver : IDependencyResolver
     {
         private readonly IContainer _container;
-        private IContainer _nestedLifetimeScope;
+        private readonly AsyncLocal<IContainer> _nestedLifetimeScope = new AsyncLocal<IContainer>();
 
         public StructureMapDependencyResolver(IContainer container)
         {
@@ -16,13 +17,12 @@ namespace Quidjibo.StructureMap.Resolvers
 
         public IDisposable Begin()
         {
-            _nestedLifetimeScope = _container.GetNestedContainer();
-            return _nestedLifetimeScope;
+            return _nestedLifetimeScope.Value = _container.GetNestedContainer();
         }
 
         public object Resolve(Type type)
         {
-            return _nestedLifetimeScope.GetInstance(type);
+            return _nestedLifetimeScope.Value.GetInstance(type);
         }
     }
 }

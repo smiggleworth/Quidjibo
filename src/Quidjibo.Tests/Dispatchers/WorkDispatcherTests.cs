@@ -5,7 +5,6 @@ using NSubstitute;
 using Quidjibo.Dispatchers;
 using Quidjibo.Handlers;
 using Quidjibo.Misc;
-using Quidjibo.Models;
 using Quidjibo.Resolvers;
 using Quidjibo.Tests.Samples;
 
