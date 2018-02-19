@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Quidjibo.Commands;
+using Quidjibo.EndToEnd.Services;
 using Quidjibo.Handlers;
 using Quidjibo.Misc;
 
-namespace Quidjibo.EndToEnd
+namespace Quidjibo.EndToEnd.Jobs
 {
     public class Job
     {
@@ -23,10 +24,17 @@ namespace Quidjibo.EndToEnd
 
         public class Handler : IQuidjiboHandler<Command>
         {
+            private readonly ISimpleService _simpleService;
+
+            public Handler(ISimpleService simpleService)
+            {
+                _simpleService = simpleService;
+            }
+
             public async Task ProcessAsync(Command command, IQuidjiboProgress progress, CancellationToken cancellationToken)
             {
                 progress.Report(1, $"Starting item {command.Id}");
-                await Task.Delay(25, cancellationToken);
+                await _simpleService.DoWorkAsync(cancellationToken);
                 progress.Report(100, $"Finished item {command.Id}");
             }
         }

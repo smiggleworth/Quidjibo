@@ -21,10 +21,9 @@ namespace Quidjibo.SqlServer.Providers
 
         public async Task ReportAsync(ProgressItem item, CancellationToken cancellationToken)
         {
-            var reportSql = await SqlLoader.GetScript("Progress.Create");
             await ExecuteAsync(async cmd =>
             {
-                cmd.CommandText = reportSql;
+                cmd.CommandText = await SqlLoader.GetScript("Progress.Create");
                 cmd.AddParameter("@Id", item.Id);
                 cmd.AddParameter("@WorkId", item.WorkId);
                 cmd.AddParameter("@CorrelationId", item.CorrelationId);
@@ -40,15 +39,14 @@ namespace Quidjibo.SqlServer.Providers
 
         public async Task<List<ProgressItem>> LoadByCorrelationIdAsync(Guid correlationId, CancellationToken cancellationToken)
         {
-            var reportSql = await SqlLoader.GetScript("Progress.LoadByCorrelationId");
             var items = new List<ProgressItem>();
             await ExecuteAsync(async cmd =>
             {
-                cmd.CommandText = reportSql;
+                cmd.CommandText = await SqlLoader.GetScript("Progress.LoadByCorrelationId");
                 cmd.AddParameter("@CorrelationId", correlationId);
-                using(var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
+                using (var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
                 {
-                    while(await rdr.ReadAsync(cancellationToken))
+                    while (await rdr.ReadAsync(cancellationToken))
                     {
                         var workItem = new ProgressItem
                         {

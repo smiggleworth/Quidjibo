@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
 using Quidjibo.Factories;
 using Quidjibo.Providers;
@@ -10,6 +11,7 @@ namespace Quidjibo.SqlServer.Factories
     public class SqlWorkProviderFactory : IWorkProviderFactory
     {
         private static readonly SemaphoreSlim SyncLock = new SemaphoreSlim(1, 1);
+        private bool _initialized;
 
         private readonly int _batchSize;
         private readonly string _connectionString;
@@ -34,14 +36,17 @@ namespace Quidjibo.SqlServer.Factories
             try
             {
                 await SyncLock.WaitAsync(cancellationToken);
-                await SqlRunner.ExecuteAsync(async cmd =>
+                if (!_initialized)
                 {
-                    var schemaSetup = await SqlLoader.GetScript("Schema.Setup");
-                    var workSetup = await SqlLoader.GetScript("Work.Setup");
-                    cmd.CommandText = $"{schemaSetup};\r\n{workSetup}";
-                    await cmd.ExecuteNonQueryAsync(cancellationToken);
-                }, _connectionString, false, cancellationToken);
-
+                    await SqlRunner.ExecuteAsync(async cmd =>
+                    {
+                        var schemaSetup = await SqlLoader.GetScript("Schema.Setup");
+                        var workSetup = await SqlLoader.GetScript("Work.Setup");
+                        cmd.CommandText = $"{schemaSetup};\r\n{workSetup}";
+                        await cmd.ExecuteNonQueryAsync(cancellationToken);
+                    }, _connectionString, false, cancellationToken);
+                    _initialized = true;
+                }
                 return new SqlWorkProvider(_connectionString, queues, _visibilityTimeout, _batchSize);
             }
             finally
