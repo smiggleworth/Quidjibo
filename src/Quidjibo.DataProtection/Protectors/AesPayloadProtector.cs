@@ -3,6 +3,8 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
+using Quidjibo.DataProtection.Constants;
+using Quidjibo.DataProtection.Exceptions;
 using Quidjibo.DataProtection.Providers;
 using Quidjibo.Protectors;
 
@@ -78,35 +80,31 @@ namespace Quidjibo.DataProtection.Protectors
         {
             var payloadMac = ComputeMac(macKey, payload, 16 + 32, payload.Length - (16 + 32));
 
-            for(var i = 0; i < mac.Length; i++)
+            if (mac.Length != payloadMac.Length)
             {
-                if(mac[i] != payloadMac[i])
-                {
-                    throw new Exception("MAC mismatch");
-                }
+                throw new MacMismatchException("MAC mismatch");
+            }
+
+            bool mismatch = false;
+            for (var i = 0; i < mac.Length; i++)
+            {
+                if (mac[i] != payloadMac[i])
+                    mismatch = true;
+            }
+            if (mismatch)
+            {
+                throw new MacMismatchException("MAC mismatch");
             }
         }
 
-        private async Task<Keys> ExpandKeysAsync(CancellationToken cancellationToken)
+        private async Task<(byte[] CipherKey, byte[] MacKey)> ExpandKeysAsync(CancellationToken cancellationToken)
         {
             var key = await _keyProvider.GetKeyAsync(cancellationToken);
-            using(var hkdf = new Hkdf<HMACSHA256>())
+            using (var hkdf = new Hkdf<HMACSHA256>())
             {
-                var cipherKey = hkdf.Expand(key, new byte[] {0x01}, 32);
-                var macKey = hkdf.Expand(key, new byte[] {0x02}, 32);
-                return new Keys(cipherKey, macKey);
-            }
-        }
-
-        private class Keys
-        {
-            public byte[] CipherKey { get; }
-            public byte[] MacKey { get; }
-
-            public Keys(byte[] cipherKey, byte[] macKey)
-            {
-                CipherKey = cipherKey;
-                MacKey = macKey;
+                var cipherKey = hkdf.Expand(key, KeyContext.Cipher, 32);
+                var macKey = hkdf.Expand(key, KeyContext.Mac, 32);
+                return (cipherKey, macKey);
             }
         }
     }
