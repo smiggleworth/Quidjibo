@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Quidjibo.AspNetCore.WebProxy.Models;
@@ -177,19 +178,18 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
         {
             // get the Authorization header
             var credential = GetClientSecret(context);
-            if(credential == null)
+            if (credential == null)
             {
                 // unauthorized
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 return;
             }
 
-            var body = await ReadBodyAsync(context.Request);
-            var wrapper = JsonConvert.DeserializeObject<RequestData<T>>(body);
+            var wrapper = await ParseRequestAsync<T>(context);
             var provider = context.RequestServices.GetRequiredService<IQuidjiboAuthProvider>();
 
             var authenticated = await provider.AuthenticateAsync(credential.ClientId, credential.ClientSecret, wrapper.Queues);
-            if(!authenticated)
+            if (!authenticated)
             {
                 // unauthorized
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -199,11 +199,26 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
             await func(wrapper);
         }
 
+        private async static Task<RequestData<T>> ParseRequestAsync<T>(HttpContext context)
+        {
+            //if (context.Request.Method == HttpMethods.Get)
+            //{
+            //    var dict = QueryHelpers.ParseQuery(context.Request.Query.t);
+            //    return JsonConvert.SerializeObject(dict.Cast<string>().ToDictionary(k => k, v => dict[v]));
+            //}
+            if (context.Request.Method == HttpMethods.Post || context.Request.Method == HttpMethods.Put)
+            {
+                var body = await ReadBodyAsync(context.Request);
+                return JsonConvert.DeserializeObject<RequestData<T>>(body);
+            }
+            return null;
+        }
+
         private static async Task WriteAsync(HttpContext context, object data = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             context.Response.StatusCode = (int)statusCode;
             context.Response.ContentType = "application/json";
-            if(data != null)
+            if (data != null)
             {
                 await context.Response.WriteAsync(JsonConvert.SerializeObject(data));
             }
@@ -211,7 +226,7 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
 
         private static async Task<string> ReadBodyAsync(HttpRequest request)
         {
-            using(var reader = new StreamReader(request.Body, Encoding.UTF8))
+            using (var reader = new StreamReader(request.Body, Encoding.UTF8))
             {
                 return await reader.ReadToEndAsync();
             }
@@ -219,13 +234,13 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
 
         private static QuidjiboCredential GetClientSecret(HttpContext context)
         {
-            if(context.Request.Headers.TryGetValue("Authorization", out var authorization))
+            if (context.Request.Headers.TryGetValue("Authorization", out var authorization))
             {
                 var parts = authorization[0].Split(' ');
-                if(parts.Length == 2 && parts[0] == "Quidjibo")
+                if (parts.Length == 2 && parts[0] == "Quidjibo")
                 {
                     var creds = Encoding.UTF8.GetString(Convert.FromBase64String(parts[1]))?.Split(':');
-                    if(creds != null && creds.Length == 2)
+                    if (creds != null && creds.Length == 2)
                     {
                         return new QuidjiboCredential
                         {
