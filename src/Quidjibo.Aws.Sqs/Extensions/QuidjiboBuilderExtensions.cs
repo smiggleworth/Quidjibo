@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Linq;
-using Amazon;
 using Amazon.Runtime;
 using Amazon.Runtime.CredentialManagement;
 using Amazon.SQS;
 using Amazon.Util;
-using Amazon.Util.Internal.PlatformServices;
 using Quidjibo.Aws.Sqs.Configurations;
 using Quidjibo.Aws.Sqs.Factories;
 
