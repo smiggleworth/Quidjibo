@@ -228,7 +228,7 @@ namespace Quidjibo
                 errors.Add("Requires Progress WorkProvider Factory");
             }
 
-            if(ScheduleProviderFactory == null)
+            if((_configuration?.EnableScheduler ?? true) &&  ScheduleProviderFactory == null)
             {
                 errors.Add("Requires Schedule WorkProvider Factory");
             }
