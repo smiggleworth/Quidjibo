@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,6 +10,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Quidjibo.AspNetCore.WebProxy.Deserializers;
 using Quidjibo.AspNetCore.WebProxy.Models;
 using Quidjibo.AspNetCore.WebProxy.Providers;
 using Quidjibo.Models;
@@ -177,19 +181,18 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
         {
             // get the Authorization header
             var credential = GetClientSecret(context);
-            if(credential == null)
+            if (credential == null)
             {
                 // unauthorized
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                 return;
             }
 
-            var body = await ReadBodyAsync(context.Request);
-            var wrapper = JsonConvert.DeserializeObject<RequestData<T>>(body);
+            var wrapper = await ParseRequestAsync<T>(context);
             var provider = context.RequestServices.GetRequiredService<IQuidjiboAuthProvider>();
 
             var authenticated = await provider.AuthenticateAsync(credential.ClientId, credential.ClientSecret, wrapper.Queues);
-            if(!authenticated)
+            if (!authenticated)
             {
                 // unauthorized
                 context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -199,11 +202,25 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
             await func(wrapper);
         }
 
+        private static async Task<RequestData<T>> ParseRequestAsync<T>(HttpContext context)
+        {
+            if (context.Request.Method == HttpMethods.Get)
+            {
+                return Deserialize<RequestData<T>>(context.Request.Query);
+            }
+            if (context.Request.Method == HttpMethods.Post || context.Request.Method == HttpMethods.Put)
+            {
+                var body = await ReadBodyAsync(context.Request);
+                return JsonConvert.DeserializeObject<RequestData<T>>(body);
+            }
+            return null;
+        }
+
         private static async Task WriteAsync(HttpContext context, object data = null, HttpStatusCode statusCode = HttpStatusCode.OK)
         {
             context.Response.StatusCode = (int)statusCode;
             context.Response.ContentType = "application/json";
-            if(data != null)
+            if (data != null)
             {
                 await context.Response.WriteAsync(JsonConvert.SerializeObject(data));
             }
@@ -211,7 +228,7 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
 
         private static async Task<string> ReadBodyAsync(HttpRequest request)
         {
-            using(var reader = new StreamReader(request.Body, Encoding.UTF8))
+            using (var reader = new StreamReader(request.Body, Encoding.UTF8))
             {
                 return await reader.ReadToEndAsync();
             }
@@ -219,13 +236,13 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
 
         private static QuidjiboCredential GetClientSecret(HttpContext context)
         {
-            if(context.Request.Headers.TryGetValue("Authorization", out var authorization))
+            if (context.Request.Headers.TryGetValue("Authorization", out var authorization))
             {
                 var parts = authorization[0].Split(' ');
-                if(parts.Length == 2 && parts[0] == "Quidjibo")
+                if (parts.Length == 2 && parts[0] == "Quidjibo")
                 {
                     var creds = Encoding.UTF8.GetString(Convert.FromBase64String(parts[1]))?.Split(':');
-                    if(creds != null && creds.Length == 2)
+                    if (creds != null && creds.Length == 2)
                     {
                         return new QuidjiboCredential
                         {
@@ -234,6 +251,72 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
                         };
                     }
                 }
+            }
+
+            return null;
+        }
+
+        private static T Deserialize<T>(IQueryCollection queryCollection)
+        {
+            return (T)DeserializeInternal(typeof(T), queryCollection);
+        }
+
+        private static object DeserializeInternal(Type type, IQueryCollection items, string key = null)
+        {
+            if (type.IsTraversable(out var targetType))
+            {
+                if (targetType.IsEnumerable(out var enumerableType))
+                {
+                    var enumerable = items.Where(x => key != null && x.Key.StartsWith(key))
+                        .Select(x => x.Key.Split(new[] { '[', ']' }, 3)[1]).Distinct()
+                        .Select(x => DeserializeInternal(enumerableType, items, key != null ? $"{key}[{x}]" : $"[{x}]"))
+                        .ToArray();
+
+                    if (type.IsArray)
+                    {
+                        var arr = (Array)Activator.CreateInstance(type, enumerable.Length);
+                        for (var i = 0; i < enumerable.Length; i++)
+                        {
+                            arr.SetValue(enumerable[i], i);
+                        }
+
+                        return arr;
+                    }
+
+                    var collectionType = typeof(Collection<>).MakeGenericType(enumerableType);
+                    var collection = Activator.CreateInstance(collectionType);
+                    for (var i = 0; i < enumerable.Length; i++)
+                    {
+                        collectionType.GetMethod("Insert")?.Invoke(collection, new[] { i, enumerable[i] });
+                    }
+                    return collection;
+                }
+
+                var obj = Activator.CreateInstance(type);
+                var props = type.GetProperties();
+                foreach (var prop in props)
+                {
+                    var propKey = key != null ? $"{key}.{prop.Name}" : prop.Name;
+                    var value = DeserializeInternal(prop.PropertyType, items, propKey);
+                    prop.SetValue(obj, value);
+                }
+
+                return obj;
+            }
+
+            if (!string.IsNullOrWhiteSpace(key) && items.ContainsKey(key))
+            {
+                if (targetType == typeof(Guid))
+                {
+                    return new Guid(items[key].ToString());
+                }
+
+                return Convert.ChangeType(items[key].ToString(), targetType);
+            }
+
+            if (targetType.IsValueType)
+            {
+                return Activator.CreateInstance(targetType);
             }
 
             return null;
