@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
+using Quidjibo.AspNetCore.WebProxy.Deserializers;
 using Quidjibo.AspNetCore.WebProxy.Models;
 using Quidjibo.AspNetCore.WebProxy.Providers;
 using Quidjibo.Models;
@@ -199,13 +201,12 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
             await func(wrapper);
         }
 
-        private async static Task<RequestData<T>> ParseRequestAsync<T>(HttpContext context)
+        private static async Task<RequestData<T>> ParseRequestAsync<T>(HttpContext context)
         {
-            //if (context.Request.Method == HttpMethods.Get)
-            //{
-            //    var dict = QueryHelpers.ParseQuery(context.Request.Query.t);
-            //    return JsonConvert.SerializeObject(dict.Cast<string>().ToDictionary(k => k, v => dict[v]));
-            //}
+            if (context.Request.Method == HttpMethods.Get)
+            {
+                return Deserialize<RequestData<T>>(context.Request.Query);
+            }
             if (context.Request.Method == HttpMethods.Post || context.Request.Method == HttpMethods.Put)
             {
                 var body = await ReadBodyAsync(context.Request);
@@ -249,6 +250,72 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
                         };
                     }
                 }
+            }
+
+            return null;
+        }
+
+        private static T Deserialize<T>(IQueryCollection queryCollection)
+        {
+            return (T)DeserializeInternal(typeof(T), queryCollection);
+        }
+
+        private static object DeserializeInternal(Type type, IQueryCollection items, string key = null)
+        {
+            if (type.IsTraversable(out var targetType))
+            {
+                if (targetType.IsEnumerable(out var enumerableType))
+                {
+                    var enumerable = items.Where(x => key != null && x.Key.StartsWith(key))
+                        .Select(x => x.Key.Split(new[] { '[', ']' }, 3)[1]).Distinct()
+                        .Select(x => DeserializeInternal(enumerableType, items, key != null ? $"{key}[{x}]" : $"[{x}]"))
+                        .ToArray();
+
+                    if (type.IsArray)
+                    {
+                        var arr = (Array)Activator.CreateInstance(type, enumerable.Length);
+                        for (var i = 0; i < enumerable.Length; i++)
+                        {
+                            arr.SetValue(enumerable[i], i);
+                        }
+
+                        return arr;
+                    }
+
+                    var list = (IList)Activator.CreateInstance(type, enumerable.Length);
+                    foreach (var t in enumerable)
+                    {
+                        list.Add(t);
+                    }
+
+                    return list;
+                }
+
+                var obj = Activator.CreateInstance(type);
+                var props = type.GetProperties();
+                foreach (var prop in props)
+                {
+                    var propKey = key != null ? $"{key}.{prop.Name}" : prop.Name;
+                    var value = DeserializeInternal(prop.PropertyType, items, propKey);
+                    prop.SetValue(obj, value);
+                }
+
+                return obj;
+            }
+
+            if (!string.IsNullOrWhiteSpace(key) && items.ContainsKey(key))
+            {
+                if (targetType == typeof(Guid))
+                {
+                    return new Guid(items[key].ToString());
+                }
+
+                return Convert.ChangeType(items[key].ToString(), targetType);
+            }
+
+            if (targetType.IsValueType)
+            {
+                return Activator.CreateInstance(targetType);
             }
 
             return null;

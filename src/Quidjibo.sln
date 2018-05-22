@@ -61,7 +61,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quidjibo.WebProxy.Tests", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quidjibo.Owin", "Quidjibo.Owin\Quidjibo.Owin.csproj", "{229EAB36-10AC-46EC-B68F-371F8D5AD0E5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quidjibo.AspNetCore.WebProxy", "Quidjibo.AspNetCore.WebProxy\Quidjibo.AspNetCore.WebProxy.csproj", "{A76DFBB5-A213-4C58-81DC-0C1FAACEE8DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quidjibo.AspNetCore.WebProxy", "Quidjibo.AspNetCore.WebProxy\Quidjibo.AspNetCore.WebProxy.csproj", "{A76DFBB5-A213-4C58-81DC-0C1FAACEE8DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quidjibo.AspNetCore.WebProxy.Tests", "Quidjibo.AspNetCore.WebProxy.Tests\Quidjibo.AspNetCore.WebProxy.Tests.csproj", "{042E5A03-0F93-4059-9D42-E5DF4F4D5494}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -173,6 +175,10 @@ Global
 		{A76DFBB5-A213-4C58-81DC-0C1FAACEE8DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A76DFBB5-A213-4C58-81DC-0C1FAACEE8DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A76DFBB5-A213-4C58-81DC-0C1FAACEE8DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{042E5A03-0F93-4059-9D42-E5DF4F4D5494}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{042E5A03-0F93-4059-9D42-E5DF4F4D5494}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{042E5A03-0F93-4059-9D42-E5DF4F4D5494}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{042E5A03-0F93-4059-9D42-E5DF4F4D5494}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -204,6 +210,7 @@ Global
 		{CD3DB3BF-C69D-4952-B34A-271E2C976A95} = {B71B87C8-3E4C-4648-BF70-EB21446E297F}
 		{229EAB36-10AC-46EC-B68F-371F8D5AD0E5} = {DEEE8D69-EEEC-4DA6-A628-0DF86297B175}
 		{A76DFBB5-A213-4C58-81DC-0C1FAACEE8DC} = {DEEE8D69-EEEC-4DA6-A628-0DF86297B175}
+		{042E5A03-0F93-4059-9D42-E5DF4F4D5494} = {B71B87C8-3E4C-4648-BF70-EB21446E297F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A114F306-176A-492D-B278-1EF28F9B3570}
