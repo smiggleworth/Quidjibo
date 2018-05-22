@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -282,13 +283,13 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
                         return arr;
                     }
 
-                    var list = (IList)Activator.CreateInstance(type, enumerable.Length);
-                    foreach (var t in enumerable)
+                    var collectionType = typeof(Collection<>).MakeGenericType(enumerableType);
+                    var collection = Activator.CreateInstance(collectionType);
+                    for (var i = 0; i < enumerable.Length; i++)
                     {
-                        list.Add(t);
+                        collectionType.GetMethod("Insert")?.Invoke(collection, new[] { i, enumerable[i] });
                     }
-
-                    return list;
+                    return collection;
                 }
 
                 var obj = Activator.CreateInstance(type);
