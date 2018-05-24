@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Quidjibo.WebProxy.Extensions;
 using Quidjibo.WebProxy.Models;
 
 namespace Quidjibo.WebProxy.Clients
@@ -148,8 +149,8 @@ namespace Quidjibo.WebProxy.Clients
 
         internal async Task<WebProxyResponse> GetWebProxyResponse(HttpRequestMessage httpRequestMessage, CancellationToken cancellationToken)
         {
-            using(var httpClient = new HttpClient())
-            using(var response = await httpClient.SendAsync(httpRequestMessage, cancellationToken))
+            using (var httpClient = new HttpClient())
+            using (var response = await httpClient.SendAsync(httpRequestMessage, cancellationToken))
             {
                 var webProxyResponse = new WebProxyResponse
                 {
@@ -164,8 +165,8 @@ namespace Quidjibo.WebProxy.Clients
 
         internal async Task<WebProxyResponse<T>> GetWebProxyResponse<T>(HttpRequestMessage httpRequestMessage, CancellationToken cancellationToken)
         {
-            using(var httpClient = new HttpClient())
-            using(var response = await httpClient.SendAsync(httpRequestMessage, cancellationToken))
+            using (var httpClient = new HttpClient())
+            using (var response = await httpClient.SendAsync(httpRequestMessage, cancellationToken))
             {
                 var webProxyResponse = new WebProxyResponse<T>
                 {
@@ -175,7 +176,7 @@ namespace Quidjibo.WebProxy.Clients
                     StatusCode = response.StatusCode
                 };
 
-                if(response.IsSuccessStatusCode)
+                if (response.IsSuccessStatusCode)
                 {
                     webProxyResponse.Data = JsonConvert.DeserializeObject<T>(webProxyResponse.Content);
                 }
@@ -190,7 +191,7 @@ namespace Quidjibo.WebProxy.Clients
             var authentication = Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_clientId}:{_clientSecret}"));
             request.Headers.Authorization = new AuthenticationHeaderValue("Quidjibo", authentication);
             request.Headers.UserAgent.ParseAdd("quidjibo");
-            if(content != null)
+            if (content != null)
             {
                 request.Content = content;
             }
@@ -201,7 +202,7 @@ namespace Quidjibo.WebProxy.Clients
         internal FormUrlEncodedContent GetFormUrlEncodedContent<T>(T model)
         {
             var keyValuePairs = GetAllKeyValuePairs(model).ToList();
-            if(!keyValuePairs.Any())
+            if (!keyValuePairs.Any())
             {
                 return null;
             }
@@ -228,13 +229,13 @@ namespace Quidjibo.WebProxy.Clients
 
             uriBuilder.Path = $"{uriBuilder.Path.Trim('/')}/{urlPath.Trim('/')}";
 
-            if(model == null)
+            if (model == null)
             {
                 return uriBuilder.Uri;
             }
 
             var content = GetFormUrlEncodedContent(model);
-            if(content == null)
+            if (content == null)
             {
                 return uriBuilder.Uri;
             }
@@ -251,16 +252,16 @@ namespace Quidjibo.WebProxy.Clients
         internal static IEnumerable<KeyValuePair<string, string>> GetModelKeyValuePairs<T>(T model, string parent = null)
         {
             var hasParent = !string.IsNullOrWhiteSpace(parent);
-            foreach(var propertyInfo in model.GetType().GetProperties())
+            foreach (var propertyInfo in model.GetType().GetProperties())
             {
                 var attributes = propertyInfo.GetCustomAttributes().ToList();
-                if(attributes.OfType<JsonIgnoreAttribute>().Any())
+                if (attributes.OfType<JsonIgnoreAttribute>().Any())
                 {
                     continue;
                 }
 
                 var propertyValue = propertyInfo.GetValue(model);
-                if(propertyValue == null)
+                if (propertyValue == null)
                 {
                     continue;
                 }
@@ -269,18 +270,18 @@ namespace Quidjibo.WebProxy.Clients
                 var key = hasParent ? $"{parent}.{propertyName}" : propertyName;
 
 
-                if(Traverse(propertyInfo.PropertyType))
+                if (propertyInfo.PropertyType.IsTraversable())
                 {
-                    if(propertyValue is IEnumerable enumerable)
+                    if (propertyValue is IEnumerable enumerable)
                     {
                         var i = 0;
-                        foreach(var item in enumerable)
+                        foreach (var item in enumerable)
                         {
                             var keyi = $"{key}[{i}]";
 
-                            if(Traverse(item.GetType()))
+                            if (item.GetType().IsTraversable())
                             {
-                                foreach(var child in GetModelKeyValuePairs(item, keyi))
+                                foreach (var child in GetModelKeyValuePairs(item, keyi))
                                 {
                                     yield return child;
                                 }
@@ -296,7 +297,7 @@ namespace Quidjibo.WebProxy.Clients
                         continue;
                     }
 
-                    foreach(var child in GetModelKeyValuePairs(propertyValue, key))
+                    foreach (var child in GetModelKeyValuePairs(propertyValue, key))
                     {
                         yield return child;
                     }
@@ -306,44 +307,6 @@ namespace Quidjibo.WebProxy.Clients
 
                 yield return new KeyValuePair<string, string>(key, propertyValue.ToString());
             }
-        }
-
-        internal static bool Traverse(Type type)
-        {
-            var typeInfo = type.GetTypeInfo();
-            if(typeInfo.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
-            {
-                type = Nullable.GetUnderlyingType(type);
-                typeInfo = type.GetTypeInfo();
-            }
-
-            return !(type == null || typeInfo.IsNotPublic || type.IsPointer || typeInfo.IsPrimitive
-                     || typeof(Action<>).IsAssignableFrom(type)
-                     || typeof(bool).IsAssignableFrom(type)
-                     || typeof(byte).IsAssignableFrom(type)
-                     || typeof(byte[]).IsAssignableFrom(type)
-                     || typeof(char).IsAssignableFrom(type)
-                     || typeof(char[]).IsAssignableFrom(type)
-                     || typeof(DateTime).IsAssignableFrom(type)
-                     || typeof(decimal).IsAssignableFrom(type)
-                     || typeof(double).IsAssignableFrom(type)
-                     || typeof(Exception).IsAssignableFrom(type)
-                     || typeof(float).IsAssignableFrom(type)
-                     || typeof(Func<>).IsAssignableFrom(type)
-                     || typeof(Guid).IsAssignableFrom(type)
-                     || typeof(int).IsAssignableFrom(type)
-                     || typeof(long).IsAssignableFrom(type)
-                     || typeof(MulticastDelegate).IsAssignableFrom(type)
-                     || typeof(sbyte).IsAssignableFrom(type)
-                     || typeof(short).IsAssignableFrom(type)
-                     || typeof(string).IsAssignableFrom(type)
-                     || typeof(Task).IsAssignableFrom(type)
-                     || typeof(Type).IsAssignableFrom(type)
-                     || typeof(uint).IsAssignableFrom(type)
-                     || typeof(ulong).IsAssignableFrom(type)
-                     || typeof(ushort).IsAssignableFrom(type)
-                     || typeof(void).IsAssignableFrom(type)
-            );
         }
     }
 }
