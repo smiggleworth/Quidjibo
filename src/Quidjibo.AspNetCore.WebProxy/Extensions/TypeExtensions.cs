@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Quidjibo.AspNetCore.WebProxy.Deserializers
+namespace Quidjibo.AspNetCore.WebProxy.Extensions
 {
     public static class TypeExtensions
     {

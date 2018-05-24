@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using Quidjibo.AspNetCore.WebProxy.Deserializers;
 using Quidjibo.AspNetCore.WebProxy.Models;
 using Quidjibo.AspNetCore.WebProxy.Providers;
 using Quidjibo.Models;
