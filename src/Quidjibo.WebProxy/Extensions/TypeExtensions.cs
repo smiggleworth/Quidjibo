@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Quidjibo.AspNetCore.WebProxy.Deserializers
+namespace Quidjibo.WebProxy.Extensions
 {
     public static class TypeExtensions
     {
@@ -43,6 +43,16 @@ namespace Quidjibo.AspNetCore.WebProxy.Deserializers
             }
 
             return false;
+        }
+
+        /// <summary>
+        ///     Check if this type is traversable.
+        /// </summary>
+        /// <param name="type">The type to check.</param>
+        /// <returns></returns>
+        public static bool IsTraversable(this Type type)
+        {
+            return type.IsTraversable(out var underlyingType);
         }
 
         /// <summary>

@@ -145,7 +145,7 @@ namespace Quidjibo
         }
 
         /// <summary>
-        ///     Configure a custome Progress WorkProvider Factory. Typically this is done in an extension method provided by the
+        ///     Configure a custom Progress WorkProvider Factory. Typically this is done in an extension method provided by the
         ///     integration implmentation
         /// </summary>
         /// <param name="factory"></param>
@@ -157,7 +157,7 @@ namespace Quidjibo
         }
 
         /// <summary>
-        ///     Configure a custome Schedule WorkProvider Factory. Typically this is done in an extension method provided by the
+        ///     Configure a custom Schedule WorkProvider Factory. Typically this is done in an extension method provided by the
         ///     integration implmentation
         /// </summary>
         /// <param name="factory"></param>
@@ -169,7 +169,7 @@ namespace Quidjibo
         }
 
         /// <summary>
-        ///     Configure a custome Work WorkProvider Factory. Typically this is done in an extension method provided by the
+        ///     Configure a custom Work WorkProvider Factory. Typically this is done in an extension method provided by the
         ///     integration implmentation
         /// </summary>
         /// <param name="factory"></param>
@@ -220,17 +220,17 @@ namespace Quidjibo
 
             if(WorkProviderFactory == null)
             {
-                errors.Add("Requires Work WorkProvider Factory");
+                errors.Add("Requires Work Provider Factory");
             }
 
             if(ProgressProviderFactory == null)
             {
-                errors.Add("Requires Progress WorkProvider Factory");
+                errors.Add("Requires Progress Provider Factory");
             }
 
             if((_configuration?.EnableScheduler ?? true) &&  ScheduleProviderFactory == null)
             {
-                errors.Add("Requires Schedule WorkProvider Factory");
+                errors.Add("Requires Schedule Provider Factory");
             }
 
             if(errors.Any())
