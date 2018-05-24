@@ -13,30 +13,35 @@ namespace Quidjibo.Aws.Sqs.Factories
     public class SqsWorkProviderFactory : IWorkProviderFactory
     {
         private readonly AmazonSQSConfig _amazonSqsConfig;
-        private readonly BasicAWSCredentials _basicAwsCredentials;
+        private readonly AWSCredentials _awsCredentials;
+        private readonly int _visibilityTimeout;
+        private readonly int _longPollDuration;
 
         public SqsWorkProviderFactory(
-            BasicAWSCredentials basicAwsCredentials,
-            AmazonSQSConfig amazonSqsConfig)
+            AWSCredentials awsCredentials,
+            AmazonSQSConfig amazonSqsConfig, 
+            int? visibilityTimeout = 60, 
+            int? longPollDuration = 0)
         {
-            _basicAwsCredentials = basicAwsCredentials;
+            _awsCredentials = awsCredentials;
             _amazonSqsConfig = amazonSqsConfig;
+            _visibilityTimeout = visibilityTimeout ?? 60;
+            _longPollDuration = longPollDuration ?? 0;
         }
-
-
+        
         public int PollingInterval => 10;
 
         public async Task<IWorkProvider> CreateAsync(string queues,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            var client = new AmazonSQSClient(_basicAwsCredentials, _amazonSqsConfig);
+            var client = new AmazonSQSClient(_awsCredentials, _amazonSqsConfig);
             var response = await client.GetQueueUrlAsync(queues, cancellationToken);
             if(response.HttpStatusCode != HttpStatusCode.OK)
             {
                 throw new InvalidOperationException("Could not load the queues url.");
             }
 
-            var provider = new SqsWorkProvider(client, response.QueueUrl, 30, 10);
+            var provider = new SqsWorkProvider(client, response.QueueUrl, _visibilityTimeout, 10, _longPollDuration);
             return provider;
         }
 

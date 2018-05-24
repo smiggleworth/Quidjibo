@@ -20,7 +20,7 @@ namespace Quidjibo.Tests
 
             build.Should().Throw<QuidjiboBuilderException>()
                  .WithMessage("Failed to validate. See list of errors for more detail.")
-                 .And.Errors.Should().Contain("Requires Work WorkProvider Factory");
+                 .And.Errors.Should().Contain("Requires Work Provider Factory");
         }
 
         [TestMethod]
@@ -32,7 +32,7 @@ namespace Quidjibo.Tests
 
             build.Should().Throw<QuidjiboBuilderException>()
                  .WithMessage("Failed to validate. See list of errors for more detail.")
-                 .And.Errors.Should().Contain("Requires Schedule WorkProvider Factory");
+                 .And.Errors.Should().Contain("Requires Schedule Provider Factory");
         }
 
         [TestMethod]
@@ -44,7 +44,7 @@ namespace Quidjibo.Tests
 
             build.Should().Throw<QuidjiboBuilderException>()
                  .WithMessage("Failed to validate. See list of errors for more detail.")
-                 .And.Errors.Should().Contain("Requires Progress WorkProvider Factory");
+                 .And.Errors.Should().Contain("Requires Progress Provider Factory");
         }
 
         [TestMethod]

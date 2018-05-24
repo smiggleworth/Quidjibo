@@ -17,5 +17,6 @@ namespace Quidjibo.Aws.Sqs.Configurations
         public int Throttle { get; set; }
         public bool EnableWorker { get; set; }
         public bool EnableScheduler { get; set; }
+        public int LongPollDuration { get; set; }
     }
 }
