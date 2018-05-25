@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Quidjibo.Configurations;
+﻿using Quidjibo.Configurations;
 
 namespace Quidjibo.SqlServer.Configurations
 {
@@ -10,23 +9,25 @@ namespace Quidjibo.SqlServer.Configurations
         /// </summary>
         public string ConnectionString { get; set; }
 
-        public List<string> PublisherQueues { get; set; }
-        public int PollingInterval { get; set; }
+        /// <inheritdoc />
+        public string[] Queues { get; set; } = { "default" };
 
-        public SqlServerQuidjiboConfiguration()
-        {
-            Throttle = 10;
-            LockInterval = 30;
-            MaxAttempts = 5;
-            SingleLoop = true;
-        }
+        /// <inheritdoc />
+        public bool SingleLoop { get; set; } = true;
 
-        public string[] Queues { get; set; }
-        public bool SingleLoop { get; set; }
-        public int MaxAttempts { get; set; }
-        public int LockInterval { get; set; }
-        public int Throttle { get; set; }
+        /// <inheritdoc />
+        public int MaxAttempts { get; set; } = 5;
+
+        /// <inheritdoc />
+        public int LockInterval { get; set; } = 30;
+
+        /// <inheritdoc />
+        public int Throttle { get; set; } = 10;
+
+        /// <inheritdoc />
         public bool EnableWorker { get; set; } = true;
+
+        /// <inheritdoc />
         public bool EnableScheduler { get; set; } = true;
     }
 }
