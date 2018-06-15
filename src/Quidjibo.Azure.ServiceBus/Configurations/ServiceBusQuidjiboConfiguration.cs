@@ -4,7 +4,6 @@ namespace Quidjibo.Azure.ServiceBus.Configurations
 {
     public class ServiceBusQuidjiboConfiguration : IQuidjiboConfiguration
     {
-        public int PollingInterval { get; }
         public string[] Queues { get; }
         public bool SingleLoop { get; }
         public int MaxAttempts { get; }

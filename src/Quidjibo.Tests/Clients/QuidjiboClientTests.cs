@@ -321,6 +321,7 @@ namespace Quidjibo.Tests.Clients
         [Schedule(nameof(ScheduleDefaultCommand), "* * * * *")]
         public class ScheduleDefaultCommand : IQuidjiboCommand
         {
+            public Guid? CorrelationId { get; set; }
             public Dictionary<string, string> Metadata { get; set; }
         }
 
@@ -330,12 +331,14 @@ namespace Quidjibo.Tests.Clients
         [Schedule(nameof(SchedulCustomQueueCommand), "1 * * * *", "queue-1")]
         public class SchedulCustomQueueCommand : IQuidjiboCommand
         {
+            public Guid? CorrelationId { get; set; }
             public Dictionary<string, string> Metadata { get; set; }
         }
 
         [Schedule(nameof(ScheduleCustomeQueueAndKeyedCommand), "1 1 * * *", "queue-2", typeof(CustomClientKey1))]
         public class ScheduleCustomeQueueAndKeyedCommand : IQuidjiboCommand
         {
+            public Guid? CorrelationId { get; set; }
             public Dictionary<string, string> Metadata { get; set; }
         }
     }

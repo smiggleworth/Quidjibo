@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace Quidjibo.EndToEnd.Jobs
                 Id = id;
             }
 
+            public Guid? CorrelationId { get; set; }
             public Dictionary<string, string> Metadata { get; set; }
         }
 
