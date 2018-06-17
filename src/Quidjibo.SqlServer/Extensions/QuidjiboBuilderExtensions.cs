@@ -9,14 +9,14 @@ namespace Quidjibo.SqlServer.Extensions
         ///     Use Sql Server for Work, Progress, and Scheduled Jobs, and sets Quidjibo configuration
         /// </summary>
         /// <param name="builder"></param>
-        /// <param name="config"></param>
+        /// <param name="sqlServerQuidjiboConfiguration"></param>
         /// <returns></returns>
-        public static QuidjiboBuilder UseSqlServer(this QuidjiboBuilder builder, SqlServerQuidjiboConfiguration config)
+        public static QuidjiboBuilder UseSqlServer(this QuidjiboBuilder builder, SqlServerQuidjiboConfiguration sqlServerQuidjiboConfiguration)
         {
-            return builder.Configure(config)
-                          .ConfigureWorkProviderFactory(new SqlWorkProviderFactory(config.ConnectionString))
-                          .ConfigureProgressProviderFactory(new SqlProgressProviderFactory(config.ConnectionString))
-                          .ConfigureScheduleProviderFactory(new SqlScheduleProviderFactory(config.ConnectionString));
+            return builder.Configure(sqlServerQuidjiboConfiguration)
+                          .ConfigureWorkProviderFactory(new SqlWorkProviderFactory(sqlServerQuidjiboConfiguration))
+                          .ConfigureProgressProviderFactory(new SqlProgressProviderFactory(sqlServerQuidjiboConfiguration.ConnectionString))
+                          .ConfigureScheduleProviderFactory(new SqlScheduleProviderFactory(sqlServerQuidjiboConfiguration.ConnectionString));
         }
 
 
@@ -29,9 +29,9 @@ namespace Quidjibo.SqlServer.Extensions
         /// <returns></returns>
         public static QuidjiboBuilder UseSqlServer(this QuidjiboBuilder builder, string connectionString, params string[] queues)
         {
-            if(queues == null || queues.Length == 0)
+            if (queues == null || queues.Length == 0)
             {
-                queues = new[] {"default"};
+                queues = new[] { "default" };
             }
 
             var config = new SqlServerQuidjiboConfiguration
@@ -41,7 +41,7 @@ namespace Quidjibo.SqlServer.Extensions
             };
 
             return builder.Configure(config)
-                          .ConfigureWorkProviderFactory(new SqlWorkProviderFactory(connectionString))
+                          .ConfigureWorkProviderFactory(new SqlWorkProviderFactory(config))
                           .ConfigureProgressProviderFactory(new SqlProgressProviderFactory(connectionString))
                           .ConfigureScheduleProviderFactory(new SqlScheduleProviderFactory(connectionString));
         }
@@ -50,11 +50,11 @@ namespace Quidjibo.SqlServer.Extensions
         ///     Use Sql Server For Work
         /// </summary>
         /// <param name="builder"></param>
-        /// <param name="connectionString"></param>
+        /// <param name="sqlServerQuidjiboConfiguration"></param>
         /// <returns></returns>
-        public static QuidjiboBuilder UseSqlServerForWork(this QuidjiboBuilder builder, string connectionString)
+        public static QuidjiboBuilder UseSqlServerForWork(this QuidjiboBuilder builder, SqlServerQuidjiboConfiguration sqlServerQuidjiboConfiguration)
         {
-            return builder.ConfigureWorkProviderFactory(new SqlWorkProviderFactory(connectionString));
+            return builder.ConfigureWorkProviderFactory(new SqlWorkProviderFactory(sqlServerQuidjiboConfiguration));
         }
 
         /// <summary>
