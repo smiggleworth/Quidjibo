@@ -39,30 +39,36 @@ namespace Quidjibo.Providers
             {
                 ' '
             }, StringSplitOptions.RemoveEmptyEntries);
-            if(parts.Length != 5)
+            if (parts.Length != 5)
             {
                 throw new InvalidOperationException("Expression must contain 5 parts");
             }
 
-            return from y in new[]
-                   {
-                       start.Year,
-                       start.Year + 1
-                   }
-                   from mo in ParsePart(parts[3], "1-12")
-                   from dom in ParsePart(NormalizeMonths(parts[2]), "1-31")
-                   from h in ParsePart(parts[1], "0-23")
-                   from m in ParsePart(parts[0], "0-59")
-                   where dom <= MaxDayOfMonth(y, mo)
-                   let date = new DateTime(y, mo, dom, h, m, 0)
-                   where date >= start && ParsePart(NormalizeDayOfWeek(parts[4]), "0-6").Contains((int)date.DayOfWeek)
-                   orderby date
-                   select date;
+            var years = new[] { start.Year, start.Year + 1 };
+            var months = ParsePart(parts[3], "1-12").ToArray();
+            var days = ParsePart(NormalizeMonths(parts[2]), "1-31");
+            var hours = ParsePart(parts[1], "0-23").ToArray();
+            var minutes = ParsePart(parts[0], "0-59").ToArray();
+            var daysOfTheWeek = ParsePart(NormalizeDayOfWeek(parts[4]), "0-6");
+
+            var qry = from y in years
+                      from mo in months
+                      from dom in days
+                      where dom <= MaxDayOfMonth(y, mo)
+                      from h in hours
+                      from m in minutes
+                      let date = new DateTime(y, mo, dom, h, m, 0)
+                      where date >= start && daysOfTheWeek.Contains((int)date.DayOfWeek)
+                      orderby date
+                      select date;
+
+
+            return qry;
         }
 
-        private static IEnumerable<int> ParsePart(string part, string wild)
+        private IEnumerable<int> ParsePart(string part, string wild)
         {
-            if(part.Contains("*"))
+            if (part.Contains("*"))
             {
                 part = part.Replace("*", wild);
             }
@@ -78,9 +84,9 @@ namespace Quidjibo.Providers
         }
 
 
-        private static int MaxDayOfMonth(int year, int month)
+        private int MaxDayOfMonth(int year, int month)
         {
-            if(month == 2)
+            if (month == 2)
             {
                 return DateTime.IsLeapYear(year) ? 29 : 28;
             }
@@ -88,9 +94,9 @@ namespace Quidjibo.Providers
             return month == 4 || month == 6 || month == 9 || month == 11 ? 30 : 31;
         }
 
-        private static IEnumerable<int> GetSteps(int min, int max, int step)
+        private IEnumerable<int> GetSteps(int min, int max, int step)
         {
-            if(min == max)
+            if (min == max)
             {
                 yield return min;
 
@@ -98,10 +104,10 @@ namespace Quidjibo.Providers
             }
 
             var prev = 0;
-            for(var i = min; i <= max; i++)
+            for (var i = min; i <= max; i++)
             {
                 var diff = i - prev;
-                if(diff % step == 0)
+                if (diff % step == 0)
                 {
                     yield return i;
 
@@ -110,7 +116,7 @@ namespace Quidjibo.Providers
             }
         }
 
-        private static string NormalizeMonths(string months)
+        private string NormalizeMonths(string months)
         {
             return months.ToUpper()
                          .Replace("JAN", "1")
@@ -127,7 +133,7 @@ namespace Quidjibo.Providers
                          .Replace("DEC", "12");
         }
 
-        private static string NormalizeDayOfWeek(string dayOfWeek)
+        private string NormalizeDayOfWeek(string dayOfWeek)
         {
             return dayOfWeek.ToUpper()
                             .Replace("SUN", "0")
