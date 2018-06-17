@@ -46,10 +46,10 @@ namespace Quidjibo.Providers
 
             var years = new[] { start.Year, start.Year + 1 };
             var months = ParsePart(parts[3], "1-12").ToArray();
-            var days = ParsePart(NormalizeMonths(parts[2]), "1-31");
+            var days = ParsePart(NormalizeMonths(parts[2]), "1-31").ToArray();
             var hours = ParsePart(parts[1], "0-23").ToArray();
             var minutes = ParsePart(parts[0], "0-59").ToArray();
-            var daysOfTheWeek = ParsePart(NormalizeDayOfWeek(parts[4]), "0-6");
+            var daysOfTheWeek = ParsePart(NormalizeDayOfWeek(parts[4]), "0-6").ToArray();
 
             var qry = from y in years
                       from mo in months
@@ -58,7 +58,8 @@ namespace Quidjibo.Providers
                       from h in hours
                       from m in minutes
                       let date = new DateTime(y, mo, dom, h, m, 0)
-                      where date >= start && daysOfTheWeek.Contains((int)date.DayOfWeek)
+                      where date >= start
+                            && daysOfTheWeek.Contains((int)date.DayOfWeek)
                       orderby date
                       select date;
 
