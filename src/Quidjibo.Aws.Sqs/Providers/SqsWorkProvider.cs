@@ -16,11 +16,11 @@ namespace Quidjibo.Aws.Sqs.Providers
         private const string WorkItemId = nameof(WorkItemId);
         private const string CorrelationId = nameof(CorrelationId);
         private readonly int _batchSize;
-        private readonly int _waitTimeSeconds;
 
         private readonly AmazonSQSClient _client;
         private readonly string _queueUrl;
         private readonly int _visibilityTimeout;
+        private readonly int _waitTimeSeconds;
 
         public SqsWorkProvider(AmazonSQSClient client, string queueUrl, int visibilityTimeout, int batchSize, int waitTimeSeconds)
         {
@@ -28,17 +28,18 @@ namespace Quidjibo.Aws.Sqs.Providers
             _visibilityTimeout = visibilityTimeout;
             _batchSize = batchSize;
             _queueUrl = queueUrl;
-            if(waitTimeSeconds < 0 || waitTimeSeconds > 20)
+            if (waitTimeSeconds < 0 || waitTimeSeconds > 20)
             {
                 throw new ArgumentException($"{nameof(waitTimeSeconds)} must be between 0 and 20.");
             }
+
             _waitTimeSeconds = waitTimeSeconds;
         }
 
         public async Task SendAsync(WorkItem item, int delay, CancellationToken cancellationToken)
         {
             var request = new SendMessageRequest(_queueUrl, Convert.ToBase64String(item.Payload));
-            var id = item.Id.ToString();    
+            var id = item.Id.ToString();
             var correlationId = item.CorrelationId.ToString();
             request.MessageDeduplicationId = id;
             request.MessageGroupId = id;
@@ -57,7 +58,7 @@ namespace Quidjibo.Aws.Sqs.Providers
 
             var response = await _client.SendMessageAsync(request, cancellationToken);
 
-            if(response.HttpStatusCode == HttpStatusCode.OK)
+            if (response.HttpStatusCode == HttpStatusCode.OK)
             {
             }
         }
@@ -69,7 +70,7 @@ namespace Quidjibo.Aws.Sqs.Providers
                 MaxNumberOfMessages = _batchSize,
                 VisibilityTimeout = _visibilityTimeout,
                 WaitTimeSeconds = _waitTimeSeconds,
-                MessageAttributeNames = new List<string>() { WorkItemId, CorrelationId}
+                MessageAttributeNames = new List<string> { WorkItemId, CorrelationId }
             };
 
             var messages = await _client.ReceiveMessageAsync(request, cancellationToken);
@@ -85,23 +86,19 @@ namespace Quidjibo.Aws.Sqs.Providers
         public async Task<DateTime> RenewAsync(WorkItem item, CancellationToken cancellationToken)
         {
             var lockExpiration = (item.VisibleOn ?? DateTime.UtcNow).AddSeconds(_visibilityTimeout);
-            var response = await _client.ChangeMessageVisibilityAsync(_queueUrl, item.Token, _visibilityTimeout,
-                cancellationToken);
-
-            // todo handle errors
-
+            await _client.ChangeMessageVisibilityAsync(_queueUrl, item.Token, _visibilityTimeout, cancellationToken);
             return lockExpiration;
         }
 
         public async Task CompleteAsync(WorkItem item, CancellationToken cancellationToken)
         {
             var request = new DeleteMessageRequest(_queueUrl, item.Token);
-            var response = await _client.DeleteMessageAsync(request, cancellationToken);
+            await _client.DeleteMessageAsync(request, cancellationToken);
         }
 
         public async Task FaultAsync(WorkItem item, CancellationToken cancellationToken)
         {
-            var response = await _client.ChangeMessageVisibilityAsync(_queueUrl, item.Token, 0, cancellationToken);
+            await _client.ChangeMessageVisibilityAsync(_queueUrl, item.Token, 0, cancellationToken);
         }
 
         public void Dispose()

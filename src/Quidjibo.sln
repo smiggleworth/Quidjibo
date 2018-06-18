@@ -63,7 +63,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quidjibo.Owin", "Quidjibo.O
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quidjibo.AspNetCore.WebProxy", "Quidjibo.AspNetCore.WebProxy\Quidjibo.AspNetCore.WebProxy.csproj", "{A76DFBB5-A213-4C58-81DC-0C1FAACEE8DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quidjibo.AspNetCore.WebProxy.Tests", "Quidjibo.AspNetCore.WebProxy.Tests\Quidjibo.AspNetCore.WebProxy.Tests.csproj", "{042E5A03-0F93-4059-9D42-E5DF4F4D5494}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Quidjibo.AspNetCore.WebProxy.Tests", "Quidjibo.AspNetCore.WebProxy.Tests\Quidjibo.AspNetCore.WebProxy.Tests.csproj", "{042E5A03-0F93-4059-9D42-E5DF4F4D5494}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
