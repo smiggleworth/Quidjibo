@@ -10,6 +10,7 @@ using NSubstitute;
 using Quidjibo.Attributes;
 using Quidjibo.Clients;
 using Quidjibo.Commands;
+using Quidjibo.Constants;
 using Quidjibo.Factories;
 using Quidjibo.Models;
 using Quidjibo.Protectors;
@@ -59,7 +60,7 @@ namespace Quidjibo.Tests.Clients
         public async Task PublishAsync()
         {
             // Arrange
-            var queueName = "default";
+            var queueName = Default.Queue;
             var command = new BasicCommand();
             var delay = 0;
             var cancellationToken = CancellationToken.None;
@@ -96,7 +97,7 @@ namespace Quidjibo.Tests.Clients
         public async Task PublishAsync_WithDelay()
         {
             // Arrange
-            var queueName = "default";
+            var queueName = Default.Queue;
             var command = new BasicCommand();
             var delay = GenFu.GenFu.Random.Next();
             var cancellationToken = CancellationToken.None;
@@ -151,7 +152,7 @@ namespace Quidjibo.Tests.Clients
         {
             // Arrange
             var name = BaseValueGenerator.Word();
-            var queueName = "default";
+            var queueName = Default.Queue;
             var cron = Cron.Daily();
             var command = new BasicCommand();
             var cancellationToken = CancellationToken.None;
@@ -208,7 +209,7 @@ namespace Quidjibo.Tests.Clients
         {
             // Arrange
             var name = BaseValueGenerator.Word();
-            var queueName = "default";
+            var queueName = Default.Queue;
             var cron = Cron.Weekly();
             var payload = Guid.NewGuid().ToByteArray();
             var command = new BasicCommand();
@@ -238,7 +239,7 @@ namespace Quidjibo.Tests.Clients
         {
             // Arrange
             var name = BaseValueGenerator.Word();
-            var queueName = "default";
+            var queueName = Default.Queue;
             var cron = Cron.Weekly();
             var payload = Guid.NewGuid().ToByteArray();
             var command = new BasicCommand();
@@ -276,10 +277,10 @@ namespace Quidjibo.Tests.Clients
             await _sut.ScheduleAsync(assemblies, cancellationToken);
 
             // Assert
-            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "default" && x.CronExpression == "* * * * *"), cancellationToken);
-            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "default" && x.Name == "MinuteIntervalsScheduleDefaultCommand"), cancellationToken);
-            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "default" && x.Name == "DailyScheduleDefaultCommand"), cancellationToken);
-            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "default" && x.Name == "WeeklyScheduleDefaultCommand"), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == Default.Queue && x.CronExpression == "* * * * *"), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == Default.Queue && x.Name == "MinuteIntervalsScheduleDefaultCommand"), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == Default.Queue && x.Name == "DailyScheduleDefaultCommand"), cancellationToken);
+            await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == Default.Queue && x.Name == "WeeklyScheduleDefaultCommand"), cancellationToken);
 
             await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-1" && x.CronExpression == "1 * * * *"), cancellationToken);
             await _scheduleProvider.Received(1).CreateAsync(Arg.Is<ScheduleItem>(x => x.Queue == "queue-1" && x.Name == "MinuteIntervalsScheduleDefaultCommand"), cancellationToken);

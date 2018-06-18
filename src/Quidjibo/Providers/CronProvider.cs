@@ -62,8 +62,6 @@ namespace Quidjibo.Providers
                             && daysOfTheWeek.Contains((int)date.DayOfWeek)
                       orderby date
                       select date;
-
-
             return qry;
         }
 

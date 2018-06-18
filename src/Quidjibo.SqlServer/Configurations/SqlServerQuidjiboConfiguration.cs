@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Quidjibo.Configurations;
+using Quidjibo.Constants;
 
 namespace Quidjibo.SqlServer.Configurations
 {
@@ -14,6 +15,6 @@ namespace Quidjibo.SqlServer.Configurations
         public int PollingInterval { get; set; } = 10;
         public int Throttle { get; set; } = 10;
         public string ConnectionString { get; set; }
-        public string[] Queues { get; set; }
+        public string[] Queues { get; set; } = Default.Queues;
     }
 }

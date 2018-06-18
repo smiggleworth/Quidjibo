@@ -1,4 +1,5 @@
-﻿using Quidjibo.SqlServer.Configurations;
+﻿using Quidjibo.Constants;
+using Quidjibo.SqlServer.Configurations;
 using Quidjibo.SqlServer.Factories;
 
 namespace Quidjibo.SqlServer.Extensions
@@ -31,7 +32,7 @@ namespace Quidjibo.SqlServer.Extensions
         {
             if (queues == null || queues.Length == 0)
             {
-                queues = new[] { "default" };
+                queues = Default.Queues;
             }
 
             var config = new SqlServerQuidjiboConfiguration
