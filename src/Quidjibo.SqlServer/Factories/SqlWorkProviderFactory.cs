@@ -20,8 +20,6 @@ namespace Quidjibo.SqlServer.Factories
             _sqlServerQuidjiboConfiguration = sqlServerQuidjiboConfiguration;
         }
 
-        public int PollingInterval => _sqlServerQuidjiboConfiguration.PollingInterval;
-
         public Task<IWorkProvider> CreateAsync(string queues, CancellationToken cancellationToken = default(CancellationToken))
         {
             return CreateAsync(queues.Split(','), cancellationToken);

@@ -10,7 +10,6 @@ namespace Quidjibo.Aws.Sqs.Factories
 {
     public class SqsScheduleProviderFactory : IScheduleProviderFactory
     {
-        public int PollingInterval { get; }
 
         public Task<IScheduleProvider> CreateAsync(string queues, CancellationToken cancellationToken = default(CancellationToken))
         {
