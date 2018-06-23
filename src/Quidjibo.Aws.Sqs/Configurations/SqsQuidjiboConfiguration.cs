@@ -1,5 +1,6 @@
 ﻿using Amazon.Runtime;
 using Amazon.SQS;
+using Quidjibo.Aws.Sqs.Types;
 using Quidjibo.Configurations;
 using Quidjibo.Constants;
 
@@ -16,6 +17,8 @@ namespace Quidjibo.Aws.Sqs.Configurations
         ///     The Amazon SQS configuration.
         /// </summary>
         public AmazonSQSConfig AmazonSqsConfig { get; set; }
+
+        public SqsQueueType  Type { get; set; }
 
         /// <summary>
         ///     The long poll duration to.

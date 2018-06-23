@@ -32,6 +32,7 @@ namespace Quidjibo.Aws.Sqs.Factories
             var provider = new SqsWorkProvider(
                 client,
                 response.QueueUrl,
+                _sqsQuidjiboConfiguration.Type,
                 _sqsQuidjiboConfiguration.LockInterval,
                 _sqsQuidjiboConfiguration.BatchSize,
                 _sqsQuidjiboConfiguration.LongPollDuration);
@@ -41,7 +42,7 @@ namespace Quidjibo.Aws.Sqs.Factories
 
         public Task<IWorkProvider> CreateAsync(string[] queues, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if(queues.Length != 1)
+            if (queues.Length != 1)
             {
                 throw new NotSupportedException("Each queues requires a seperate listener. Please pass a single queue.");
             }
