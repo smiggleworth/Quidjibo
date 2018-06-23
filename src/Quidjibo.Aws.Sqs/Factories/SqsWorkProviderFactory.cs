@@ -20,8 +20,6 @@ namespace Quidjibo.Aws.Sqs.Factories
             _sqsQuidjiboConfiguration = sqsQuidjiboConfiguration;
         }
 
-        public int PollingInterval => 10;
-
         public async Task<IWorkProvider> CreateAsync(string queues, CancellationToken cancellationToken = default(CancellationToken))
         {
             var client = new AmazonSQSClient(_sqsQuidjiboConfiguration.Credentials, _sqsQuidjiboConfiguration.AmazonSqsConfig);
@@ -34,8 +32,9 @@ namespace Quidjibo.Aws.Sqs.Factories
             var provider = new SqsWorkProvider(
                 client,
                 response.QueueUrl,
+                _sqsQuidjiboConfiguration.Type,
                 _sqsQuidjiboConfiguration.LockInterval,
-                _sqsQuidjiboConfiguration.Throttle,
+                _sqsQuidjiboConfiguration.BatchSize,
                 _sqsQuidjiboConfiguration.LongPollDuration);
 
             return provider;
@@ -43,7 +42,12 @@ namespace Quidjibo.Aws.Sqs.Factories
 
         public Task<IWorkProvider> CreateAsync(string[] queues, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotSupportedException("Each queues requires a seperate listener.");
+            if (queues.Length != 1)
+            {
+                throw new NotSupportedException("Each queues requires a seperate listener. Please pass a single queue.");
+            }
+
+            return CreateAsync(queues[0], cancellationToken);
         }
     }
 }

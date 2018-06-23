@@ -26,9 +26,12 @@ namespace Quidjibo.WebProxy.Configurations
         public string[] Queues { get; set; }
         public bool SingleLoop { get; set; }
         public int MaxAttempts { get; set; }
+        public int BatchSize { get; set; }
         public int LockInterval { get; set; }
         public int Throttle { get; set; }
         public bool EnableWorker { get; set; }
+        public int? WorkPollingInterval { get; set; }
         public bool EnableScheduler { get; set; }
+        public int? SchedulePollingInterval { get; set; }
     }
 }

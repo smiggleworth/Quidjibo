@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Amazon.SQS;
 using Amazon.SQS.Model;
+using Quidjibo.Aws.Sqs.Configurations;
+using Quidjibo.Aws.Sqs.Types;
 using Quidjibo.Models;
 using Quidjibo.Providers;
 
@@ -15,19 +17,22 @@ namespace Quidjibo.Aws.Sqs.Providers
     {
         private const string WorkItemId = nameof(WorkItemId);
         private const string CorrelationId = nameof(CorrelationId);
+        private const string Queue = "Queue";
         private readonly int _batchSize;
 
         private readonly AmazonSQSClient _client;
         private readonly string _queueUrl;
+        private readonly SqsQueueType _type;
         private readonly int _visibilityTimeout;
         private readonly int _waitTimeSeconds;
 
-        public SqsWorkProvider(AmazonSQSClient client, string queueUrl, int visibilityTimeout, int batchSize, int waitTimeSeconds)
+        public SqsWorkProvider(AmazonSQSClient client, string queueUrl, SqsQueueType type, int visibilityTimeout, int batchSize, int waitTimeSeconds)
         {
             _client = client;
             _visibilityTimeout = visibilityTimeout;
             _batchSize = batchSize;
             _queueUrl = queueUrl;
+            _type = type;
             if (waitTimeSeconds < 0 || waitTimeSeconds > 20)
             {
                 throw new ArgumentException($"{nameof(waitTimeSeconds)} must be between 0 and 20.");
@@ -41,9 +46,16 @@ namespace Quidjibo.Aws.Sqs.Providers
             var request = new SendMessageRequest(_queueUrl, Convert.ToBase64String(item.Payload));
             var id = item.Id.ToString();
             var correlationId = item.CorrelationId.ToString();
-            request.MessageDeduplicationId = id;
-            request.MessageGroupId = id;
-            request.DelaySeconds = delay;
+            if (_type == SqsQueueType.Fifo)
+            {
+                request.MessageDeduplicationId = id;
+                request.MessageGroupId = id;
+            }
+            else
+            {
+                // per message delays only applies to standard
+                request.DelaySeconds = delay;
+            }
 
             request.MessageAttributes.Add(WorkItemId, new MessageAttributeValue
             {
@@ -55,12 +67,13 @@ namespace Quidjibo.Aws.Sqs.Providers
                 StringValue = correlationId,
                 DataType = "String"
             });
-
-            var response = await _client.SendMessageAsync(request, cancellationToken);
-
-            if (response.HttpStatusCode == HttpStatusCode.OK)
+            request.MessageAttributes.Add(Queue, new MessageAttributeValue
             {
-            }
+                StringValue = item.Queue,
+                DataType = "String"
+            });
+
+            await _client.SendMessageAsync(request, cancellationToken);
         }
 
         public async Task<List<WorkItem>> ReceiveAsync(string worker, CancellationToken cancellationToken)
@@ -78,6 +91,7 @@ namespace Quidjibo.Aws.Sqs.Providers
             {
                 Id = new Guid(message.MessageAttributes[WorkItemId].StringValue),
                 CorrelationId = new Guid(message.MessageAttributes[WorkItemId].StringValue),
+                Queue = message.MessageAttributes[Queue].StringValue,
                 Token = message.ReceiptHandle,
                 Payload = Convert.FromBase64String(message.Body)
             }).ToList();
