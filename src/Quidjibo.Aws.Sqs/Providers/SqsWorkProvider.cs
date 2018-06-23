@@ -17,6 +17,7 @@ namespace Quidjibo.Aws.Sqs.Providers
     {
         private const string WorkItemId = nameof(WorkItemId);
         private const string CorrelationId = nameof(CorrelationId);
+        private const string Queue = "Queue";
         private readonly int _batchSize;
 
         private readonly AmazonSQSClient _client;
@@ -66,6 +67,11 @@ namespace Quidjibo.Aws.Sqs.Providers
                 StringValue = correlationId,
                 DataType = "String"
             });
+            request.MessageAttributes.Add(Queue, new MessageAttributeValue
+            {
+                StringValue = item.Queue,
+                DataType = "String"
+            });
 
             await _client.SendMessageAsync(request, cancellationToken);
         }
@@ -85,6 +91,7 @@ namespace Quidjibo.Aws.Sqs.Providers
             {
                 Id = new Guid(message.MessageAttributes[WorkItemId].StringValue),
                 CorrelationId = new Guid(message.MessageAttributes[WorkItemId].StringValue),
+                Queue = message.MessageAttributes[Queue].StringValue,
                 Token = message.ReceiptHandle,
                 Payload = Convert.FromBase64String(message.Body)
             }).ToList();
