@@ -235,19 +235,19 @@ namespace Quidjibo.Tests.Clients
         }
 
         [TestMethod]
-        public async Task ScheduleAsync_DeleteSchedulesThatExistButAreDifferent()
+        public async Task ScheduleAsync_DeleteSchedulesThatExistButHaveDifferentCronExpressions()
         {
             // Arrange
             var name = BaseValueGenerator.Word();
             var queueName = Default.Queue;
-            var cron = Cron.Weekly();
+            var cron = Cron.Daily();
             var payload = Guid.NewGuid().ToByteArray();
             var command = new BasicCommand();
             var cancellationToken = CancellationToken.None;
             var existingItem = new ScheduleItem
             {
                 Id = Guid.NewGuid(),
-                CronExpression = cron.Expression,
+                CronExpression = Cron.Weekly().Expression,
                 Name = name,
                 Payload = Guid.NewGuid().ToByteArray(),
                 Queue = queueName
@@ -258,7 +258,7 @@ namespace Quidjibo.Tests.Clients
             _scheduleProvider.LoadByNameAsync(name, cancellationToken).Returns(Task.FromResult(existingItem));
 
             // Act 
-            await _sut.ScheduleAsync(name, command, cron, cancellationToken);
+            await _sut.ScheduleAsync(name, command, Cron.Daily(), cancellationToken);
 
             // Assert
             await _scheduleProvider.Received(1).DeleteAsync(existingItem.Id, cancellationToken);
