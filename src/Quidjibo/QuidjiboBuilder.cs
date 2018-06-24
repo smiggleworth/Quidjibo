@@ -197,7 +197,7 @@ namespace Quidjibo
             _serializer = _serializer ?? new PayloadSerializer();
             _protector = _protector ?? new PayloadProtector();
             _cronProvider = _cronProvider ?? new CronProvider();
-            _resolver = _resolver ?? new DependencyResolver(_services, _assemblies);
+            _resolver = _resolver ?? new DependencyResolver(_services, GetConfiguredAssemblies());
             _dispatcher = _dispatcher ?? new WorkDispatcher(_resolver);
 
 
@@ -249,6 +249,17 @@ namespace Quidjibo
             }
 
             _validated = true;
+        }
+
+        private Assembly[] GetConfiguredAssemblies()
+        {
+            if (_assemblies == null || _assemblies.Length < 1)
+            {
+                // if the worker isn't running we don't care if assemblies are configured. 
+                return !_configuration.EnableWorker ? new[] { GetType().Assembly } : null;
+            }
+
+            return _assemblies;
         }
     }
 }
