@@ -22,6 +22,7 @@ namespace Quidjibo.Aws.Sqs.Utils
                     awsCredentials = new InstanceProfileAWSCredentials(firstRole);
                 }
             }
+
             if (awsCredentials == null)
             {
                 throw new ArgumentException($"{nameof(awsCredentials)} could not be loaded from the ~/.aws/credentials or the instance profile. Please pass explicitly.");

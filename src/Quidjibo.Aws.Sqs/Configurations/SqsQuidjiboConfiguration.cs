@@ -18,7 +18,7 @@ namespace Quidjibo.Aws.Sqs.Configurations
         /// </summary>
         public AmazonSQSConfig AmazonSqsConfig { get; set; }
 
-        public SqsQueueType  Type { get; set; }
+        public SqsQueueType Type { get; set; }
 
         /// <summary>
         ///     The long poll duration to.

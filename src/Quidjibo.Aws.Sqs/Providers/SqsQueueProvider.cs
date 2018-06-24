@@ -9,8 +9,8 @@ namespace Quidjibo.Aws.Sqs.Providers
 {
     public class SqsQueueProvider : IQueueProvider
     {
-        private readonly ILogger _logger;
         private readonly AmazonSQSClient _client;
+        private readonly ILogger _logger;
 
         public SqsQueueProvider(
             ILogger logger,

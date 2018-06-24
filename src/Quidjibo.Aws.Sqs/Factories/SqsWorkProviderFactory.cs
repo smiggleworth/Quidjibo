@@ -2,7 +2,6 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Amazon.Runtime;
 using Amazon.SQS;
 using Quidjibo.Aws.Sqs.Configurations;
 using Quidjibo.Aws.Sqs.Providers;
