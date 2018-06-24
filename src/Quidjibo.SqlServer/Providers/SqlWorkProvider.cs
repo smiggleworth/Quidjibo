@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Quidjibo.Models;
 using Quidjibo.Providers;
 using Quidjibo.SqlServer.Extensions;
@@ -26,11 +27,14 @@ namespace Quidjibo.SqlServer.Providers
         private readonly int _maxAttempts;
         private readonly string[] _queues;
         private readonly int _visibilityTimeout;
-
         private string _receiveSql;
 
-
-        public SqlWorkProvider(string connectionString, string[] queues, int visibilityTimeout, int batchSize)
+        public SqlWorkProvider(
+            ILogger logger,
+            string connectionString,
+            string[] queues,
+            int visibilityTimeout,
+            int batchSize)
         {
             _queues = queues;
             _visibilityTimeout = visibilityTimeout;
@@ -44,7 +48,6 @@ namespace Quidjibo.SqlServer.Providers
             var createdOn = DateTime.UtcNow;
             var visibleOn = createdOn.AddSeconds(delay);
             var expireOn = visibleOn.AddDays(7);
-
             await ExecuteAsync(async cmd =>
             {
                 cmd.CommandText = await SqlLoader.GetScript("Work.Send");

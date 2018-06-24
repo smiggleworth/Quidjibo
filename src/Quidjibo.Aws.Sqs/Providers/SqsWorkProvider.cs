@@ -1,3 +1,5 @@
+
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Amazon.SQS;
 using Amazon.SQS.Model;
+using Microsoft.Extensions.Logging;
 using Quidjibo.Aws.Sqs.Types;
 using Quidjibo.Models;
 using Quidjibo.Providers;
@@ -14,6 +17,7 @@ namespace Quidjibo.Aws.Sqs.Providers
     public class SqsWorkProvider : IWorkProvider
     {
         private readonly int _batchSize;
+        private readonly ILogger _logger;
         private readonly AmazonSQSClient _client;
 
         private readonly List<string> _messageAttributeNames = new List<string>
@@ -30,8 +34,16 @@ namespace Quidjibo.Aws.Sqs.Providers
         private readonly int _visibilityTimeout;
         private readonly int _waitTimeSeconds;
 
-        public SqsWorkProvider(AmazonSQSClient client, string queueUrl, SqsQueueType type, int visibilityTimeout, int batchSize, int waitTimeSeconds)
+        public SqsWorkProvider(
+            ILogger logger,
+            AmazonSQSClient client, 
+            string queueUrl, 
+            SqsQueueType type, 
+            int visibilityTimeout, 
+            int batchSize, 
+            int waitTimeSeconds)
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _client = client;
             _visibilityTimeout = visibilityTimeout;
             _batchSize = batchSize;

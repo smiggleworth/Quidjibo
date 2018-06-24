@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Quidjibo.Factories;
 using Quidjibo.Providers;
 using Quidjibo.SqlServer.Providers;
@@ -10,12 +11,16 @@ namespace Quidjibo.SqlServer.Factories
     public class SqlProgressProviderFactory : IProgressProviderFactory
     {
         private static readonly SemaphoreSlim SyncLock = new SemaphoreSlim(1, 1);
-
         private readonly string _connectionString;
+
+        private readonly ILoggerFactory _loggerFactory;
         private IProgressProvider _provider;
 
-        public SqlProgressProviderFactory(string connectionString)
+        public SqlProgressProviderFactory(
+            ILoggerFactory loggerFactory,
+            string connectionString)
         {
+            _loggerFactory = loggerFactory;
             _connectionString = connectionString;
         }
 
@@ -40,7 +45,9 @@ namespace Quidjibo.SqlServer.Factories
                     await cmd.ExecuteNonQueryAsync(cancellationToken);
                 }, _connectionString, false, cancellationToken);
 
-                _provider = new SqlProgressProvider(_connectionString);
+                _provider = new SqlProgressProvider(
+                    _loggerFactory.CreateLogger<SqlProgressProvider>(),
+                    _connectionString);
                 return _provider;
             }
             finally

@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Quidjibo.Factories;
 using Quidjibo.Providers;
 using Quidjibo.SqlServer.Configurations;
@@ -11,11 +12,15 @@ namespace Quidjibo.SqlServer.Factories
     public class SqlWorkProviderFactory : IWorkProviderFactory
     {
         private static readonly SemaphoreSlim SyncLock = new SemaphoreSlim(1, 1);
+        private readonly ILoggerFactory _loggerFactory;
         private readonly SqlServerQuidjiboConfiguration _sqlServerQuidjiboConfiguration;
         private bool _initialized;
 
-        public SqlWorkProviderFactory(SqlServerQuidjiboConfiguration sqlServerQuidjiboConfiguration)
+        public SqlWorkProviderFactory(
+            ILoggerFactory loggerFactory,
+            SqlServerQuidjiboConfiguration sqlServerQuidjiboConfiguration)
         {
+            _loggerFactory = loggerFactory;
             _sqlServerQuidjiboConfiguration = sqlServerQuidjiboConfiguration;
         }
 
@@ -42,6 +47,7 @@ namespace Quidjibo.SqlServer.Factories
                 }
 
                 return new SqlWorkProvider(
+                    _loggerFactory.CreateLogger<SqlWorkProvider>(),
                     _sqlServerQuidjiboConfiguration.ConnectionString,
                     _sqlServerQuidjiboConfiguration.Queues,
                     _sqlServerQuidjiboConfiguration.LockInterval,

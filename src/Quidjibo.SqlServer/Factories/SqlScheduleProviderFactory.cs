@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Quidjibo.Factories;
 using Quidjibo.Providers;
 using Quidjibo.SqlServer.Providers;
@@ -10,13 +11,15 @@ namespace Quidjibo.SqlServer.Factories
     public class SqlScheduleProviderFactory : IScheduleProviderFactory
     {
         private static readonly SemaphoreSlim SyncLock = new SemaphoreSlim(1, 1);
-
         private readonly string _connectionString;
 
-        public int PollingInterval => 60;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public SqlScheduleProviderFactory(string connectionString)
+        public SqlScheduleProviderFactory(
+            ILoggerFactory loggerFactory,
+            string connectionString)
         {
+            _loggerFactory = loggerFactory;
             _connectionString = connectionString;
         }
 
@@ -38,7 +41,9 @@ namespace Quidjibo.SqlServer.Factories
                     await cmd.ExecuteNonQueryAsync(cancellationToken);
                 }, _connectionString, false, cancellationToken);
 
-                return await Task.FromResult<IScheduleProvider>(new SqlScheduleProvider(_connectionString, queues));
+                return await Task.FromResult<IScheduleProvider>(new SqlScheduleProvider(
+                    _loggerFactory.CreateLogger<SqlScheduleProvider>(),
+                    _connectionString, queues));
             }
             finally
             {

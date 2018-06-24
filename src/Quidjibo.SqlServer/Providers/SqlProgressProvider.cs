@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Quidjibo.Models;
 using Quidjibo.Providers;
 using Quidjibo.SqlServer.Extensions;
@@ -13,9 +14,13 @@ namespace Quidjibo.SqlServer.Providers
     public class SqlProgressProvider : IProgressProvider
     {
         private readonly string _connectionString;
+        private readonly ILogger _logger;
 
-        public SqlProgressProvider(string connectionString)
+        public SqlProgressProvider(
+            ILogger logger,
+            string connectionString)
         {
+            _logger = logger;
             _connectionString = connectionString;
         }
 

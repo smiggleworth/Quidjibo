@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Quidjibo.Models;
 using Quidjibo.Providers;
 using Quidjibo.SqlServer.Extensions;
@@ -14,12 +15,17 @@ namespace Quidjibo.SqlServer.Providers
     public class SqlScheduleProvider : IScheduleProvider
     {
         private readonly string _connectionString;
+        private readonly ILogger _logger;
         private readonly string[] _queues;
 
         private string _receiveSql;
 
-        public SqlScheduleProvider(string connectionString, string[] queues)
+        public SqlScheduleProvider(
+            ILogger logger,
+            string connectionString,
+            string[] queues)
         {
+            _logger = logger;
             _connectionString = connectionString;
             _queues = queues;
         }
