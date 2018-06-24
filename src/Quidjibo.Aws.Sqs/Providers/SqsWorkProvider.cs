@@ -1,12 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.SQS;
 using Amazon.SQS.Model;
-using Quidjibo.Aws.Sqs.Configurations;
 using Quidjibo.Aws.Sqs.Types;
 using Quidjibo.Models;
 using Quidjibo.Providers;
@@ -15,12 +13,18 @@ namespace Quidjibo.Aws.Sqs.Providers
 {
     public class SqsWorkProvider : IWorkProvider
     {
-        private const string WorkItemId = nameof(WorkItemId);
-        private const string CorrelationId = nameof(CorrelationId);
-        private const string Queue = "Queue";
         private readonly int _batchSize;
-
         private readonly AmazonSQSClient _client;
+
+        private readonly List<string> _messageAttributeNames = new List<string>
+        {
+            SqsMessageAttributes.CorrelationId,
+            SqsMessageAttributes.Name,
+            SqsMessageAttributes.Queue,
+            SqsMessageAttributes.ScheduleId,
+            SqsMessageAttributes.WorkItemId
+        };
+
         private readonly string _queueUrl;
         private readonly SqsQueueType _type;
         private readonly int _visibilityTimeout;
@@ -41,11 +45,11 @@ namespace Quidjibo.Aws.Sqs.Providers
             _waitTimeSeconds = waitTimeSeconds;
         }
 
+        /// <inheritdoc />
         public async Task SendAsync(WorkItem item, int delay, CancellationToken cancellationToken)
         {
             var request = new SendMessageRequest(_queueUrl, Convert.ToBase64String(item.Payload));
             var id = item.Id.ToString();
-            var correlationId = item.CorrelationId.ToString();
             if (_type == SqsQueueType.Fifo)
             {
                 request.MessageDeduplicationId = id;
@@ -57,25 +61,35 @@ namespace Quidjibo.Aws.Sqs.Providers
                 request.DelaySeconds = delay;
             }
 
-            request.MessageAttributes.Add(WorkItemId, new MessageAttributeValue
+            request.MessageAttributes.Add(SqsMessageAttributes.WorkItemId, new MessageAttributeValue
             {
                 StringValue = id,
                 DataType = "String"
             });
-            request.MessageAttributes.Add(CorrelationId, new MessageAttributeValue
+            request.MessageAttributes.Add(SqsMessageAttributes.CorrelationId, new MessageAttributeValue
             {
-                StringValue = correlationId,
+                StringValue = item.CorrelationId.ToString(),
                 DataType = "String"
             });
-            request.MessageAttributes.Add(Queue, new MessageAttributeValue
+            request.MessageAttributes.Add(SqsMessageAttributes.Name, new MessageAttributeValue
+            {
+                StringValue = item.Name,
+                DataType = "String"
+            });
+            request.MessageAttributes.Add(SqsMessageAttributes.Queue, new MessageAttributeValue
             {
                 StringValue = item.Queue,
                 DataType = "String"
             });
-
+            request.MessageAttributes.Add(SqsMessageAttributes.ScheduleId, new MessageAttributeValue
+            {
+                StringValue = (item.ScheduleId ?? Guid.Empty).ToString(),
+                DataType = "String"
+            });
             await _client.SendMessageAsync(request, cancellationToken);
         }
 
+        /// <inheritdoc />
         public async Task<List<WorkItem>> ReceiveAsync(string worker, CancellationToken cancellationToken)
         {
             var request = new ReceiveMessageRequest(_queueUrl)
@@ -83,20 +97,22 @@ namespace Quidjibo.Aws.Sqs.Providers
                 MaxNumberOfMessages = _batchSize,
                 VisibilityTimeout = _visibilityTimeout,
                 WaitTimeSeconds = _waitTimeSeconds,
-                MessageAttributeNames = new List<string> { WorkItemId, CorrelationId, Queue }
+                MessageAttributeNames = _messageAttributeNames
             };
-
             var messages = await _client.ReceiveMessageAsync(request, cancellationToken);
             return messages.Messages.Select(message => new WorkItem
             {
-                Id = new Guid(message.MessageAttributes[WorkItemId].StringValue),
-                CorrelationId = new Guid(message.MessageAttributes[CorrelationId].StringValue),
-                Queue = message.MessageAttributes[Queue].StringValue,
-                Token = message.ReceiptHandle,
-                Payload = Convert.FromBase64String(message.Body)
+                CorrelationId = new Guid(message.MessageAttributes[SqsMessageAttributes.CorrelationId].StringValue),
+                Id = new Guid(message.MessageAttributes[SqsMessageAttributes.WorkItemId].StringValue),
+                Name = message.MessageAttributes[SqsMessageAttributes.Name].StringValue,
+                Payload = Convert.FromBase64String(message.Body),
+                Queue = message.MessageAttributes[SqsMessageAttributes.Queue].StringValue,
+                ScheduleId = new Guid(message.MessageAttributes[SqsMessageAttributes.ScheduleId].StringValue),
+                Token = message.ReceiptHandle
             }).ToList();
         }
 
+        /// <inheritdoc />
         public async Task<DateTime> RenewAsync(WorkItem item, CancellationToken cancellationToken)
         {
             var lockExpiration = (item.VisibleOn ?? DateTime.UtcNow).AddSeconds(_visibilityTimeout);
@@ -104,17 +120,20 @@ namespace Quidjibo.Aws.Sqs.Providers
             return lockExpiration;
         }
 
+        /// <inheritdoc />
         public async Task CompleteAsync(WorkItem item, CancellationToken cancellationToken)
         {
             var request = new DeleteMessageRequest(_queueUrl, item.Token);
             await _client.DeleteMessageAsync(request, cancellationToken);
         }
 
+        /// <inheritdoc />
         public async Task FaultAsync(WorkItem item, CancellationToken cancellationToken)
         {
             await _client.ChangeMessageVisibilityAsync(_queueUrl, item.Token, 0, cancellationToken);
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
             _client?.Dispose();
