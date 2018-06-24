@@ -4,6 +4,7 @@ namespace Quidjibo.Azure.Storage.Configurations
 {
     public class AzureStorageQuidjiboConfiguration : IQuidjiboConfiguration
     {
+        public string ConnectionString { get; set; }
         public string[] Queues { get; }
         public bool SingleLoop { get; }
         public int MaxAttempts { get; }
@@ -14,6 +15,5 @@ namespace Quidjibo.Azure.Storage.Configurations
         public int? WorkPollingInterval { get; set; }
         public bool EnableScheduler { get; set; }
         public int? SchedulePollingInterval { get; set; }
-        public string ConnectionString { get; set; }
     }
 }

@@ -16,7 +16,7 @@ namespace Quidjibo.Tests
         {
             var quidjibo = new QuidjiboBuilder();
 
-            Action build = () => quidjibo.BuildServer();
+            Action build = () => quidjibo.ConfigureAssemblies(GetType().Assembly).ConfigureWorkProviderFactory(null).BuildServer();
 
             build.Should().Throw<QuidjiboBuilderException>()
                  .WithMessage("Failed to validate. See list of errors for more detail.")
@@ -28,7 +28,7 @@ namespace Quidjibo.Tests
         {
             var quidjibo = new QuidjiboBuilder();
 
-            Action build = () => quidjibo.BuildServer();
+            Action build = () => quidjibo.ConfigureAssemblies(GetType().Assembly).ConfigureScheduleProviderFactory(null).BuildServer();
 
             build.Should().Throw<QuidjiboBuilderException>()
                  .WithMessage("Failed to validate. See list of errors for more detail.")
@@ -40,7 +40,7 @@ namespace Quidjibo.Tests
         {
             var quidjibo = new QuidjiboBuilder();
 
-            Action build = () => quidjibo.BuildServer();
+            Action build = () => quidjibo.ConfigureAssemblies(GetType().Assembly).ConfigureProgressProviderFactory(null).BuildServer();
 
             build.Should().Throw<QuidjiboBuilderException>()
                  .WithMessage("Failed to validate. See list of errors for more detail.")
@@ -51,6 +51,7 @@ namespace Quidjibo.Tests
         public void When_Builder_IsNotConfigured_ShouldUseDefaults()
         {
             var quidjibo = new QuidjiboBuilder()
+                           .ConfigureAssemblies(GetType().Assembly)
                            .Configure(Substitute.For<IQuidjiboConfiguration>())
                            .ConfigureWorkProviderFactory(Substitute.For<IWorkProviderFactory>())
                            .ConfigureScheduleProviderFactory(Substitute.For<IScheduleProviderFactory>())

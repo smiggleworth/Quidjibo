@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Quidjibo.Factories;
 using Quidjibo.Providers;
@@ -11,8 +10,8 @@ namespace Quidjibo.SqlServer.Factories
 {
     public class SqlWorkProviderFactory : IWorkProviderFactory
     {
-        private readonly SqlServerQuidjiboConfiguration _sqlServerQuidjiboConfiguration;
         private static readonly SemaphoreSlim SyncLock = new SemaphoreSlim(1, 1);
+        private readonly SqlServerQuidjiboConfiguration _sqlServerQuidjiboConfiguration;
         private bool _initialized;
 
         public SqlWorkProviderFactory(SqlServerQuidjiboConfiguration sqlServerQuidjiboConfiguration)
@@ -41,9 +40,10 @@ namespace Quidjibo.SqlServer.Factories
                     }, _sqlServerQuidjiboConfiguration.ConnectionString, false, cancellationToken);
                     _initialized = true;
                 }
+
                 return new SqlWorkProvider(
-                    _sqlServerQuidjiboConfiguration.ConnectionString, 
-                    _sqlServerQuidjiboConfiguration.Queues, 
+                    _sqlServerQuidjiboConfiguration.ConnectionString,
+                    _sqlServerQuidjiboConfiguration.Queues,
                     _sqlServerQuidjiboConfiguration.LockInterval,
                     _sqlServerQuidjiboConfiguration.BatchSize);
             }

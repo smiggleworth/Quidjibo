@@ -67,10 +67,10 @@ namespace Quidjibo.SqlServer.Providers
         public async Task<List<WorkItem>> ReceiveAsync(string worker, CancellationToken cancellationToken)
         {
             var receiveOn = DateTime.UtcNow;
-            if(_receiveSql == null)
+            if (_receiveSql == null)
             {
                 _receiveSql = await SqlLoader.GetScript("Work.Receive");
-                if(_queues.Length > 0)
+                if (_queues.Length > 0)
                 {
                     _receiveSql = _receiveSql.Replace("@Queue1",
                         string.Join(",", _queues.Select((x, i) => $"@Queue{i}")));
@@ -91,9 +91,9 @@ namespace Quidjibo.SqlServer.Providers
 
                 // dynamic parameters
                 _queues.Select((q, i) => cmd.Parameters.AddWithValue($"@Queue{i}", q)).ToList();
-                using(var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
+                using (var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
                 {
-                    while(await rdr.ReadAsync(cancellationToken))
+                    while (await rdr.ReadAsync(cancellationToken))
                     {
                         var workItem = new WorkItem
                         {

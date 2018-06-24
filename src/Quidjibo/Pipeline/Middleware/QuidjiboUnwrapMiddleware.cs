@@ -19,7 +19,7 @@ namespace Quidjibo.Pipeline.Middleware
             var payload = await context.Protector.UnprotectAsync(context.Item.Payload, cancellationToken);
             context.Command = await context.Serializer.DeserializeAsync(payload, cancellationToken);
             var correlationId = context.Item.CorrelationId;
-            using (logger.BeginScope(new Dictionary<string, object> { [nameof(correlationId)] = correlationId }))
+            using (logger.BeginScope(new Dictionary<string, object> {[nameof(correlationId)] = correlationId}))
             {
                 logger.LogDebug("{0} was set on the context.", context.Command.GetQualifiedName());
                 await next();

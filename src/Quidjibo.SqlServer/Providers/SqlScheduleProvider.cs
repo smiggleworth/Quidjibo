@@ -76,7 +76,7 @@ namespace Quidjibo.SqlServer.Providers
         {
             await ExecuteAsync(async cmd =>
             {
-                cmd.CommandText = await SqlLoader.GetScript("Schedule.Create"); 
+                cmd.CommandText = await SqlLoader.GetScript("Schedule.Create");
                 cmd.AddParameter("@Id", item.Id);
                 cmd.AddParameter("@Name", item.Name);
                 cmd.AddParameter("@Queue", item.Queue);

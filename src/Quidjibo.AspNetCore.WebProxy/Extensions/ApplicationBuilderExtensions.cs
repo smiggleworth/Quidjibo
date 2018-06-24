@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -208,11 +207,13 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
             {
                 return Deserialize<RequestData<T>>(context.Request.Query);
             }
+
             if (context.Request.Method == HttpMethods.Post || context.Request.Method == HttpMethods.Put)
             {
                 var body = await ReadBodyAsync(context.Request);
                 return JsonConvert.DeserializeObject<RequestData<T>>(body);
             }
+
             return null;
         }
 
@@ -268,9 +269,9 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
                 if (targetType.IsEnumerable(out var enumerableType))
                 {
                     var enumerable = items.Where(x => key != null && x.Key.StartsWith(key))
-                        .Select(x => x.Key.Split(new[] { '[', ']' }, 3)[1]).Distinct()
-                        .Select(x => DeserializeInternal(enumerableType, items, key != null ? $"{key}[{x}]" : $"[{x}]"))
-                        .ToArray();
+                                          .Select(x => x.Key.Split(new[] {'[', ']'}, 3)[1]).Distinct()
+                                          .Select(x => DeserializeInternal(enumerableType, items, key != null ? $"{key}[{x}]" : $"[{x}]"))
+                                          .ToArray();
 
                     if (type.IsArray)
                     {
@@ -287,8 +288,9 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
                     var collection = Activator.CreateInstance(collectionType);
                     for (var i = 0; i < enumerable.Length; i++)
                     {
-                        collectionType.GetMethod("Insert")?.Invoke(collection, new[] { i, enumerable[i] });
+                        collectionType.GetMethod("Insert")?.Invoke(collection, new[] {i, enumerable[i]});
                     }
+
                     return collection;
                 }
 

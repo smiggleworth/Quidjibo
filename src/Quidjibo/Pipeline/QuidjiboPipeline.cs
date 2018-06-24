@@ -57,7 +57,7 @@ namespace Quidjibo.Pipeline
                                                                     Type = x.Type,
                                                                     Instance = x.Instance
                                                                 })));
-            using(_resolver.Begin())
+            using (_resolver.Begin())
             {
                 context.Protector = _protector;
                 context.Dispatcher = _dispatcher;
@@ -71,21 +71,21 @@ namespace Quidjibo.Pipeline
 
         public Task InvokeAsync(IQuidjiboContext context, CancellationToken cancellationToken)
         {
-            if(cancellationToken.IsCancellationRequested)
+            if (cancellationToken.IsCancellationRequested)
             {
                 _logger.LogDebug("The pipeline was canceled.");
                 return Task.CompletedTask;
             }
 
             _running.TryGetValue(context, out var steps);
-            if(steps == null || steps.Count == 0)
+            if (steps == null || steps.Count == 0)
             {
                 _logger.LogDebug("The pipeline is complete.");
                 return Task.CompletedTask;
             }
 
             var step = steps.Dequeue();
-            if(step.Instance == null)
+            if (step.Instance == null)
             {
                 _logger.LogDebug("resolving {0}", step.Type);
                 step.Instance = (IQuidjiboMiddleware)context.Resolver.Resolve(step.Type);

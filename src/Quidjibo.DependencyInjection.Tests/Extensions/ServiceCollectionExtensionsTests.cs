@@ -31,7 +31,7 @@ namespace Quidjibo.DependencyInjection.Tests.Extensions
         [TestMethod]
         public void When_Handler_IsRegistered_Should_Resolve()
         {
-            using(var scope = _serviceProvider.CreateScope())
+            using (var scope = _serviceProvider.CreateScope())
             {
                 var handler = scope.ServiceProvider.GetService<IQuidjiboHandler<BasicCommand>>();
                 handler.Should().NotBeNull("there should be a matching handler");
@@ -42,7 +42,7 @@ namespace Quidjibo.DependencyInjection.Tests.Extensions
         [TestMethod]
         public void When_Handler_IsRegistered_InNestedClass_Should_Resolve()
         {
-            using(var scope = _serviceProvider.CreateScope())
+            using (var scope = _serviceProvider.CreateScope())
             {
                 var handler = scope.ServiceProvider.GetService<IQuidjiboHandler<SimpleJob.Command>>();
                 handler.Should().NotBeNull("there should be a matching handler");
@@ -53,7 +53,7 @@ namespace Quidjibo.DependencyInjection.Tests.Extensions
         [TestMethod]
         public void When_Handler_IsNotRegistered_Should_Throw()
         {
-            using(var scope = _serviceProvider.CreateScope())
+            using (var scope = _serviceProvider.CreateScope())
             {
                 var handler = scope.ServiceProvider.GetService<IQuidjiboHandler<UnhandledCommand>>();
                 handler.Should().BeNull("handler was not registerd");
@@ -71,7 +71,7 @@ namespace Quidjibo.DependencyInjection.Tests.Extensions
                 Substitute.For<IPayloadProtector>(),
                 Substitute.For<ICronProvider>());
 
-            using(var scope = _serviceProvider.CreateScope())
+            using (var scope = _serviceProvider.CreateScope())
             {
                 var client = scope.ServiceProvider.GetService<IQuidjiboClient>();
                 client.Should().NotBeNull();

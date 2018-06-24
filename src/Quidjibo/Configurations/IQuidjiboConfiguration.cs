@@ -1,5 +1,3 @@
-using System;
-
 namespace Quidjibo.Configurations
 {
     public interface IQuidjiboConfiguration
@@ -40,7 +38,7 @@ namespace Quidjibo.Configurations
         bool EnableWorker { get; set; }
 
         /// <summary>
-        /// The frequency to poll the work queue in seconds.
+        ///     The frequency to poll the work queue in seconds.
         /// </summary>
         int? WorkPollingInterval { get; set; }
 
@@ -50,7 +48,7 @@ namespace Quidjibo.Configurations
         bool EnableScheduler { get; set; }
 
         /// <summary>
-        /// The frequency to poll the persisisted schedules in seconds. 
+        ///     The frequency to poll the persisisted schedules in seconds.
         /// </summary>
         int? SchedulePollingInterval { get; set; }
     }

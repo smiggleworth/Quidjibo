@@ -13,12 +13,12 @@ namespace Quidjibo.SqlServer.Factories
 
         private readonly string _connectionString;
 
+        public int PollingInterval => 60;
+
         public SqlScheduleProviderFactory(string connectionString)
         {
             _connectionString = connectionString;
         }
-
-        public int PollingInterval => 60;
 
         public async Task<IScheduleProvider> CreateAsync(string queues, CancellationToken cancellationToken = default(CancellationToken))
         {

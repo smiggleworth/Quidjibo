@@ -26,7 +26,7 @@ namespace Quidjibo.SqlServer.Factories
 
         public async Task<IProgressProvider> CreateAsync(string[] queues, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if(_provider != null)
+            if (_provider != null)
             {
                 return _provider;
             }

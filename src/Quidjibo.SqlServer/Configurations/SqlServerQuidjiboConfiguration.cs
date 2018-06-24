@@ -1,14 +1,13 @@
-﻿using System;
-using Quidjibo.Configurations;
+﻿using Quidjibo.Configurations;
 using Quidjibo.Constants;
 
 namespace Quidjibo.SqlServer.Configurations
 {
     public class SqlServerQuidjiboConfiguration : IQuidjiboConfiguration
     {
-        public int BatchSize { get; set; } = 5;
         public int PollingInterval { get; set; } = 10;
         public string ConnectionString { get; set; }
+        public int BatchSize { get; set; } = 5;
 
         /// <inheritdoc />
         public int? WorkPollingInterval { get; set; }
