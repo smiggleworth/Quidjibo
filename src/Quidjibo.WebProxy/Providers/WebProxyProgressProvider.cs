@@ -17,7 +17,6 @@ namespace Quidjibo.WebProxy.Providers
         private readonly string[] _queues;
         private readonly IWebProxyClient _webProxyClient;
 
-
         public WebProxyProgressProvider(ILogger logger, IWebProxyClient webProxyClient, string[] queues)
         {
             _logger = logger;

@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Quidjibo.Factories;
 using Quidjibo.Providers;
+using Quidjibo.SqlServer.Configurations;
 using Quidjibo.SqlServer.Providers;
 using Quidjibo.SqlServer.Utils;
 
@@ -10,21 +11,14 @@ namespace Quidjibo.SqlServer.Factories
 {
     public class SqlWorkProviderFactory : IWorkProviderFactory
     {
+        private readonly SqlServerQuidjiboConfiguration _sqlServerQuidjiboConfiguration;
         private static readonly SemaphoreSlim SyncLock = new SemaphoreSlim(1, 1);
         private bool _initialized;
 
-        private readonly int _batchSize;
-        private readonly string _connectionString;
-        private readonly int _visibilityTimeout;
-
-        public SqlWorkProviderFactory(string connectionString, int visibilityTimeout = 60, int batchSize = 5)
+        public SqlWorkProviderFactory(SqlServerQuidjiboConfiguration sqlServerQuidjiboConfiguration)
         {
-            _connectionString = connectionString;
-            _visibilityTimeout = visibilityTimeout;
-            _batchSize = batchSize;
+            _sqlServerQuidjiboConfiguration = sqlServerQuidjiboConfiguration;
         }
-
-        public int PollingInterval => 10;
 
         public Task<IWorkProvider> CreateAsync(string queues, CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -44,10 +38,14 @@ namespace Quidjibo.SqlServer.Factories
                         var workSetup = await SqlLoader.GetScript("Work.Setup");
                         cmd.CommandText = $"{schemaSetup};\r\n{workSetup}";
                         await cmd.ExecuteNonQueryAsync(cancellationToken);
-                    }, _connectionString, false, cancellationToken);
+                    }, _sqlServerQuidjiboConfiguration.ConnectionString, false, cancellationToken);
                     _initialized = true;
                 }
-                return new SqlWorkProvider(_connectionString, queues, _visibilityTimeout, _batchSize);
+                return new SqlWorkProvider(
+                    _sqlServerQuidjiboConfiguration.ConnectionString, 
+                    _sqlServerQuidjiboConfiguration.Queues, 
+                    _sqlServerQuidjiboConfiguration.LockInterval,
+                    _sqlServerQuidjiboConfiguration.BatchSize);
             }
             finally
             {

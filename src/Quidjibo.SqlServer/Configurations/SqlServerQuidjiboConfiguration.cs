@@ -1,33 +1,40 @@
-﻿using Quidjibo.Configurations;
+﻿using System;
+using Quidjibo.Configurations;
+using Quidjibo.Constants;
 
 namespace Quidjibo.SqlServer.Configurations
 {
     public class SqlServerQuidjiboConfiguration : IQuidjiboConfiguration
     {
-        /// <summary>
-        ///     The ConnectionString to the Sql Server
-        /// </summary>
+        public int BatchSize { get; set; } = 5;
+        public int PollingInterval { get; set; } = 10;
         public string ConnectionString { get; set; }
 
         /// <inheritdoc />
-        public string[] Queues { get; set; } = { "default" };
+        public int? WorkPollingInterval { get; set; }
 
         /// <inheritdoc />
-        public bool SingleLoop { get; set; } = true;
+        public bool EnableScheduler { get; set; } = true;
 
         /// <inheritdoc />
-        public int MaxAttempts { get; set; } = 5;
-
-        /// <inheritdoc />
-        public int LockInterval { get; set; } = 30;
-
-        /// <inheritdoc />
-        public int Throttle { get; set; } = 10;
+        public int? SchedulePollingInterval { get; set; }
 
         /// <inheritdoc />
         public bool EnableWorker { get; set; } = true;
 
         /// <inheritdoc />
-        public bool EnableScheduler { get; set; } = true;
+        public bool SingleLoop { get; set; } = true;
+
+        /// <inheritdoc />
+        public int LockInterval { get; set; } = 30;
+
+        /// <inheritdoc />
+        public int MaxAttempts { get; set; } = 5;
+
+        /// <inheritdoc />
+        public int Throttle { get; set; } = 10;
+
+        /// <inheritdoc />
+        public string[] Queues { get; set; } = Default.Queues;
     }
 }

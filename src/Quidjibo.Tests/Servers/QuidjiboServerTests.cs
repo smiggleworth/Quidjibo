@@ -51,12 +51,10 @@ namespace Quidjibo.Tests.Servers
             _workProviderFactory = Substitute.For<IWorkProviderFactory>();
             _workProvider = Substitute.For<IWorkProvider>();
             _workProviderFactory.CreateAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(_workProvider));
-            _workProviderFactory.PollingInterval.Returns(1);
 
             _scheduleProviderFactory = Substitute.For<IScheduleProviderFactory>();
             _scheduleProvider = Substitute.For<IScheduleProvider>();
             _scheduleProviderFactory.CreateAsync(Arg.Any<string[]>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(_scheduleProvider));
-            _scheduleProviderFactory.PollingInterval.Returns(1);
 
             _progressProviderFactory = Substitute.For<IProgressProviderFactory>();
             _progressProvider = Substitute.For<IProgressProvider>();
@@ -268,6 +266,7 @@ namespace Quidjibo.Tests.Servers
             _quidjiboConfiguration.LockInterval.Returns(60);
             _quidjiboConfiguration.SingleLoop.Returns(true);
             _quidjiboConfiguration.Queues.Returns(new[] {"default", "other"});
+            _quidjiboConfiguration.SchedulePollingInterval.Returns(1);
 
             _workProvider.ReceiveAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(Task.FromResult(workItems));
             _scheduleProvider.ReceiveAsync(Arg.Any<CancellationToken>()).Returns(x => Task.FromResult(scheduledItems.Except(completedSchedules).Take(5).ToList()));
