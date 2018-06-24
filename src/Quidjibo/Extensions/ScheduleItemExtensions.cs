@@ -9,8 +9,7 @@ namespace Quidjibo.Extensions
         {
             return existingItem != null && item.Name == existingItem.Name
                                         && item.CronExpression == existingItem.CronExpression
-                                        && item.Queue == existingItem.Queue
-                                        && item.Payload.SequenceEqual(existingItem.Payload);
+                                        && item.Queue == existingItem.Queue;
         }
     }
 }
