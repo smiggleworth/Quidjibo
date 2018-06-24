@@ -83,14 +83,14 @@ namespace Quidjibo.Aws.Sqs.Providers
                 MaxNumberOfMessages = _batchSize,
                 VisibilityTimeout = _visibilityTimeout,
                 WaitTimeSeconds = _waitTimeSeconds,
-                MessageAttributeNames = new List<string> { WorkItemId, CorrelationId }
+                MessageAttributeNames = new List<string> { WorkItemId, CorrelationId, Queue }
             };
 
             var messages = await _client.ReceiveMessageAsync(request, cancellationToken);
             return messages.Messages.Select(message => new WorkItem
             {
                 Id = new Guid(message.MessageAttributes[WorkItemId].StringValue),
-                CorrelationId = new Guid(message.MessageAttributes[WorkItemId].StringValue),
+                CorrelationId = new Guid(message.MessageAttributes[CorrelationId].StringValue),
                 Queue = message.MessageAttributes[Queue].StringValue,
                 Token = message.ReceiptHandle,
                 Payload = Convert.FromBase64String(message.Body)
