@@ -182,12 +182,12 @@ namespace Quidjibo.Tests.Servers
             _sut.Start();
 
             // Assert
-            while(!testQueue.IsEmpty && !_cts.IsCancellationRequested)
+            while (!testQueue.IsEmpty && !_cts.IsCancellationRequested)
             {
             }
 
             testQueue.Count.Should().Be(0);
-            if(singleLoop)
+            if (singleLoop)
             {
                 await _workProviderFactory.Received(1).CreateAsync(Arg.Any<string>(), Arg.Any<CancellationToken>());
             }
@@ -243,7 +243,7 @@ namespace Quidjibo.Tests.Servers
             _sut.Start();
 
             // Assert
-            while(completedWork.Count != 5 && !_cts.IsCancellationRequested)
+            while (completedWork.Count != 5 && !_cts.IsCancellationRequested)
             {
                 // waiting for server to process all items
             }
@@ -280,7 +280,7 @@ namespace Quidjibo.Tests.Servers
             _sut.Start();
 
             // Assert
-            while(completedSchedules.Count < 25 && !_cts.IsCancellationRequested)
+            while (completedSchedules.Count < 25 && !_cts.IsCancellationRequested)
             {
                 // waiting for server to process all items
             }

@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Quidjibo.Models;
 using Quidjibo.Providers;
 using Quidjibo.SqlServer.Extensions;
@@ -26,11 +27,14 @@ namespace Quidjibo.SqlServer.Providers
         private readonly int _maxAttempts;
         private readonly string[] _queues;
         private readonly int _visibilityTimeout;
-
         private string _receiveSql;
 
-
-        public SqlWorkProvider(string connectionString, string[] queues, int visibilityTimeout, int batchSize)
+        public SqlWorkProvider(
+            ILogger logger,
+            string connectionString,
+            string[] queues,
+            int visibilityTimeout,
+            int batchSize)
         {
             _queues = queues;
             _visibilityTimeout = visibilityTimeout;
@@ -44,7 +48,6 @@ namespace Quidjibo.SqlServer.Providers
             var createdOn = DateTime.UtcNow;
             var visibleOn = createdOn.AddSeconds(delay);
             var expireOn = visibleOn.AddDays(7);
-
             await ExecuteAsync(async cmd =>
             {
                 cmd.CommandText = await SqlLoader.GetScript("Work.Send");
@@ -67,10 +70,10 @@ namespace Quidjibo.SqlServer.Providers
         public async Task<List<WorkItem>> ReceiveAsync(string worker, CancellationToken cancellationToken)
         {
             var receiveOn = DateTime.UtcNow;
-            if(_receiveSql == null)
+            if (_receiveSql == null)
             {
                 _receiveSql = await SqlLoader.GetScript("Work.Receive");
-                if(_queues.Length > 0)
+                if (_queues.Length > 0)
                 {
                     _receiveSql = _receiveSql.Replace("@Queue1",
                         string.Join(",", _queues.Select((x, i) => $"@Queue{i}")));
@@ -91,9 +94,9 @@ namespace Quidjibo.SqlServer.Providers
 
                 // dynamic parameters
                 _queues.Select((q, i) => cmd.Parameters.AddWithValue($"@Queue{i}", q)).ToList();
-                using(var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
+                using (var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
                 {
-                    while(await rdr.ReadAsync(cancellationToken))
+                    while (await rdr.ReadAsync(cancellationToken))
                     {
                         var workItem = new WorkItem
                         {

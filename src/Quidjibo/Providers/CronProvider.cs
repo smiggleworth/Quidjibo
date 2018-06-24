@@ -44,7 +44,7 @@ namespace Quidjibo.Providers
                 throw new InvalidOperationException("Expression must contain 5 parts");
             }
 
-            var years = new[] { start.Year, start.Year + 1 };
+            var years = new[] {start.Year, start.Year + 1};
             var months = ParsePart(parts[3], "1-12").ToArray();
             var days = ParsePart(NormalizeMonths(parts[2]), "1-31").ToArray();
             var hours = ParsePart(parts[1], "0-23").ToArray();

@@ -3,6 +3,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Amazon.SQS;
+using Microsoft.Extensions.Logging;
 using Quidjibo.Aws.Sqs.Configurations;
 using Quidjibo.Aws.Sqs.Providers;
 using Quidjibo.Factories;
@@ -12,10 +13,14 @@ namespace Quidjibo.Aws.Sqs.Factories
 {
     public class SqsWorkProviderFactory : IWorkProviderFactory
     {
+        private readonly ILoggerFactory _loggerFactory;
         private readonly SqsQuidjiboConfiguration _sqsQuidjiboConfiguration;
 
-        public SqsWorkProviderFactory(SqsQuidjiboConfiguration sqsQuidjiboConfiguration)
+        public SqsWorkProviderFactory(
+            ILoggerFactory loggerFactory,
+            SqsQuidjiboConfiguration sqsQuidjiboConfiguration)
         {
+            _loggerFactory = loggerFactory;
             _sqsQuidjiboConfiguration = sqsQuidjiboConfiguration;
         }
 
@@ -29,6 +34,7 @@ namespace Quidjibo.Aws.Sqs.Factories
             }
 
             var provider = new SqsWorkProvider(
+                _loggerFactory.CreateLogger<SqsWorkProvider>(),
                 client,
                 response.QueueUrl,
                 _sqsQuidjiboConfiguration.Type,

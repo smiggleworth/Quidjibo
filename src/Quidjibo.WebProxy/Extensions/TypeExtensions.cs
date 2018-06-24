@@ -30,13 +30,13 @@ namespace Quidjibo.WebProxy.Extensions
         public static bool IsEnumerable(this Type type, out Type innerType)
         {
             innerType = null;
-            if(type.IsArray)
+            if (type.IsArray)
             {
                 innerType = type.GetElementType();
                 return true;
             }
 
-            if(type.IsAssignableToGenericType(typeof(IEnumerable<>)))
+            if (type.IsAssignableToGenericType(typeof(IEnumerable<>)))
             {
                 innerType = type.GenericTypeArguments[0];
                 return true;
@@ -64,7 +64,7 @@ namespace Quidjibo.WebProxy.Extensions
         public static bool IsTraversable(this Type type, out Type underlyingType)
         {
             underlyingType = type;
-            if(type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 underlyingType = Nullable.GetUnderlyingType(underlyingType).GetTypeInfo();
             }

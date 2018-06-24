@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Quidjibo.Handlers;
@@ -15,13 +16,13 @@ namespace Quidjibo.Tests.Resolvers
         [TestInitialize]
         public void Init()
         {
-            _resolver = new DependencyResolver(null, GetType().Assembly);
+            _resolver = new DependencyResolver(new ConcurrentDictionary<Type, object>(), GetType().Assembly);
         }
 
         [TestMethod]
         public void When_Handler_IsRegistered_Should_Resolve()
         {
-            using(_resolver.Begin())
+            using (_resolver.Begin())
             {
                 var handler = _resolver.Resolve(typeof(IQuidjiboHandler<BasicCommand>));
                 handler.Should().NotBeNull("there should be a matching handler");
@@ -32,7 +33,7 @@ namespace Quidjibo.Tests.Resolvers
         [TestMethod]
         public void When_Handler_IsRegistered_InNestedClass_Should_Resolve()
         {
-            using(_resolver.Begin())
+            using (_resolver.Begin())
             {
                 var handler = _resolver.Resolve(typeof(IQuidjiboHandler<SimpleJob.Command>));
                 handler.Should().NotBeNull("there should be a matching handler");
@@ -43,7 +44,7 @@ namespace Quidjibo.Tests.Resolvers
         [TestMethod]
         public void When_Handler_IsNotRegistered_Should_Throw()
         {
-            using(_resolver.Begin())
+            using (_resolver.Begin())
             {
                 Action resolve = () => _resolver.Resolve(typeof(IQuidjiboHandler<UnhandledCommand>));
                 resolve.Should().Throw<NullReferenceException>("Could not find a handler that matches your command.");
@@ -53,7 +54,7 @@ namespace Quidjibo.Tests.Resolvers
         [TestMethod]
         public void When_Handler_DoesNotHaveDefaultConstructor_Should_Throw()
         {
-            using(_resolver.Begin())
+            using (_resolver.Begin())
             {
                 Action resolve = () => _resolver.Resolve(typeof(IQuidjiboHandler<DependentCommand>));
                 resolve.Should().Throw<MissingMethodException>("No parameterless constructor defined for this object.");

@@ -16,6 +16,8 @@ namespace Quidjibo.Azure.ServiceBus.Factories
         private readonly int _prefectchCount;
         private readonly RetryPolicy _retryPolicy;
 
+        public int PollingInterval => 10;
+
         public ServiceBusWorkProviderFactory(string connectionString, RetryPolicy retryPolicy, int prefectchCount, int batchSize)
         {
             _connectionString = connectionString;
@@ -23,8 +25,6 @@ namespace Quidjibo.Azure.ServiceBus.Factories
             _prefectchCount = prefectchCount;
             _batchSize = batchSize;
         }
-
-        public int PollingInterval => 10;
 
         public async Task<IWorkProvider> CreateAsync(string queues, CancellationToken cancellationToken = new CancellationToken())
         {

@@ -33,6 +33,7 @@ namespace Quidjibo.Azure.Storage.Factories
             {
                 throw new NotSupportedException("Each queues requires a seperate listener. Please pass a single queue.");
             }
+
             return CreateAsync(queues[0], cancellationToken);
         }
     }

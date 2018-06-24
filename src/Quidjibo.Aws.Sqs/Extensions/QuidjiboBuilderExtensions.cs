@@ -15,7 +15,7 @@ namespace Quidjibo.Aws.Sqs.Extensions
         public static QuidjiboBuilder UseSqs(this QuidjiboBuilder builder, SqsQuidjiboConfiguration sqsQuidjiboConfiguration)
         {
             return builder.Configure(sqsQuidjiboConfiguration)
-                          .ConfigureWorkProviderFactory(new SqsWorkProviderFactory(sqsQuidjiboConfiguration));
+                          .ConfigureWorkProviderFactory(new SqsWorkProviderFactory(builder.LoggerFactory, sqsQuidjiboConfiguration));
         }
 
         /// <summary>

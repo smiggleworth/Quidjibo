@@ -28,10 +28,10 @@ namespace Quidjibo.DataProtection.Protectors
         public async Task<byte[]> ProtectAsync(byte[] payload, CancellationToken cancellationToken)
         {
             var keys = await ExpandKeysAsync(cancellationToken);
-            using(var aes = Aes.Create())
-            using(var crypto = aes.CreateEncryptor(keys.CipherKey, aes.IV))
-            using(var stream = new MemoryStream())
-            using(var cryptoStream = new CryptoStream(stream, crypto, CryptoStreamMode.Write))
+            using (var aes = Aes.Create())
+            using (var crypto = aes.CreateEncryptor(keys.CipherKey, aes.IV))
+            using (var stream = new MemoryStream())
+            using (var cryptoStream = new CryptoStream(stream, crypto, CryptoStreamMode.Write))
             {
                 await cryptoStream.WriteAsync(payload, 0, payload.Length, cancellationToken);
                 cryptoStream.FlushFinalBlock();
@@ -53,10 +53,10 @@ namespace Quidjibo.DataProtection.Protectors
             var mac = new byte[32];
             Buffer.BlockCopy(payload, iv.Length, mac, 0, 32);
             byte[] plaintext;
-            using(var aes = Aes.Create())
-            using(var crypto = aes.CreateDecryptor(keys.CipherKey, iv))
-            using(var stream = new MemoryStream())
-            using(var cryptoStream = new CryptoStream(stream, crypto, CryptoStreamMode.Write))
+            using (var aes = Aes.Create())
+            using (var crypto = aes.CreateDecryptor(keys.CipherKey, iv))
+            using (var stream = new MemoryStream())
+            using (var cryptoStream = new CryptoStream(stream, crypto, CryptoStreamMode.Write))
             {
                 await cryptoStream.WriteAsync(payload, iv.Length + mac.Length, payload.Length - iv.Length - mac.Length, cancellationToken);
                 cryptoStream.FlushFinalBlock();
@@ -70,7 +70,7 @@ namespace Quidjibo.DataProtection.Protectors
 
         private byte[] ComputeMac(byte[] macKey, byte[] buffer, int offset, int count)
         {
-            using(var hmac = new HMACSHA256(macKey))
+            using (var hmac = new HMACSHA256(macKey))
             {
                 return hmac.ComputeHash(buffer, offset, count);
             }
@@ -85,12 +85,15 @@ namespace Quidjibo.DataProtection.Protectors
                 throw new MacMismatchException("MAC mismatch");
             }
 
-            bool mismatch = false;
+            var mismatch = false;
             for (var i = 0; i < mac.Length; i++)
             {
                 if (mac[i] != payloadMac[i])
+                {
                     mismatch = true;
+                }
             }
+
             if (mismatch)
             {
                 throw new MacMismatchException("MAC mismatch");

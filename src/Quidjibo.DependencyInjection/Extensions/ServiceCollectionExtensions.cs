@@ -17,7 +17,7 @@ namespace Quidjibo.DependencyInjection.Extensions
                                      where intf.GetTypeInfo().IsGenericType && intf.GetGenericTypeDefinition() == handlerType
                                      select new ServiceDescriptor(intf, t, ServiceLifetime.Transient);
 
-            foreach(var serviceDescriptor in serviceDescriptors)
+            foreach (var serviceDescriptor in serviceDescriptors)
             {
                 serviceCollection.Add(serviceDescriptor);
             }

@@ -3,13 +3,13 @@
     public class KeyContext
     {
         /// <summary>
-        /// Key derived for cipher
+        ///     Key derived for cipher
         /// </summary>
-        public static byte[] Cipher = new byte[] { 0x01 };
+        public static byte[] Cipher = {0x01};
 
         /// <summary>
-        /// Key derived for MAC
+        ///     Key derived for MAC
         /// </summary>
-        public static byte[] Mac = new byte[] { 0x02 };
+        public static byte[] Mac = {0x02};
     }
 }

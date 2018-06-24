@@ -34,9 +34,9 @@ namespace Quidjibo
         private bool _validated;
 
         public ILoggerFactory LoggerFactory { get; private set; }
-        public IWorkProviderFactory WorkProviderFactory { get; private set; }
-        public IProgressProviderFactory ProgressProviderFactory { get; private set; }
-        public IScheduleProviderFactory ScheduleProviderFactory { get; private set; }
+        public IWorkProviderFactory WorkProviderFactory { get; private set; } = new WorkProviderFactory();
+        public IProgressProviderFactory ProgressProviderFactory { get; private set; } = new ProgressProviderFactory();
+        public IScheduleProviderFactory ScheduleProviderFactory { get; private set; } = new ScheduleProviderFactory();
 
         /// <summary>
         ///     Build an instance of a QuidjiboServer as configured.
@@ -188,7 +188,7 @@ namespace Quidjibo
 
         private void BackFillDefaults()
         {
-            if(_validated)
+            if (_validated)
             {
                 return;
             }
@@ -207,33 +207,43 @@ namespace Quidjibo
             _services.Add(typeof(IWorkDispatcher), _dispatcher);
 
             Validate();
+
+            var logger = LoggerFactory.CreateLogger<QuidjiboBuilder>();
+            logger.LogDebug("Work Factory : {0}", WorkProviderFactory.GetType().Name);
+            logger.LogDebug("Schedule Factory : {0}", ScheduleProviderFactory.GetType().Name);
+            logger.LogDebug("Progress Factory : {0}", ProgressProviderFactory.GetType().Name);
+            logger.LogDebug("Serializer : {0}", _serializer.GetType().Name);
+            logger.LogDebug("Protector : {0}", _protector.GetType().Name);
+            logger.LogDebug("Cron : {0}", _cronProvider.GetType().Name);
+            logger.LogDebug("Resolver: {0}", _resolver.GetType().Name);
+            logger.LogDebug("Dispatcher: {0}", _dispatcher.GetType().Name);
         }
 
         private void Validate()
         {
             var errors = new List<string>(4);
 
-            if(_configuration == null)
+            if (_configuration == null)
             {
                 errors.Add("Configuration is null");
             }
 
-            if(WorkProviderFactory == null)
+            if (WorkProviderFactory == null)
             {
                 errors.Add("Requires Work Provider Factory");
             }
 
-            if(ProgressProviderFactory == null)
+            if (ProgressProviderFactory == null)
             {
                 errors.Add("Requires Progress Provider Factory");
             }
 
-            if((_configuration?.EnableScheduler ?? true) &&  ScheduleProviderFactory == null)
+            if ((_configuration?.EnableScheduler ?? true) && ScheduleProviderFactory == null)
             {
                 errors.Add("Requires Schedule Provider Factory");
             }
 
-            if(errors.Any())
+            if (errors.Any())
             {
                 throw new QuidjiboBuilderException(errors, "Failed to validate. See list of errors for more detail.");
             }
