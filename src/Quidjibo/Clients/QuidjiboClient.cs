@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Quidjibo.Attributes;
 using Quidjibo.Commands;
+using Quidjibo.Constants;
 using Quidjibo.Extensions;
 using Quidjibo.Factories;
 using Quidjibo.Models;
@@ -181,7 +182,7 @@ namespace Quidjibo.Clients
                             where typeof(IQuidjiboCommand).IsAssignableFrom(t)
                             from attr in t.GetTypeInfo().GetCustomAttributes<ScheduleAttribute>()
                             let name = attr.Name
-                            let queue = !string.IsNullOrWhiteSpace(attr.Queue) ? attr.Queue : "default"
+                            let queue = !string.IsNullOrWhiteSpace(attr.Queue) ? attr.Queue : Default.Queue
                             let command = (IQuidjiboCommand)Activator.CreateInstance(t)
                             let cron = attr.Cron
                             select ScheduleAsync(name, queue, command, cron, cancellationToken);

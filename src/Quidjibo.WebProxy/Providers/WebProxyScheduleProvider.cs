@@ -116,7 +116,7 @@ namespace Quidjibo.WebProxy.Providers
         {
             var request = new WebProxyRequest
             {
-                Path = "/schedule-items",
+                Path = "/schedule-items/delete",
                 Data = new RequestData<Guid>
                 {
                     Queues = _queues,
@@ -124,7 +124,7 @@ namespace Quidjibo.WebProxy.Providers
                 }
             };
 
-            var response = await _webProxyClient.DeleteAsync(request, cancellationToken);
+            var response = await _webProxyClient.PostAsync(request, cancellationToken);
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Delete schedule item failed.");
