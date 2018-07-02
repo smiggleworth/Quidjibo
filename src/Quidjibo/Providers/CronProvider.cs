@@ -44,28 +44,40 @@ namespace Quidjibo.Providers
                 throw new InvalidOperationException("Expression must contain 5 parts");
             }
 
-            var years = new[] {start.Year, start.Year + 1};
-            var months = ParsePart(parts[3], "1-12").ToArray();
-            var days = ParsePart(NormalizeMonths(parts[2]), "1-31").ToArray();
-            var hours = ParsePart(parts[1], "0-23").ToArray();
-            var minutes = ParsePart(parts[0], "0-59").ToArray();
-            var daysOfTheWeek = ParsePart(NormalizeDayOfWeek(parts[4]), "0-6").ToArray();
+            var years = new[] { start.Year, start.Year + 1 };
+            var months = ParsePart(parts[3], "1-12");
+            var days = ParsePart(NormalizeMonths(parts[2]), "1-31");
+            var hours = ParsePart(parts[1], "0-23");
+            var minutes = ParsePart(parts[0], "0-59");
+            var daysOfTheWeek = ParsePart(NormalizeDayOfWeek(parts[4]), "0-6");
 
-            var qry = from y in years
-                      from mo in months
-                      from dom in days
-                      where dom <= MaxDayOfMonth(y, mo)
-                      from h in hours
-                      from m in minutes
-                      let date = new DateTime(y, mo, dom, h, m, 0)
-                      where date >= start
-                            && daysOfTheWeek.Contains((int)date.DayOfWeek)
-                      orderby date
-                      select date;
-            return qry;
+            foreach (var year in years)
+            {
+                foreach (var month in months)
+                {
+                    foreach (var day in days)
+                    {
+                        if (day > MaxDayOfMonth(year, month))
+                        {
+                            continue;
+                        }
+                        foreach (var hour in hours)
+                        {
+                            foreach (var minute in minutes)
+                            {
+                                var date = new DateTime(year, month, day, hour, minute, 0);
+                                if (date >= start && daysOfTheWeek.Contains((int)date.DayOfWeek))
+                                {
+                                    yield return date;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
 
-        private IEnumerable<int> ParsePart(string part, string wild)
+        private int[] ParsePart(string part, string wild)
         {
             if (part.Contains("*"))
             {
@@ -79,7 +91,7 @@ namespace Quidjibo.Providers
                       from value in GetSteps(range[0], range[range.Length - 1], step)
                       select value;
 
-            return qry;
+            return qry.OrderBy(x => x).ToArray();
         }
 
 
