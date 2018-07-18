@@ -41,7 +41,7 @@ namespace Quidjibo.Tests.Servers
         [TestInitialize]
         public void Init()
         {
-            _cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+            _cts = new CancellationTokenSource(TimeSpan.FromMinutes(1));
             _loggerFactory = Substitute.For<ILoggerFactory>();
             _logger = Substitute.For<ILogger<QuidjiboServer>>();
             _loggerFactory.CreateLogger<QuidjiboServer>().Returns(_logger);
@@ -234,7 +234,7 @@ namespace Quidjibo.Tests.Servers
             _workProvider.CompleteAsync(Arg.Any<WorkItem>(), Arg.Any<CancellationToken>())
                          .Returns(async x =>
                          {
-                             await Task.Delay(TimeSpan.FromSeconds(2.1));
+                             await Task.Delay(TimeSpan.FromSeconds(2.3));
                              completedWork.Add(x.Arg<WorkItem>());
                          });
             _scheduleProvider.ReceiveAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(scheduledItems));
