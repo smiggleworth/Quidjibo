@@ -234,7 +234,7 @@ namespace Quidjibo.Tests.Servers
             _workProvider.CompleteAsync(Arg.Any<WorkItem>(), Arg.Any<CancellationToken>())
                          .Returns(async x =>
                          {
-                             await Task.Delay(TimeSpan.FromSeconds(2.5));
+                             await Task.Delay(TimeSpan.FromSeconds(2.3));
                              completedWork.Add(x.Arg<WorkItem>());
                          });
             _scheduleProvider.ReceiveAsync(Arg.Any<CancellationToken>()).Returns(Task.FromResult(scheduledItems));
