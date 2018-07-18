@@ -1,4 +1,4 @@
-﻿DELETE FROM [Quidjibo].[Work] WITH (ROWLOCK, READPAST, UPDLOCK) 
+﻿DELETE FROM [Quidjibo].[Work] WITH (ROWLOCK, READPAST, UPDLOCK)
 WHERE [CreatedOn] < @DeleteOn 
        AND ([ExpireOn] IS NULL OR [ExpireOn] < @DeleteOn);
 
