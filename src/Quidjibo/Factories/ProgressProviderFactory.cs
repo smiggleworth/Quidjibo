@@ -1,23 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Quidjibo.Factories;
 using Quidjibo.Providers;
 
-namespace Quidjibo.Aws.Sqs.Factories
+namespace Quidjibo.Factories
 {
-    public class SqsProgressProviderFactory : IProgressProviderFactory
+    public class ProgressProviderFactory : IProgressProviderFactory
     {
         public Task<IProgressProvider> CreateAsync(string queues, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            return Task.FromResult<IProgressProvider>(new ProgressProvider());
         }
 
         public Task<IProgressProvider> CreateAsync(string[] queues, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            return Task.FromResult<IProgressProvider>(new ProgressProvider());
         }
     }
 }

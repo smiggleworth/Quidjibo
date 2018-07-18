@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -52,15 +51,15 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
                 quidjibo.Map("/schedule-items", schedule =>
                 {
                     schedule.Map("/receive", receive => receive.Run(async context =>
-                    {
-                        await ExecuteAsync(context, async wrapper =>
-                        {
-                            var factory = quidjiboBuilder.ScheduleProviderFactory;
-                            var provider = await factory.CreateAsync(wrapper.Queues, context.RequestAborted);
-                            var data = await provider.ReceiveAsync(context.RequestAborted);
-                            await WriteAsync(context, data);
-                        });
-                    }));
+                   {
+                       await ExecuteAsync(context, async wrapper =>
+                       {
+                           var factory = quidjiboBuilder.ScheduleProviderFactory;
+                           var provider = await factory.CreateAsync(wrapper.Queues, context.RequestAborted);
+                           var data = await provider.ReceiveAsync(context.RequestAborted);
+                           await WriteAsync(context, data);
+                       });
+                   }));
                     schedule.Map("/complete", receive => receive.Run(async context =>
                     {
                         await ExecuteAsync<ScheduleItem>(context, async wrapper =>
@@ -79,6 +78,16 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
                             var provider = await factory.CreateAsync(wrapper.Queues, context.RequestAborted);
                             var data = await provider.ExistsAsync(wrapper.Data, context.RequestAborted);
                             await WriteAsync(context, data);
+                        });
+                    }));
+                    schedule.Map("/delete", delete => delete.Run(async context =>
+                    {
+                        await ExecuteAsync<Guid>(context, async wrapper =>
+                        {
+                            var factory = quidjiboBuilder.ScheduleProviderFactory;
+                            var provider = await factory.CreateAsync(wrapper.Queues, context.RequestAborted);
+                            await provider.DeleteAsync(wrapper.Data, context.RequestAborted);
+                            await WriteAsync(context);
                         });
                     }));
                     schedule.MapWhen(x => x.Request.Method == HttpMethods.Get, load => load.Run(async context =>
@@ -101,18 +110,7 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
                             await WriteAsync(context);
                         });
                     }));
-                    schedule.MapWhen(x => x.Request.Method == HttpMethods.Delete, delete => delete.Run(async context =>
-                    {
-                        await ExecuteAsync<Guid>(context, async wrapper =>
-                        {
-                            var factory = quidjiboBuilder.ScheduleProviderFactory;
-                            var provider = await factory.CreateAsync(wrapper.Queues, context.RequestAborted);
-                            await provider.DeleteAsync(wrapper.Data, context.RequestAborted);
-                            await WriteAsync(context);
-                        });
-                    }));
                 });
-
 
                 quidjibo.Map("/work-items", workApp =>
                 {
@@ -208,11 +206,13 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
             {
                 return Deserialize<RequestData<T>>(context.Request.Query);
             }
+
             if (context.Request.Method == HttpMethods.Post || context.Request.Method == HttpMethods.Put)
             {
                 var body = await ReadBodyAsync(context.Request);
                 return JsonConvert.DeserializeObject<RequestData<T>>(body);
             }
+
             return null;
         }
 
@@ -268,9 +268,9 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
                 if (targetType.IsEnumerable(out var enumerableType))
                 {
                     var enumerable = items.Where(x => key != null && x.Key.StartsWith(key))
-                        .Select(x => x.Key.Split(new[] { '[', ']' }, 3)[1]).Distinct()
-                        .Select(x => DeserializeInternal(enumerableType, items, key != null ? $"{key}[{x}]" : $"[{x}]"))
-                        .ToArray();
+                                          .Select(x => x.Key.Split(new[] { '[', ']' }, 3)[1]).Distinct()
+                                          .Select(x => DeserializeInternal(enumerableType, items, key != null ? $"{key}[{x}]" : $"[{x}]"))
+                                          .ToArray();
 
                     if (type.IsArray)
                     {
@@ -289,6 +289,7 @@ namespace Quidjibo.AspNetCore.WebProxy.Extensions
                     {
                         collectionType.GetMethod("Insert")?.Invoke(collection, new[] { i, enumerable[i] });
                     }
+
                     return collection;
                 }
 

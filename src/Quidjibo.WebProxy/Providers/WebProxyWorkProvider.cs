@@ -36,7 +36,7 @@ namespace Quidjibo.WebProxy.Providers
                 }
             };
             var response = await _webProxyClient.PostAsync(request, cancellationToken);
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Send work item failed.");
                 _logger.LogDebug(response.Content);
@@ -55,7 +55,7 @@ namespace Quidjibo.WebProxy.Providers
                 }
             };
             var response = await _webProxyClient.PostAsync<List<WorkItem>>(request, cancellationToken);
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Receive work item failed.");
                 _logger.LogDebug(response.Content);
@@ -76,7 +76,7 @@ namespace Quidjibo.WebProxy.Providers
                 }
             };
             var response = await _webProxyClient.PostAsync<DateTime>(request, cancellationToken);
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Renew work item failed.");
                 _logger.LogDebug(response.Content);
@@ -97,7 +97,7 @@ namespace Quidjibo.WebProxy.Providers
                 }
             };
             var response = await _webProxyClient.PostAsync(request, cancellationToken);
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Complete work item failed.");
                 _logger.LogDebug(response.Content);
@@ -116,7 +116,7 @@ namespace Quidjibo.WebProxy.Providers
                 }
             };
             var response = await _webProxyClient.PostAsync(request, cancellationToken);
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Fault work item failed.");
                 _logger.LogDebug(response.Content);

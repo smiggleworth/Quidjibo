@@ -36,7 +36,7 @@ namespace Quidjibo.WebProxy.Providers
             };
 
             var response = await _webProxyClient.PostAsync<List<ScheduleItem>>(request, cancellationToken);
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Receive schedule items failed.");
                 _logger.LogDebug(response.Content);
@@ -58,7 +58,7 @@ namespace Quidjibo.WebProxy.Providers
             };
 
             var response = await _webProxyClient.PostAsync(request, cancellationToken);
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Complete schedule items failed.");
                 _logger.LogDebug(response.Content);
@@ -78,7 +78,7 @@ namespace Quidjibo.WebProxy.Providers
             };
 
             var response = await _webProxyClient.PostAsync(request, cancellationToken);
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Create schedule item failed.");
                 _logger.LogDebug(response.Content);
@@ -98,7 +98,7 @@ namespace Quidjibo.WebProxy.Providers
             };
 
             var response = await _webProxyClient.GetAsync<ScheduleItem>(request, cancellationToken);
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Load schedule item failed.");
                 _logger.LogDebug(response.Content);
@@ -116,7 +116,7 @@ namespace Quidjibo.WebProxy.Providers
         {
             var request = new WebProxyRequest
             {
-                Path = "/schedule-items",
+                Path = "/schedule-items/delete",
                 Data = new RequestData<Guid>
                 {
                     Queues = _queues,
@@ -124,8 +124,8 @@ namespace Quidjibo.WebProxy.Providers
                 }
             };
 
-            var response = await _webProxyClient.DeleteAsync(request, cancellationToken);
-            if(!response.IsSuccessStatusCode)
+            var response = await _webProxyClient.PostAsync(request, cancellationToken);
+            if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Delete schedule item failed.");
                 _logger.LogDebug(response.Content);
@@ -145,7 +145,7 @@ namespace Quidjibo.WebProxy.Providers
             };
 
             var response = await _webProxyClient.GetAsync<bool>(request, cancellationToken);
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Schedule item exist check failed.");
                 _logger.LogDebug(response.Content);

@@ -39,7 +39,7 @@ namespace Quidjibo.Tests.Providers
 
             // Assert
             var utc = DateTime.UtcNow;
-            foreach(var result in results.Take(50))
+            foreach (var result in results.Take(50))
             {
                 utc = utc.AddHours(1);
                 result.Date.Should().Be(utc.Date);
@@ -57,7 +57,7 @@ namespace Quidjibo.Tests.Providers
         public void GetSchedule_RequiresFivePartCronExpression(string expression)
         {
             // Act
-            Action action = () => _sut.GetSchedule(expression, DateTime.UtcNow);
+            Action action = () => _sut.GetSchedule(expression, DateTime.UtcNow).ToList();
 
             // Assert
             action.Should().Throw<InvalidOperationException>().WithMessage("Expression must contain 5 parts");

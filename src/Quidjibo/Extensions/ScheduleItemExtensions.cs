@@ -1,3 +1,4 @@
+using System.Linq;
 using Quidjibo.Models;
 
 namespace Quidjibo.Extensions
@@ -8,8 +9,7 @@ namespace Quidjibo.Extensions
         {
             return existingItem != null && item.Name == existingItem.Name
                                         && item.CronExpression == existingItem.CronExpression
-                                        && item.Queue == existingItem.Queue
-                                        && item.Payload == existingItem.Payload;
+                                        && item.Queue == existingItem.Queue;
         }
     }
 }

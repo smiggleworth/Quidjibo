@@ -12,13 +12,13 @@ namespace Quidjibo.Resolvers
 
         public DependencyResolver(IDictionary<Type, object> services, params Assembly[] assemblies)
         {
-            _services = services;
-            _assemblies = assemblies;
+            _services = services ?? throw new ArgumentNullException(nameof(services));
+            _assemblies = assemblies ?? throw new ArgumentNullException(nameof(assemblies), "QuidjiboBuilder did not pass a list of assemblies to scan, make sure to call ConfigureAssemblies.");
         }
 
         public object Resolve(Type type)
         {
-            if(_services != null && _services.TryGetValue(type, out var service))
+            if (_services != null && _services.TryGetValue(type, out var service))
             {
                 return service;
             }
@@ -31,7 +31,7 @@ namespace Quidjibo.Resolvers
                            where info.IsAssignableFrom(t.GetTypeInfo())
                            select t).SingleOrDefault();
 
-            if(handler == null)
+            if (handler == null)
             {
                 throw new NullReferenceException("Could not find a handler that matches your command.");
             }

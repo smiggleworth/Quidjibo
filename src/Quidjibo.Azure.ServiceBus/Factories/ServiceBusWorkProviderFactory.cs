@@ -16,6 +16,8 @@ namespace Quidjibo.Azure.ServiceBus.Factories
         private readonly int _prefectchCount;
         private readonly RetryPolicy _retryPolicy;
 
+        public int PollingInterval => 10;
+
         public ServiceBusWorkProviderFactory(string connectionString, RetryPolicy retryPolicy, int prefectchCount, int batchSize)
         {
             _connectionString = connectionString;
@@ -24,19 +26,11 @@ namespace Quidjibo.Azure.ServiceBus.Factories
             _batchSize = batchSize;
         }
 
-        public int PollingInterval => 10;
-
         public async Task<IWorkProvider> CreateAsync(string queues, CancellationToken cancellationToken = new CancellationToken())
         {
             var sender = new MessageSender(_connectionString, queues, RetryPolicy.Default);
             var receiver = new MessageReceiver(_connectionString, queues, ReceiveMode.PeekLock, _retryPolicy, _prefectchCount);
-
-
             var provider = new ServiceBusWorkProvider(sender, receiver, _batchSize);
-
-            // todo : Create queues if not exists
-
-
             return await Task.FromResult(provider);
         }
 

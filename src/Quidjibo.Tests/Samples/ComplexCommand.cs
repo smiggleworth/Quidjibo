@@ -16,6 +16,7 @@ namespace Quidjibo.Tests.Samples
             Data = data;
         }
 
+        public Guid? CorrelationId { get; set; }
         public Dictionary<string, string> Metadata { get; set; }
     }
 }

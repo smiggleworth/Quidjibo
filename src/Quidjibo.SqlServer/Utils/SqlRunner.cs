@@ -14,14 +14,14 @@ namespace Quidjibo.SqlServer.Utils
 
         public static async Task ExecuteAsync(Func<SqlCommand, Task> func, string connectionString, bool inTransaction, CancellationToken cancellationToken)
         {
-            using(var conn = new SqlConnection(connectionString))
-            using(var cmd = conn.CreateCommand())
+            using (var conn = new SqlConnection(connectionString))
+            using (var cmd = conn.CreateCommand())
             {
                 {
                     await conn.OpenAsync(cancellationToken);
-                    if(inTransaction)
+                    if (inTransaction)
                     {
-                        using(var tran = conn.BeginTransaction())
+                        using (var tran = conn.BeginTransaction())
                         {
                             try
                             {
@@ -48,7 +48,7 @@ namespace Quidjibo.SqlServer.Utils
         public static T Map<T>(this SqlDataReader rdr, string name)
         {
             var val = rdr[name];
-            if(val == DBNull.Value)
+            if (val == DBNull.Value)
             {
                 return default(T);
             }

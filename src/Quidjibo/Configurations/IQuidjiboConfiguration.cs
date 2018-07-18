@@ -18,6 +18,11 @@ namespace Quidjibo.Configurations
         int MaxAttempts { get; }
 
         /// <summary>
+        ///     The number of items to receive at once.
+        /// </summary>
+        int BatchSize { get; }
+
+        /// <summary>
         ///     The lock interval in seconds
         /// </summary>
         int LockInterval { get; }
@@ -33,8 +38,18 @@ namespace Quidjibo.Configurations
         bool EnableWorker { get; set; }
 
         /// <summary>
+        ///     The frequency to poll the work queue in seconds.
+        /// </summary>
+        int? WorkPollingInterval { get; set; }
+
+        /// <summary>
         ///     Enable the scheduler
         /// </summary>
         bool EnableScheduler { get; set; }
+
+        /// <summary>
+        ///     The frequency to poll the persisisted schedules in seconds.
+        /// </summary>
+        int? SchedulePollingInterval { get; set; }
     }
 }

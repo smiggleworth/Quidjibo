@@ -13,13 +13,13 @@ namespace Quidjibo.WebProxy.Factories
         private readonly ILoggerFactory _loggerFactory;
         private readonly IWebProxyClient _webProxyClient;
 
+        public int PollingInterval => 10;
+
         public WebProxyWorkProviderFactory(ILoggerFactory loggerFactory, IWebProxyClient webProxyClient)
         {
             _loggerFactory = loggerFactory;
             _webProxyClient = webProxyClient;
         }
-
-        public int PollingInterval => 10;
 
         public Task<IWorkProvider> CreateAsync(string queues, CancellationToken cancellationToken = default(CancellationToken))
         {

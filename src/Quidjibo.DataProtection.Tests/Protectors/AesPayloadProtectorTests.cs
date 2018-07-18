@@ -22,7 +22,7 @@ namespace Quidjibo.DataProtection.Tests.Protectors
         public void TestInitialize()
         {
             _model = GenFu.GenFu.New<PayloadModel>();
-            using(var aes = Aes.Create())
+            using (var aes = Aes.Create())
             {
                 _sut = new AesPayloadProtector(new KeyProvider(aes.Key));
             }

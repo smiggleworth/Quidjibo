@@ -11,7 +11,7 @@ namespace Quidjibo.SqlServer.Utils
 
         public static async Task<string> GetScript(string scriptName)
         {
-            if(Scripts.TryGetValue(scriptName, out var script))
+            if (Scripts.TryGetValue(scriptName, out var script))
             {
                 return script;
             }

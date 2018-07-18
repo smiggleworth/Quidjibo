@@ -17,7 +17,6 @@ namespace Quidjibo.WebProxy.Providers
         private readonly string[] _queues;
         private readonly IWebProxyClient _webProxyClient;
 
-
         public WebProxyProgressProvider(ILogger logger, IWebProxyClient webProxyClient, string[] queues)
         {
             _logger = logger;
@@ -38,7 +37,7 @@ namespace Quidjibo.WebProxy.Providers
             };
 
             var response = await _webProxyClient.PostAsync(request, cancellationToken);
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Report progress failed.");
                 _logger.LogDebug(response.Content);
@@ -58,7 +57,7 @@ namespace Quidjibo.WebProxy.Providers
             };
 
             var response = await _webProxyClient.GetAsync<List<ProgressItem>>(request, cancellationToken);
-            if(!response.IsSuccessStatusCode)
+            if (!response.IsSuccessStatusCode)
             {
                 _logger.LogWarning("Load progress failed.");
                 _logger.LogDebug(response.Content);

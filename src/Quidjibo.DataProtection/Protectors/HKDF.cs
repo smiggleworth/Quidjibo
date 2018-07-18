@@ -39,7 +39,7 @@ namespace Quidjibo.DataProtection.Protectors
         /// <returns>Output keying material</returns>
         public byte[] Expand(byte[] pseudoRandomKey, byte[] info, int length)
         {
-            if(length > _hmac.HashSize * 255 / 8)
+            if (length > _hmac.HashSize * 255 / 8)
             {
                 throw new Exception("Invalid length. Must be less than or equal to 255 * Hash Length.");
             }
@@ -56,7 +56,7 @@ namespace Quidjibo.DataProtection.Protectors
             var lastT = new byte[0];
 
             var t = new List<byte>();
-            var ikm = new List<byte>((_hmac.HashSize / 8) + info.Length + 1);
+            var ikm = new List<byte>(_hmac.HashSize / 8 + info.Length + 1);
             for (var i = 1; i <= n; i++)
             {
                 // T(N) = HMAC-Hash(PRK, T(N-1) | info | 0x0N)

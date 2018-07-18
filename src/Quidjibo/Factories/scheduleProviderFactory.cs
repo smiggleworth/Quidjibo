@@ -1,25 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Quidjibo.Factories;
 using Quidjibo.Providers;
 
-namespace Quidjibo.Aws.Sqs.Factories
+namespace Quidjibo.Factories
 {
-    public class SqsScheduleProviderFactory : IScheduleProviderFactory
+    public class ScheduleProviderFactory : IScheduleProviderFactory
     {
-        public int PollingInterval { get; }
-
         public Task<IScheduleProvider> CreateAsync(string queues, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            return Task.FromResult<IScheduleProvider>(new ScheduleProvider());
         }
 
         public Task<IScheduleProvider> CreateAsync(string[] queues, CancellationToken cancellationToken = default(CancellationToken))
         {
-            throw new NotImplementedException();
+            return Task.FromResult<IScheduleProvider>(new ScheduleProvider());
         }
     }
 }
