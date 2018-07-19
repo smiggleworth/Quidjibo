@@ -49,7 +49,7 @@ namespace Quidjibo.SqlServer.Factories
                 return new SqlWorkProvider(
                     _loggerFactory.CreateLogger<SqlWorkProvider>(),
                     _sqlServerQuidjiboConfiguration.ConnectionString,
-                    _sqlServerQuidjiboConfiguration.Queues,
+                    queues,
                     _sqlServerQuidjiboConfiguration.LockInterval,
                     _sqlServerQuidjiboConfiguration.BatchSize);
             }
