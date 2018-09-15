@@ -1,3 +1,6 @@
+// // Copyright (c) smiggleworth. All rights reserved.
+// // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
 using System.Threading;
 using System.Threading.Tasks;
 using Quidjibo.Pipeline.Contexts;
@@ -6,16 +9,8 @@ namespace Quidjibo.Pipeline
 {
     public interface IQuidjiboPipeline
     {
-//        ICronProvider CronProvider { get; }
-//        IDependencyResolver Resolver { get; }
-//        ILoggerFactory LoggerFactory { get; }
-//        IPayloadProtector Protector { get; }
-//        IPayloadSerializer Serializer { get; }
-//        IQuidjiboConfiguration QuidjiboConfiguration { get; }
-//        IWorkDispatcher Dispatcher { get; }
-
-
         /// <summary>
+        ///     Start the pipeline
         /// </summary>
         /// <param name="context"></param>
         /// <param name="cancellationToken"></param>
@@ -23,6 +18,7 @@ namespace Quidjibo.Pipeline
         Task StartAsync(IQuidjiboContext context, CancellationToken cancellationToken);
 
         /// <summary>
+        ///     Invoke the next step.
         /// </summary>
         /// <param name="context"></param>
         /// <param name="cancellationToken"></param>
@@ -30,6 +26,7 @@ namespace Quidjibo.Pipeline
         Task InvokeAsync(IQuidjiboContext context, CancellationToken cancellationToken);
 
         /// <summary>
+        ///     End the pipeline
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>

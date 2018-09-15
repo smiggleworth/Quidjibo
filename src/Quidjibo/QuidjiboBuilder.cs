@@ -209,14 +209,14 @@ namespace Quidjibo
             Validate();
 
             var logger = LoggerFactory.CreateLogger<QuidjiboBuilder>();
-            logger.LogDebug("Work Factory : {0}", WorkProviderFactory.GetType().Name);
-            logger.LogDebug("Schedule Factory : {0}", ScheduleProviderFactory.GetType().Name);
-            logger.LogDebug("Progress Factory : {0}", ProgressProviderFactory.GetType().Name);
-            logger.LogDebug("Serializer : {0}", _serializer.GetType().Name);
-            logger.LogDebug("Protector : {0}", _protector.GetType().Name);
-            logger.LogDebug("Cron : {0}", _cronProvider.GetType().Name);
-            logger.LogDebug("Resolver: {0}", _resolver.GetType().Name);
-            logger.LogDebug("Dispatcher: {0}", _dispatcher.GetType().Name);
+            logger.LogDebug("Work Factory : {WorkerFactory}", WorkProviderFactory.GetType().Name);
+            logger.LogDebug("Schedule Factory : {ScheduleFactory}", ScheduleProviderFactory.GetType().Name);
+            logger.LogDebug("Progress Factory : {ProgressFactory}", ProgressProviderFactory.GetType().Name);
+            logger.LogDebug("Serializer : {Serializer}", _serializer.GetType().Name);
+            logger.LogDebug("Protector : {Protector}", _protector.GetType().Name);
+            logger.LogDebug("Cron : {Cron}", _cronProvider.GetType().Name);
+            logger.LogDebug("Resolver: {Resolver}", _resolver.GetType().Name);
+            logger.LogDebug("Dispatcher: {Dispatcher}", _dispatcher.GetType().Name);
         }
 
         private void Validate()

@@ -90,7 +90,7 @@ namespace Quidjibo.SqlServer.Providers
                 cmd.AddParameter("@VisibleOn", receiveOn.AddSeconds(Math.Max(_visibilityTimeout, 30)));
                 cmd.AddParameter("@ReceiveOn", receiveOn);
                 cmd.AddParameter("@MaxAttempts", _maxAttempts);
-                cmd.AddParameter("@DeleteOn", receiveOn.AddMonths(-1));
+                cmd.AddParameter("@DeleteOn", receiveOn.AddDays(-3));
 
                 // dynamic parameters
                 _queues.Select((q, i) => cmd.Parameters.AddWithValue($"@Queue{i}", q)).ToList();
