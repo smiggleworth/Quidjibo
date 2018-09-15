@@ -130,14 +130,14 @@ namespace Quidjibo.Clients
             {
                 if (!item.EquivalentTo(existingItem))
                 {
-                    _logger.LogDebug("Replace existing schedule for {0}", name);
+                    _logger.LogDebug("Replace existing schedule for {Name}", name);
                     await provider.DeleteAsync(existingItem.Id, cancellationToken);
                     await provider.CreateAsync(item, cancellationToken);
                 }
             }
             else
             {
-                _logger.LogDebug("Creating new schedule for {0}", name);
+                _logger.LogDebug("Creating new schedule for {Name}", name);
                 await provider.CreateAsync(item, cancellationToken);
             }
         }
@@ -160,7 +160,7 @@ namespace Quidjibo.Clients
             var existingItem = await provider.LoadByNameAsync(name, cancellationToken);
             if (existingItem != null)
             {
-                _logger.LogDebug("Delete existing schedule for {0}", name);
+                _logger.LogDebug("Delete existing schedule for {Name}", name);
                 await provider.DeleteAsync(existingItem.Id, cancellationToken);
             }
         }

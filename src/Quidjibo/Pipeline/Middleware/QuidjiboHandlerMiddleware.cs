@@ -37,7 +37,7 @@ namespace Quidjibo.Pipeline.Middleware
                         Payload = protectedPayload,
                         Queue = context.Item.Queue
                     };
-                    logger.LogDebug("Enqueue the next workflow step : {0}", nextItem.Id);
+                    logger.LogDebug("Enqueue the next workflow step : {Id}", nextItem.Id);
                     await context.WorkProvider.SendAsync(nextItem, 0, cancellationToken);
                 }
             }

@@ -87,7 +87,7 @@ namespace Quidjibo.Pipeline
             var step = steps.Dequeue();
             if (step.Instance == null)
             {
-                _logger.LogDebug("resolving {0}", step.Type);
+                _logger.LogDebug("resolving {Type}", step.Type);
                 step.Instance = (IQuidjiboMiddleware)context.Resolver.Resolve(step.Type);
             }
 
