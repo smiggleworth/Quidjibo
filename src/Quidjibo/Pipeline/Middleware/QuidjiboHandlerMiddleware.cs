@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Quidjibo.Commands;
+using Quidjibo.Extensions;
 using Quidjibo.Models;
 using Quidjibo.Pipeline.Contexts;
 
@@ -34,6 +35,7 @@ namespace Quidjibo.Pipeline.Middleware
                         Id = Guid.NewGuid(),
                         CorrelationId = context.Item.CorrelationId,
                         Attempts = 0,
+                        Name = workflow.GetName(),
                         Payload = protectedPayload,
                         Queue = context.Item.Queue
                     };
