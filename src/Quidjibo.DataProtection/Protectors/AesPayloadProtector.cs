@@ -103,12 +103,10 @@ namespace Quidjibo.DataProtection.Protectors
         private async Task<(byte[] CipherKey, byte[] MacKey)> ExpandKeysAsync(CancellationToken cancellationToken)
         {
             var key = await _keyProvider.GetKeyAsync(cancellationToken);
-            using (var hkdf = new Hkdf<HMACSHA256>())
-            {
-                var cipherKey = hkdf.Expand(key, KeyContext.Cipher, 32);
-                var macKey = hkdf.Expand(key, KeyContext.Mac, 32);
-                return (cipherKey, macKey);
-            }
+            var hkdf = new Hkdf(HashAlgorithmName.SHA256);
+            var cipherKey = hkdf.Expand(key, KeyContext.Cipher, 32);
+            var macKey = hkdf.Expand(key, KeyContext.Mac, 32);
+            return (cipherKey, macKey);
         }
     }
 }
