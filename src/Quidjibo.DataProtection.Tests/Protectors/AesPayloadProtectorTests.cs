@@ -49,11 +49,16 @@ namespace Quidjibo.DataProtection.Tests.Protectors
 
             var protectedPayload = await _sut.ProtectAsync(payload, CancellationToken.None);
 
-            protectedPayload[49] = (byte)(protectedPayload[49] ^ 255);
+            for(var i = 1; i < protectedPayload.Length; i++)
+            {
+                var payloadCopy = new byte[protectedPayload.Length];
+                protectedPayload.AsSpan().CopyTo(payloadCopy);
+                payloadCopy[i] ^= 255;
 
-            Func<Task> sut = async () => await _sut.UnprotectAsync(protectedPayload, CancellationToken.None);
+                Func<Task> sut = async () => await _sut.UnprotectAsync(payloadCopy, CancellationToken.None);
 
-            sut.Should().Throw<Exception>().WithMessage("MAC mismatch");
+                sut.Should().Throw<Exception>().WithMessage("MAC mismatch");
+            }
         }
 
 
