@@ -127,27 +127,33 @@ namespace Quidjibo.Servers
             var workProvider = await _workProviderFactory.CreateAsync(queue, _cts.Token);
             while (!_cts.IsCancellationRequested)
             {
+                var items = new List<WorkItem>(0);
                 try
                 {
-                    _logger.LogDebug("Throttle Count : {ThrottleCount}", _throttle.CurrentCount);
+                    _logger.LogTrace("Throttle Count : {ThrottleCount}", _throttle.CurrentCount);
 
                     // throttle is important when there is more than one listener
                     await _throttle.WaitAsync(_cts.Token);
-                    var items = await workProvider.ReceiveAsync(Worker, _cts.Token);
-                    if (items.Any())
+                    items = await workProvider.ReceiveAsync(Worker, _cts.Token);
+                    if (items.Count > 0)
                     {
+                        _logger.LogDebug("Received {WorkItemCount} items.", items.Count);
                         var tasks = items.Select(item => InvokePipelineAsync(workProvider, item));
                         await Task.WhenAll(tasks);
-                        _throttle.Release();
-                        continue;
                     }
-
-                    _throttle.Release();
-                    await Task.Delay(pollingInterval, _cts.Token);
                 }
                 catch (Exception exception)
                 {
                     _logger.LogWarning(0, exception, exception.Message);
+                }
+                finally
+                {
+                    _throttle.Release();
+                }
+
+                if (items.Count <= 0)
+                {
+                    await Task.Delay(pollingInterval, _cts.Token);
                 }
             }
         }
