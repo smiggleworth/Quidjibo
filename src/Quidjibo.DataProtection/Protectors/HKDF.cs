@@ -5,19 +5,13 @@ using System.Security.Cryptography;
 
 namespace Quidjibo.DataProtection.Protectors
 {
-    public class Hkdf<T> : IDisposable
-        where T : KeyedHashAlgorithm, new()
+    public class Hkdf
     {
-        private readonly KeyedHashAlgorithm _hmac;
+        private readonly HashAlgorithmName _hashAlgorithmName;
 
-        public Hkdf()
+        public Hkdf(HashAlgorithmName hashAlgorithmName)
         {
-            _hmac = new T();
-        }
-
-        public void Dispose()
-        {
-            _hmac.Dispose();
+            _hashAlgorithmName = hashAlgorithmName;
         }
 
         /// <summary>
@@ -27,8 +21,9 @@ namespace Quidjibo.DataProtection.Protectors
         /// <returns>A pseudorandom key.</returns>
         public byte[] Extract(byte[] salt, byte[] inputKeyMaterial)
         {
-            _hmac.Key = salt ?? new byte[0];
-            return _hmac.ComputeHash(inputKeyMaterial);
+            var hmac = IncrementalHash.CreateHMAC(_hashAlgorithmName, salt ?? Array.Empty<byte>());
+            hmac.AppendData(inputKeyMaterial);
+            return hmac.GetHashAndReset();
         }
 
         /// <summary>
@@ -39,39 +34,73 @@ namespace Quidjibo.DataProtection.Protectors
         /// <returns>Output keying material</returns>
         public byte[] Expand(byte[] pseudoRandomKey, byte[] info, int length)
         {
-            if (length > _hmac.HashSize * 255 / 8)
+            var hashSizeBytes = HashAlgorithmSize(_hashAlgorithmName);
+            if (length > hashSizeBytes * 255)
             {
                 throw new Exception("Invalid length. Must be less than or equal to 255 * Hash Length.");
             }
 
-            if (info == null)
+            info = info ?? Array.Empty<byte>();
+
+            using (var hmac = IncrementalHash.CreateHMAC(_hashAlgorithmName, pseudoRandomKey))
             {
-                info = new byte[0];
+                var n = (length + (hashSizeBytes - 1)) / hashSizeBytes;
+
+                var t = new byte[length];
+                Span<byte> target = t;
+                // We can write all but the last N T's directly to the Span. We handle the
+                // last T outside of the loop since the detination may be smaller than the MAC.
+                var index = new byte[] { 1 } ;
+                Span<byte> indexSpan = index;
+                int previous = -hashSizeBytes;
+                for (ref byte i = ref indexSpan[0]; i < n; i++)
+                {
+                    if (previous >= 0)
+                    {
+                        hmac.AppendData(t, previous, hashSizeBytes);
+                    }
+                    hmac.AppendData(info);
+                    hmac.AppendData(index);
+                    Span<byte> mac = hmac.GetHashAndReset();
+                    mac.CopyTo(target);
+                    target = target.Slice(hashSizeBytes);
+                    previous += hashSizeBytes;
+                }
+                if (previous >= 0)
+                {
+                    hmac.AppendData(t, previous, hashSizeBytes);
+                }
+                hmac.AppendData(info);
+                hmac.AppendData(index);
+                Span<byte> finalMac = hmac.GetHashAndReset();
+                finalMac.Slice(0, target.Length).CopyTo(target);
+                return t;
             }
+        }
 
-            _hmac.Key = pseudoRandomKey;
-
-            var n = Convert.ToInt32(Math.Ceiling(length / (_hmac.HashSize / 8.0)));
-
-            var lastT = new byte[0];
-
-            var t = new List<byte>();
-            var ikm = new List<byte>(_hmac.HashSize / 8 + info.Length + 1);
-            for (var i = 1; i <= n; i++)
+        private static int HashAlgorithmSize(HashAlgorithmName hashAlgorithmName)
+        {
+            if (hashAlgorithmName == HashAlgorithmName.MD5)
             {
-                // T(N) = HMAC-Hash(PRK, T(N-1) | info | 0x0N)
-                ikm.AddRange(lastT);
-                ikm.AddRange(info);
-                ikm.Add((byte)i);
-
-                var tn = _hmac.ComputeHash(ikm.ToArray());
-                t.AddRange(tn);
-
-                lastT = tn;
-                ikm.Clear();
+                return 128 / 8;
             }
-
-            return t.Take(length).ToArray();
+            if (hashAlgorithmName == HashAlgorithmName.SHA1)
+            {
+                return 160 / 8;
+            }
+            if (hashAlgorithmName == HashAlgorithmName.SHA256)
+            {
+                return 256 / 8;
+            }
+            if (hashAlgorithmName == HashAlgorithmName.SHA384)
+            {
+                return 384 / 8;
+            }
+            if (hashAlgorithmName == HashAlgorithmName.SHA512)
+            {
+                return 512 / 8;
+            }
+            throw new ArgumentException("Unknown hash algorithm.", nameof(hashAlgorithmName));
         }
     }
 }

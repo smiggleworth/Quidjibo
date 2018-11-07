@@ -37,14 +37,12 @@ namespace Quidjibo.DataProtection.Tests.Protectors
             DisplayName = "RFC 5869 A.3")]
         public void Rfc5869HmacSha256TestVector(string salt, string ikm, string info, int length, string expectedPrk, string expectedOkm)
         {
-            using (var hkdf = new Hkdf<HMACSHA256>())
-            {
-                var prk = hkdf.Extract(StringToByteArray(salt), StringToByteArray(ikm));
-                ByteArrayToString(prk).Should().BeEquivalentTo(expectedPrk);
+            var hkdf = new Hkdf(HashAlgorithmName.SHA256);
+            var prk = hkdf.Extract(StringToByteArray(salt), StringToByteArray(ikm));
+            ByteArrayToString(prk).Should().BeEquivalentTo(expectedPrk);
 
-                var okm = hkdf.Expand(prk, StringToByteArray(info), length);
-                ByteArrayToString(okm).Should().BeEquivalentTo(expectedOkm);
-            }
+            var okm = hkdf.Expand(prk, StringToByteArray(info), length);
+            ByteArrayToString(okm).Should().BeEquivalentTo(expectedOkm);
         }
 
         [DataTestMethod]
@@ -82,14 +80,12 @@ namespace Quidjibo.DataProtection.Tests.Protectors
             DisplayName = "RFC 5869 A.7")]
         public void Rfc5869HmacSha1TestVector(string salt, string ikm, string info, int length, string expectedPrk, string expectedOkm)
         {
-            using (var hkdf = new Hkdf<HMACSHA1>())
-            {
-                var prk = hkdf.Extract(StringToByteArray(salt), StringToByteArray(ikm));
-                ByteArrayToString(prk).Should().BeEquivalentTo(expectedPrk);
+            var hkdf = new Hkdf(HashAlgorithmName.SHA1);
+            var prk = hkdf.Extract(StringToByteArray(salt), StringToByteArray(ikm));
+            ByteArrayToString(prk).Should().BeEquivalentTo(expectedPrk);
 
-                var okm = hkdf.Expand(prk, StringToByteArray(info), length);
-                ByteArrayToString(okm).Should().BeEquivalentTo(expectedOkm);
-            }
+            var okm = hkdf.Expand(prk, StringToByteArray(info), length);
+            ByteArrayToString(okm).Should().BeEquivalentTo(expectedOkm);
         }
 
         public static string ByteArrayToString(byte[] ba)
