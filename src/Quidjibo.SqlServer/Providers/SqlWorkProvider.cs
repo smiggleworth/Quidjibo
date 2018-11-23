@@ -1,3 +1,6 @@
+// // Copyright (c) smiggleworth. All rights reserved.
+// // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
 using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
@@ -7,7 +10,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Quidjibo.Models;
 using Quidjibo.Providers;
-using Quidjibo.SqlServer.Configurations;
 using Quidjibo.SqlServer.Extensions;
 using Quidjibo.SqlServer.Utils;
 
@@ -24,10 +26,10 @@ namespace Quidjibo.SqlServer.Providers
         }
 
         private readonly int _batchSize;
-        private readonly int _daysToKeep;
         private readonly string _connectionString;
-        private readonly int _maxAttempts;
+        private readonly int _daysToKeep;
         private readonly ILogger _logger;
+        private readonly int _maxAttempts;
         private readonly string[] _queues;
         private readonly int _visibilityTimeout;
         private string _receiveSql;
@@ -39,7 +41,7 @@ namespace Quidjibo.SqlServer.Providers
             int visibilityTimeout,
             int batchSize,
             int daysToKeep
-            )
+        )
         {
             _logger = logger;
             _queues = queues;
@@ -77,6 +79,7 @@ namespace Quidjibo.SqlServer.Providers
         public async Task<List<WorkItem>> ReceiveAsync(string worker, CancellationToken cancellationToken)
         {
             var receiveOn = DateTime.UtcNow;
+            var deleteOn = _daysToKeep > 0 ? receiveOn.AddDays(-_daysToKeep) : receiveOn.AddHours(-1);
 
             if (_receiveSql == null)
             {
@@ -98,10 +101,14 @@ namespace Quidjibo.SqlServer.Providers
                 cmd.AddParameter("@VisibleOn", receiveOn.AddSeconds(Math.Max(_visibilityTimeout, 30)));
                 cmd.AddParameter("@ReceiveOn", receiveOn);
                 cmd.AddParameter("@MaxAttempts", _maxAttempts);
-                cmd.AddParameter("@DeleteOn", receiveOn.AddDays(-_daysToKeep));
+                cmd.AddParameter("@DeleteOn", deleteOn);
 
                 // dynamic parameters
-                _queues.Select((q, i) => cmd.Parameters.AddWithValue($"@Queue{i}", q)).ToList();
+                for (var i = 0; i < _queues.Length; i++)
+                {
+                    cmd.Parameters.AddWithValue($"@Queue{i}", _queues[i]);
+                }
+
                 using (var rdr = await cmd.ExecuteReaderAsync(cancellationToken))
                 {
                     while (await rdr.ReadAsync(cancellationToken))

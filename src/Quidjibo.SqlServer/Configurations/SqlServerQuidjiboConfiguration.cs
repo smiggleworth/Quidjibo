@@ -14,7 +14,7 @@ namespace Quidjibo.SqlServer.Configurations
         /// <summary>
         ///     The number of days to keep completed/faulted work items.
         /// </summary>
-        public int DaysToKeep { get; set; } = 2;
+        public int DaysToKeep { get; set; } = 3;
 
         public int BatchSize { get; set; } = 5;
 
