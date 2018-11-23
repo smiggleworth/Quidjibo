@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Quidjibo.Models;
 using Quidjibo.Providers;
+using Quidjibo.SqlServer.Configurations;
 using Quidjibo.SqlServer.Extensions;
 using Quidjibo.SqlServer.Utils;
 
@@ -23,8 +24,10 @@ namespace Quidjibo.SqlServer.Providers
         }
 
         private readonly int _batchSize;
+        private readonly int _daysToKeep;
         private readonly string _connectionString;
         private readonly int _maxAttempts;
+        private readonly ILogger _logger;
         private readonly string[] _queues;
         private readonly int _visibilityTimeout;
         private string _receiveSql;
@@ -34,13 +37,17 @@ namespace Quidjibo.SqlServer.Providers
             string connectionString,
             string[] queues,
             int visibilityTimeout,
-            int batchSize)
+            int batchSize,
+            int daysToKeep
+            )
         {
+            _logger = logger;
             _queues = queues;
             _visibilityTimeout = visibilityTimeout;
             _batchSize = batchSize;
             _maxAttempts = 10;
             _connectionString = connectionString;
+            _daysToKeep = Math.Abs(daysToKeep);
         }
 
         public async Task SendAsync(WorkItem item, int delay, CancellationToken cancellationToken)
@@ -70,6 +77,7 @@ namespace Quidjibo.SqlServer.Providers
         public async Task<List<WorkItem>> ReceiveAsync(string worker, CancellationToken cancellationToken)
         {
             var receiveOn = DateTime.UtcNow;
+
             if (_receiveSql == null)
             {
                 _receiveSql = await SqlLoader.GetScript("Work.Receive");
@@ -90,7 +98,7 @@ namespace Quidjibo.SqlServer.Providers
                 cmd.AddParameter("@VisibleOn", receiveOn.AddSeconds(Math.Max(_visibilityTimeout, 30)));
                 cmd.AddParameter("@ReceiveOn", receiveOn);
                 cmd.AddParameter("@MaxAttempts", _maxAttempts);
-                cmd.AddParameter("@DeleteOn", receiveOn.AddDays(-3));
+                cmd.AddParameter("@DeleteOn", receiveOn.AddDays(-_daysToKeep));
 
                 // dynamic parameters
                 _queues.Select((q, i) => cmd.Parameters.AddWithValue($"@Queue{i}", q)).ToList();
