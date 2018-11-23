@@ -51,7 +51,8 @@ namespace Quidjibo.SqlServer.Factories
                     _sqlServerQuidjiboConfiguration.ConnectionString,
                     queues,
                     _sqlServerQuidjiboConfiguration.LockInterval,
-                    _sqlServerQuidjiboConfiguration.BatchSize);
+                    _sqlServerQuidjiboConfiguration.BatchSize,
+                    _sqlServerQuidjiboConfiguration.DaysToKeep);
             }
             finally
             {
