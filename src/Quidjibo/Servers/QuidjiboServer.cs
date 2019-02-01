@@ -151,7 +151,7 @@ namespace Quidjibo.Servers
                     _throttle.Release();
                 }
 
-                if (items.Count <= 0)
+                if (items == null || items.Count <= 0)
                 {
                     await Task.Delay(pollingInterval, _cts.Token);
                 }
