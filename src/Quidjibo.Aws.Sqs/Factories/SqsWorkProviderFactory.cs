@@ -17,7 +17,6 @@ namespace Quidjibo.Aws.Sqs.Factories
         private readonly MemoryCache _providerCache = new MemoryCache(new MemoryCacheOptions());
         private readonly ILoggerFactory _loggerFactory;
         private readonly SqsQuidjiboConfiguration _sqsQuidjiboConfiguration;
-        private readonly AmazonSQSClient _client;
 
         public SqsWorkProviderFactory(
             ILoggerFactory loggerFactory,
@@ -25,14 +24,15 @@ namespace Quidjibo.Aws.Sqs.Factories
         {
             _loggerFactory = loggerFactory;
             _sqsQuidjiboConfiguration = sqsQuidjiboConfiguration;
-            _client = new AmazonSQSClient(_sqsQuidjiboConfiguration.Credentials, _sqsQuidjiboConfiguration.AmazonSqsConfig);
+
         }
 
         public Task<IWorkProvider> CreateAsync(string queues, CancellationToken cancellationToken = default(CancellationToken))
         {
             return _providerCache.GetOrCreateAsync(queues, async e =>
             {
-                var response = await _client.GetQueueUrlAsync(queues, cancellationToken);
+                var client = new AmazonSQSClient(_sqsQuidjiboConfiguration.Credentials, _sqsQuidjiboConfiguration.AmazonSqsConfig);
+                var response = await client.GetQueueUrlAsync(queues, cancellationToken);
                 if (response.HttpStatusCode != HttpStatusCode.OK)
                 {
                     throw new InvalidOperationException("Could not load the queues url.");
@@ -40,7 +40,7 @@ namespace Quidjibo.Aws.Sqs.Factories
 
                 var provider = new SqsWorkProvider(
                     _loggerFactory.CreateLogger<SqsWorkProvider>(),
-                    _client,
+                    client,
                     response.QueueUrl,
                     _sqsQuidjiboConfiguration.Type,
                     _sqsQuidjiboConfiguration.LockInterval,
