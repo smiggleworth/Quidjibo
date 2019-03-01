@@ -51,12 +51,19 @@ namespace Quidjibo.Pipeline
 
         public async Task StartAsync(IQuidjiboContext context, CancellationToken cancellationToken)
         {
-            _running.Add(context, new Queue<PipelineStep>(_steps.Where(x => x != null)
-                                                                .Select(x => new PipelineStep
-                                                                {
-                                                                    Type = x.Type,
-                                                                    Instance = x.Instance
-                                                                })));
+            var pipelineSteps = _steps.Where(x => x != null)
+                .Select(x => new PipelineStep
+                {
+                    Type = x.Type,
+                    Instance = x.Instance
+                });
+
+            if (!pipelineSteps.Any())
+            {
+                _logger.LogWarning("No pipeline steps were found. The pipeline might not be configured properly.");
+            }
+
+            _running.Add(context, new Queue<PipelineStep>());
             using (_resolver.Begin())
             {
                 context.Protector = _protector;
