@@ -44,9 +44,7 @@ namespace Quidjibo.SqlServer.Tests.Extensions
             cmd.Parameters["@CreatedOn"].Value.Should().Match<DateTime>(
                 x => x > DateTime.UtcNow.AddMinutes(-1) && x < DateTime.UtcNow.AddMinutes(1),
                 "because it should always be set to UtcNow");
-            cmd.Parameters["@ExpireOn"].Value.Should().Match<DateTime>(
-                x => x.Date == DateTime.UtcNow.AddDays(7).Date,
-                "because work expires after 7 days, by default");
+            cmd.Parameters["@ExpireOn"].Value.Should().Be(item.ExpireOn);
             cmd.Parameters["@VisibleOn"].Value.Should().Be(
                 cmd.Parameters["@CreatedOn"].Value,
                 "because there is no delay");
@@ -72,6 +70,19 @@ namespace Quidjibo.SqlServer.Tests.Extensions
             cmd.Parameters["@VisibleOn"].Value.Should().Be(createdOn.AddSeconds(delay));
         }
 
+        [TestMethod]
+        public async Task PrepareForSendAsync_ExpireOnIsNotSet_ShouldSetExpireOnToDefault()
+        {
+            // Arrange
+            WorkItem item = GenFu.GenFu.New<WorkItem>();
+            item.ExpireOn = default;
+            SqlCommand cmd = new SqlCommand();
 
+            // Act
+            await cmd.PrepareForSendAsync(item, 0, CancellationToken.None);
+
+            // Assert
+            cmd.Parameters["@ExpireOn"].Value.Should().Match<DateTime>(x => x.Date == DateTime.UtcNow.AddDays(SqlWorkProvider.DEFAULT_EXPIRE_DAYS).Date);
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace Quidjibo.SqlServer.Extensions
         {
             var createdOn = DateTime.UtcNow;
             var visibleOn = createdOn.AddSeconds(delay);
-            var expireOn = visibleOn.AddDays(7);
+            var expireOn = item.ExpireOn == default ? visibleOn.AddDays(SqlWorkProvider.DEFAULT_EXPIRE_DAYS) : item.ExpireOn;
 
 #pragma warning disable CA2100 // Review SQL queries for security vulnerabilities
             cmd.CommandText = await SqlLoader.GetScript("Work.Send");
@@ -35,6 +35,7 @@ namespace Quidjibo.SqlServer.Extensions
             cmd.AddParameter("@Status", SqlWorkProvider.StatusFlags.New);
             cmd.AddParameter("@Payload", item.Payload);
         }
+      
     }
 
 }

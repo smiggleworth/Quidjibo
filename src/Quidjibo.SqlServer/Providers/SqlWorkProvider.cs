@@ -25,6 +25,8 @@ namespace Quidjibo.SqlServer.Providers
             Complete = 2
         }
 
+        public const int DEFAULT_EXPIRE_DAYS = 7;
+
         private readonly int _batchSize;
         private readonly string _connectionString;
         private readonly int _daysToKeep;
