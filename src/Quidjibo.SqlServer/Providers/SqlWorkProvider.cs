@@ -136,9 +136,7 @@ namespace Quidjibo.SqlServer.Providers
         {
             await ExecuteAsync(async cmd =>
             {
-                cmd.CommandText = await SqlLoader.GetScript("Work.Complete");
-                cmd.AddParameter("@Id", item.Id);
-                cmd.AddParameter("@Complete", StatusFlags.Complete);
+                await cmd.PrepareForCompleteAsync(item, cancellationToken);
                 await cmd.ExecuteNonQueryAsync(cancellationToken);
             }, cancellationToken);
         }

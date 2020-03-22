@@ -36,6 +36,15 @@ namespace Quidjibo.SqlServer.Extensions
             cmd.AddParameter("@Payload", item.Payload);
         }
 
+        public static async Task PrepareForCompleteAsync(this SqlCommand cmd, WorkItem item, CancellationToken cancellationToken)
+        {
+#pragma warning disable CA2100 // Review SQL queries for security vulnerabilities
+            cmd.CommandText = await SqlLoader.GetScript("Work.Complete");
+#pragma warning restore CA2100 // Review SQL queries for security vulnerabilities
+            cmd.AddParameter("@Id", item.Id);
+            cmd.AddParameter("@Complete", SqlWorkProvider.StatusFlags.Complete);
+        }
+
         public static async Task PrepareForFaultAsync(this SqlCommand cmd, WorkItem item, int visibilityTimeout, CancellationToken cancellationToken)
         {
             var faultedOn = DateTime.UtcNow;

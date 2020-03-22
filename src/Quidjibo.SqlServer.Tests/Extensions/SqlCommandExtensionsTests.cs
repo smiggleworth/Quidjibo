@@ -123,6 +123,23 @@ namespace Quidjibo.SqlServer.Tests.Extensions
             cmd.Parameters["@VisibleOn"].Value.Should().Match<DateTime>(x => x < DateTime.UtcNow.AddSeconds(30));
             cmd.Parameters["@Faulted"].Value.Should().Be(SqlWorkProvider.StatusFlags.Faulted);
         }
+                
+        [TestMethod]
+        public async Task PrepareForCompleteAsync_SetCommandParameters()
+        {
+            // Arrange
+            WorkItem item = GenFu.GenFu.New<WorkItem>();
+            SqlCommand cmd = new SqlCommand();
+
+            // Act
+            await cmd.PrepareForCompleteAsync(item, CancellationToken.None);
+
+            // Assert
+            cmd.CommandText.Should().Be(await SqlLoader.GetScript("Work.Complete"));
+            cmd.Parameters.Count.Should().Be(2);
+            cmd.Parameters["@Id"].Value.Should().Be(item.Id);
+            cmd.Parameters["@Complete"].Value.Should().Be(SqlWorkProvider.StatusFlags.Complete);
+        }
 
     }
 }
