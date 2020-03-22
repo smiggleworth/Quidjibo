@@ -54,26 +54,11 @@ namespace Quidjibo.SqlServer.Providers
 
         public async Task SendAsync(WorkItem item, int delay, CancellationToken cancellationToken)
         {
-            var createdOn = DateTime.UtcNow;
-            var visibleOn = createdOn.AddSeconds(delay);
-            var expireOn = visibleOn.AddDays(7);
             await ExecuteAsync(async cmd =>
             {
-                cmd.CommandText = await SqlLoader.GetScript("Work.Send");
-                cmd.AddParameter("@Id", item.Id);
-                cmd.AddParameter("@ScheduleId", item.ScheduleId);
-                cmd.AddParameter("@CorrelationId", item.CorrelationId);
-                cmd.AddParameter("@Name", item.Name);
-                cmd.AddParameter("@Worker", item.Worker);
-                cmd.AddParameter("@Queue", item.Queue);
-                cmd.AddParameter("@Attempts", item.Attempts);
-                cmd.AddParameter("@CreatedOn", createdOn);
-                cmd.AddParameter("@ExpireOn", expireOn);
-                cmd.AddParameter("@VisibleOn", visibleOn);
-                cmd.AddParameter("@Status", StatusFlags.New);
-                cmd.AddParameter("@Payload", item.Payload);
+                await cmd.PrepareForSendAsync(item, delay, cancellationToken);
                 await cmd.ExecuteNonQueryAsync(cancellationToken);
-            }, cancellationToken);
+            }, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<List<WorkItem>> ReceiveAsync(string worker, CancellationToken cancellationToken)
