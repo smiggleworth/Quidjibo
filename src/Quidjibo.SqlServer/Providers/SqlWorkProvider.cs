@@ -145,13 +145,9 @@ namespace Quidjibo.SqlServer.Providers
 
         public async Task FaultAsync(WorkItem item, CancellationToken cancellationToken)
         {
-            var faultedOn = DateTime.UtcNow;
             await ExecuteAsync(async cmd =>
             {
-                cmd.CommandText = await SqlLoader.GetScript("Work.Fault");
-                cmd.AddParameter("@Id", item.Id);
-                cmd.AddParameter("@VisibleOn", faultedOn.AddSeconds(Math.Max(_visibilityTimeout, 30)));
-                cmd.AddParameter("@Faulted", StatusFlags.Faulted);
+                await cmd.PrepareForFaultAsync(item, _visibilityTimeout, cancellationToken);
                 await cmd.ExecuteNonQueryAsync(cancellationToken);
             }, cancellationToken);
         }

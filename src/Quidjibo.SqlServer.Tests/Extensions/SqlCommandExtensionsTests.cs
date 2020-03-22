@@ -84,5 +84,45 @@ namespace Quidjibo.SqlServer.Tests.Extensions
             // Assert
             cmd.Parameters["@ExpireOn"].Value.Should().Match<DateTime>(x => x.Date == DateTime.UtcNow.AddDays(SqlWorkProvider.DEFAULT_EXPIRE_DAYS).Date);
         }
+        
+        [TestMethod]
+        public async Task PrepareForFaultAsync_SetCommandParameters()
+        {
+            // Arrange
+            WorkItem item = GenFu.GenFu.New<WorkItem>();
+            SqlCommand cmd = new SqlCommand();
+
+            // Act
+            await cmd.PrepareForFaultAsync(item, 60, CancellationToken.None);
+
+            // Assert
+            cmd.CommandText.Should().Be(await SqlLoader.GetScript("Work.Fault"));
+            cmd.Parameters.Count.Should().Be(3);
+            cmd.Parameters["@Id"].Value.Should().Be(item.Id);
+            cmd.Parameters["@VisibleOn"].Value.Should().Match<DateTime>(
+                x => x > DateTime.UtcNow.AddSeconds(55) && x < DateTime.UtcNow.AddSeconds(65));
+            cmd.Parameters["@Faulted"].Value.Should().Be(SqlWorkProvider.StatusFlags.Faulted);
+        }
+        
+        [TestMethod]
+        public async Task PrepareForFaultAsync_VisibilityTimeoutUnderThirtySeconds_VisibleOnShouldBeAtLeastThirtySeconds()
+        {
+            // Arrange
+            WorkItem item = GenFu.GenFu.New<WorkItem>();
+            SqlCommand cmd = new SqlCommand();
+
+            // Act
+            await cmd.PrepareForFaultAsync(item, 15, CancellationToken.None);
+
+            // Assert
+            cmd.CommandText.Should().Be(await SqlLoader.GetScript("Work.Fault"));
+            cmd.Parameters.Count.Should().Be(3);
+            cmd.Parameters["@Id"].Value.Should().Be(item.Id);
+            cmd.Parameters["@VisibleOn"].Value.Should().Match<DateTime>(
+                x => x > DateTime.UtcNow.AddSeconds(25) && x < DateTime.UtcNow.AddSeconds(35));
+            cmd.Parameters["@VisibleOn"].Value.Should().Match<DateTime>(x => x < DateTime.UtcNow.AddSeconds(30));
+            cmd.Parameters["@Faulted"].Value.Should().Be(SqlWorkProvider.StatusFlags.Faulted);
+        }
+
     }
 }
