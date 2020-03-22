@@ -289,7 +289,7 @@ namespace Quidjibo.Tests.Clients
         }
 
         [TestMethod]
-        public async Task ScheudleAsync_ShouldHandleNoAssemblies()
+        public async Task ScheduleAsync_ShouldHandleNoAssemblies()
         {
             // Arrange 
             var cancellationToken = CancellationToken.None;
@@ -303,7 +303,7 @@ namespace Quidjibo.Tests.Clients
         }
 
         [TestMethod]
-        public async Task ScheudleAsync_ShouldHandleNullAssemblies()
+        public async Task ScheduleAsync_ShouldHandleNullAssemblies()
         {
             // Arrange 
             var cancellationToken = CancellationToken.None;
