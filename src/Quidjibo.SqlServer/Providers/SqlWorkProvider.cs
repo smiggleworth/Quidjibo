@@ -124,9 +124,7 @@ namespace Quidjibo.SqlServer.Providers
             var lockExpireOn = (item.VisibleOn ?? DateTime.UtcNow).AddSeconds(Math.Max(_visibilityTimeout, 30));
             await ExecuteAsync(async cmd =>
             {
-                cmd.CommandText = await SqlLoader.GetScript("Work.Renew");
-                cmd.AddParameter("@Id", item.Id);
-                cmd.AddParameter("@VisibleOn", lockExpireOn);
+                await cmd.PrepareForRenewAsync(item, lockExpireOn, cancellationToken);
                 await cmd.ExecuteNonQueryAsync(cancellationToken);
             }, cancellationToken);
             return lockExpireOn;

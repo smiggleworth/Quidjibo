@@ -125,6 +125,24 @@ namespace Quidjibo.SqlServer.Tests.Extensions
         }
                 
         [TestMethod]
+        public async Task PrepareForReneweAsync_SetCommandParameters()
+        {
+            // Arrange
+            WorkItem item = GenFu.GenFu.New<WorkItem>();
+            DateTime lockExpireOn = DateTime.UtcNow.AddSeconds(60);
+            SqlCommand cmd = new SqlCommand();
+
+            // Act
+            await cmd.PrepareForRenewAsync(item, lockExpireOn, CancellationToken.None);
+
+            // Assert
+            cmd.CommandText.Should().Be(await SqlLoader.GetScript("Work.Renew"));
+            cmd.Parameters.Count.Should().Be(2);
+            cmd.Parameters["@Id"].Value.Should().Be(item.Id);
+            cmd.Parameters["@VisibleOn"].Value.Should().Be(lockExpireOn);
+        }
+                
+        [TestMethod]
         public async Task PrepareForCompleteAsync_SetCommandParameters()
         {
             // Arrange
