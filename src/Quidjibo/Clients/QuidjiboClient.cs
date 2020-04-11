@@ -16,6 +16,7 @@ using Quidjibo.Serializers;
 
 namespace Quidjibo.Clients
 {
+
     public class QuidjiboClient : IQuidjiboClient
     {
         private readonly ICronProvider _cronProvider;
@@ -62,10 +63,15 @@ namespace Quidjibo.Clients
 
         public async Task<PublishInfo> PublishAsync(IQuidjiboCommand command, string queueName, int delay, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return await PublishAsync(command, queueName, delay, default, cancellationToken);
+            var options = new PublishOptions
+            {
+                Delay = delay,
+                ExpireOn = default
+            };
+            return await PublishAsync(command, queueName, options, cancellationToken);
         }
 
-        public async Task<PublishInfo> PublishAsync(IQuidjiboCommand command, string queueName, int delay, DateTime expireOn, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<PublishInfo> PublishAsync(IQuidjiboCommand command, string queueName, PublishOptions options, CancellationToken cancellationToken = default(CancellationToken))
         {
             var payload = await _payloadSerializer.SerializeAsync(command, cancellationToken);
             var protectedPayload = await _payloadProtector.ProtectAsync(payload, cancellationToken);
@@ -77,10 +83,10 @@ namespace Quidjibo.Clients
                 Attempts = 0,
                 Payload = protectedPayload,
                 Queue = queueName,
-                ExpireOn = expireOn
+                ExpireOn = options.ExpireOn
             };
             var provider = await GetOrCreateWorkProvider(queueName, cancellationToken);
-            await provider.SendAsync(item, delay, cancellationToken);
+            await provider.SendAsync(item, options.Delay, cancellationToken);
             return new PublishInfo(item.Id, item.CorrelationId);
         }
 
