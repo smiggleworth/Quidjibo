@@ -62,6 +62,11 @@ namespace Quidjibo.Clients
 
         public async Task<PublishInfo> PublishAsync(IQuidjiboCommand command, string queueName, int delay, CancellationToken cancellationToken = default(CancellationToken))
         {
+            return await PublishAsync(command, queueName, delay, default, cancellationToken);
+        }
+
+        public async Task<PublishInfo> PublishAsync(IQuidjiboCommand command, string queueName, int delay, DateTime expireOn, CancellationToken cancellationToken = default(CancellationToken))
+        {
             var payload = await _payloadSerializer.SerializeAsync(command, cancellationToken);
             var protectedPayload = await _payloadProtector.ProtectAsync(payload, cancellationToken);
             var item = new WorkItem
@@ -71,7 +76,8 @@ namespace Quidjibo.Clients
                 Name = command.GetName(),
                 Attempts = 0,
                 Payload = protectedPayload,
-                Queue = queueName
+                Queue = queueName,
+                ExpireOn = expireOn
             };
             var provider = await GetOrCreateWorkProvider(queueName, cancellationToken);
             await provider.SendAsync(item, delay, cancellationToken);
