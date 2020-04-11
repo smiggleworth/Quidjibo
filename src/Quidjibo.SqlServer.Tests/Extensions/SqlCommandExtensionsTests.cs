@@ -75,7 +75,7 @@ namespace Quidjibo.SqlServer.Tests.Extensions
         {
             // Arrange
             WorkItem item = GenFu.GenFu.New<WorkItem>();
-            item.ExpireOn = default;
+            item.ExpireOn = default(DateTime);
             SqlCommand cmd = new SqlCommand();
 
             // Act

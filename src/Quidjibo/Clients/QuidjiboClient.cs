@@ -66,7 +66,7 @@ namespace Quidjibo.Clients
             var options = new PublishOptions
             {
                 Delay = delay,
-                ExpireOn = default
+                ExpireOn = default(DateTime)
             };
             return await PublishAsync(command, queueName, options, cancellationToken);
         }
