@@ -148,6 +148,30 @@ namespace Quidjibo.Tests.Clients
         }
 
         [TestMethod]
+        public async Task PublishAsync_WithPublishOptionsAndQueueName()
+        {
+            // Arrange
+            var queueName = BaseValueGenerator.Word();
+            var command = new BasicCommand();
+            var delay = GenFu.GenFu.Random.Next();
+            var expireOn = new DateTime(2032, 2, 27);
+            var publishOptions = new PublishOptions
+            {
+                Delay = delay,
+                ExpireOn = expireOn
+            };
+            var cancellationToken = CancellationToken.None;
+            _payloadSerializer.SerializeAsync(command, cancellationToken).Returns(Task.FromResult<byte[]>(null));
+            _workProviderFactory.CreateAsync(queueName, cancellationToken).Returns(Task.FromResult(_workProvider));
+
+            // Act 
+            await _sut.PublishAsync(command, queueName, publishOptions, cancellationToken);
+
+            // Assert
+            await _workProvider.Received(1).SendAsync(Arg.Is<WorkItem>(x => x.Queue == queueName && x.ExpireOn == expireOn), delay, cancellationToken);
+        }
+
+        [TestMethod]
         public async Task ScheduleAsync()
         {
             // Arrange
@@ -289,7 +313,7 @@ namespace Quidjibo.Tests.Clients
         }
 
         [TestMethod]
-        public async Task ScheudleAsync_ShouldHandleNoAssemblies()
+        public async Task ScheduleAsync_ShouldHandleNoAssemblies()
         {
             // Arrange 
             var cancellationToken = CancellationToken.None;
@@ -303,7 +327,7 @@ namespace Quidjibo.Tests.Clients
         }
 
         [TestMethod]
-        public async Task ScheudleAsync_ShouldHandleNullAssemblies()
+        public async Task ScheduleAsync_ShouldHandleNullAssemblies()
         {
             // Arrange 
             var cancellationToken = CancellationToken.None;

@@ -12,7 +12,7 @@
     <PackageReference Include="NSubstitute" Version="3.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Quidjibo\Quidjibo.csproj" />
+    <ProjectReference Include="..\Quidjibo.SqlServer\Quidjibo.SqlServer.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

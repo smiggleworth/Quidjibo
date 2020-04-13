@@ -25,6 +25,8 @@ namespace Quidjibo.SqlServer.Providers
             Complete = 2
         }
 
+        public const int DEFAULT_EXPIRE_DAYS = 7;
+
         private readonly int _batchSize;
         private readonly string _connectionString;
         private readonly int _daysToKeep;
@@ -54,26 +56,11 @@ namespace Quidjibo.SqlServer.Providers
 
         public async Task SendAsync(WorkItem item, int delay, CancellationToken cancellationToken)
         {
-            var createdOn = DateTime.UtcNow;
-            var visibleOn = createdOn.AddSeconds(delay);
-            var expireOn = visibleOn.AddDays(7);
             await ExecuteAsync(async cmd =>
             {
-                cmd.CommandText = await SqlLoader.GetScript("Work.Send");
-                cmd.AddParameter("@Id", item.Id);
-                cmd.AddParameter("@ScheduleId", item.ScheduleId);
-                cmd.AddParameter("@CorrelationId", item.CorrelationId);
-                cmd.AddParameter("@Name", item.Name);
-                cmd.AddParameter("@Worker", item.Worker);
-                cmd.AddParameter("@Queue", item.Queue);
-                cmd.AddParameter("@Attempts", item.Attempts);
-                cmd.AddParameter("@CreatedOn", createdOn);
-                cmd.AddParameter("@ExpireOn", expireOn);
-                cmd.AddParameter("@VisibleOn", visibleOn);
-                cmd.AddParameter("@Status", StatusFlags.New);
-                cmd.AddParameter("@Payload", item.Payload);
+                await cmd.PrepareForSendAsync(item, delay, cancellationToken);
                 await cmd.ExecuteNonQueryAsync(cancellationToken);
-            }, cancellationToken);
+            }, cancellationToken).ConfigureAwait(false);
         }
 
         public async Task<List<WorkItem>> ReceiveAsync(string worker, CancellationToken cancellationToken)
@@ -137,9 +124,7 @@ namespace Quidjibo.SqlServer.Providers
             var lockExpireOn = (item.VisibleOn ?? DateTime.UtcNow).AddSeconds(Math.Max(_visibilityTimeout, 30));
             await ExecuteAsync(async cmd =>
             {
-                cmd.CommandText = await SqlLoader.GetScript("Work.Renew");
-                cmd.AddParameter("@Id", item.Id);
-                cmd.AddParameter("@VisibleOn", lockExpireOn);
+                await cmd.PrepareForRenewAsync(item, lockExpireOn, cancellationToken);
                 await cmd.ExecuteNonQueryAsync(cancellationToken);
             }, cancellationToken);
             return lockExpireOn;
@@ -149,22 +134,16 @@ namespace Quidjibo.SqlServer.Providers
         {
             await ExecuteAsync(async cmd =>
             {
-                cmd.CommandText = await SqlLoader.GetScript("Work.Complete");
-                cmd.AddParameter("@Id", item.Id);
-                cmd.AddParameter("@Complete", StatusFlags.Complete);
+                await cmd.PrepareForCompleteAsync(item, cancellationToken);
                 await cmd.ExecuteNonQueryAsync(cancellationToken);
             }, cancellationToken);
         }
 
         public async Task FaultAsync(WorkItem item, CancellationToken cancellationToken)
         {
-            var faultedOn = DateTime.UtcNow;
             await ExecuteAsync(async cmd =>
             {
-                cmd.CommandText = await SqlLoader.GetScript("Work.Fault");
-                cmd.AddParameter("@Id", item.Id);
-                cmd.AddParameter("@VisibleOn", faultedOn.AddSeconds(Math.Max(_visibilityTimeout, 30)));
-                cmd.AddParameter("@Faulted", StatusFlags.Faulted);
+                await cmd.PrepareForFaultAsync(item, _visibilityTimeout, cancellationToken);
                 await cmd.ExecuteNonQueryAsync(cancellationToken);
             }, cancellationToken);
         }

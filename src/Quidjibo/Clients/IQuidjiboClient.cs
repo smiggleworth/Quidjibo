@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Quidjibo.Commands;
 using Quidjibo.Models;
@@ -42,6 +43,16 @@ namespace Quidjibo.Clients
         /// <param name="cancellationToken"></param>
         /// <returns></returns>
         Task<PublishInfo> PublishAsync(IQuidjiboCommand command, string queueName, int delay, CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        ///     Publish a fire-and-forget with options to a specific queue
+        /// </summary>
+        /// <param name="command"></param>
+        /// <param name="queueName">The name of the queue</param>
+        /// <param name="options">Publish options</param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
+        Task<PublishInfo> PublishAsync(IQuidjiboCommand command, string queueName, PublishOptions options, CancellationToken cancellationToken = default(CancellationToken));
 
         /// <summary>
         ///     Schedule a recurring job with a specified schedule
